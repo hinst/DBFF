@@ -196,7 +196,7 @@ begin
   WriteLine('***GLOBAL EXECUTION START***');
 
   Application := TApplication.Create(nil);
-  Application.Title:='TMainApplication';
+  Application.Title := ApplicationTitle;
   WriteLine('Now starting application: "' + Application.Title + '"...');
   Application.Run;
   Application.Free;
