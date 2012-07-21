@@ -60,7 +60,7 @@
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <Target>
-      <Filename Value="DBFF_Project"/>
+      <Filename Value="lib\DBFF_Executable_$(TargetCPU)_$(TargetOS)"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
