@@ -8,8 +8,13 @@ uses
   Classes, SysUtils;
 
 const
-  { ApplicationTitle considered to be unchangeable }
-  ApplicationTitle = 'D:BFF';
+  ApplicationTitle = 'D:BFF'; // Application title
+  ApplicationName = 'DBFF'; // Application name should be a valid file name
+  VendorName = 'EpicDevS'; // Vendor name should be a valid file name
+
+var
+  GlobalConfigPath: string;
+  GlobalLogManager: string;
 
 {
   Вывести указанный текст на стандартный вывод в случае если имеется консоль,
@@ -17,12 +22,28 @@ const
 }
 procedure WriteLine(const aText: string); inline;
 
+// Возвращает имя поставщика программного обеспечения
+function DoOnGetVendorName: string;
+
+// Возвращает имя приложения
+function DoOnGetApplicationName: string;
+
 implementation
 
 procedure WriteLine(const aText: string);
 begin
   if IsConsole then
     WriteLN(aText);
+end;
+
+function DoOnGetVendorName: string;
+begin
+  result := VendorName;
+end;
+
+function DoOnGetApplicationName: string;
+begin
+  result := ApplicationName;
 end;
 
 end.
