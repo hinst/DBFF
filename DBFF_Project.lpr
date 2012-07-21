@@ -53,10 +53,8 @@ begin
       exit(false);
     end;
   end;
-
   if HasOption('help') then
     exit(WriteHelp);
-
   result := true;
 end;
 
@@ -104,7 +102,7 @@ begin
   WriteLine('GLOBAL EXECUTION START');
 
   Application := TApplication.Create(nil);
-  Application.Title := ApplicationTitle;
+  Application.Title := 'TMainApplication';
   WriteLine('Now starting application: "' + ApplicationTitle + '"...');
   Application.Run;
   Application.Free;

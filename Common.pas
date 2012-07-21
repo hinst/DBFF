@@ -12,10 +12,10 @@ const
   ApplicationTitle = 'D:BFF';
 
 {
-  Вывести указанный текст на стандартный вывод в случае если приложение консольное,
+  Вывести указанный текст на стандартный вывод в случае если имеется консоль,
     иначе не делать ничего.
 }
-procedure WriteLine(const aText: string);
+procedure WriteLine(const aText: string); inline;
 
 implementation
 
