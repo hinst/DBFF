@@ -43,7 +43,7 @@
         <PackageName Value="UltimateLibrary"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="2">
+    <Units Count="3">
       <Unit0>
         <Filename Value="DBFF_Project.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -54,13 +54,18 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="Common"/>
       </Unit1>
+      <Unit2>
+        <Filename Value="EngineManager.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="EngineManager"/>
+      </Unit2>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <Target>
-      <Filename Value="lib\DBFF_Executable_$(TargetCPU)_$(TargetOS)"/>
+      <Filename Value="bin\DBFF_Executable_$(TargetCPU)_$(TargetOS)"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>

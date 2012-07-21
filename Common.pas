@@ -5,16 +5,21 @@ unit Common;
 interface
 
 uses
-  Classes, SysUtils;
+  Classes,
+  SysUtils,
+
+  LogManager;
 
 const
   ApplicationTitle = 'D:BFF'; // Application title
   ApplicationName = 'DBFF'; // Application name should be a valid file name
   VendorName = 'EpicDevS'; // Vendor name should be a valid file name
+  TextLogFileName = 'log.txt';
+  EngineConfigFileName = 'EngineConfig.ini';
 
 var
   GlobalConfigPath: string;
-  GlobalLogManager: string;
+  GlobalLogManager: TLogManager;
 
 {
   Вывести указанный текст на стандартный вывод в случае если имеется консоль,

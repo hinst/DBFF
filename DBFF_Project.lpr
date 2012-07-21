@@ -20,11 +20,12 @@ uses
   LogWriter,
   LogObjectEnhancer,
   ConsoleLogWriter,
+  TextFileLogWriter,
   SimpleLogTextFormat,
   {$ENDREGION}
 
   {$REGION Custom units}
-  Common
+  Common, EngineManager
   {$ENDREGION}
   ;
 
@@ -48,6 +49,7 @@ type
     {$REGION Shutdown block}
     function ShutdownLog: boolean;
     {$ENDREGION}
+    function GetTextLogFilePath: string;
   public
     property LogManager: TLogManager read fLogManager;
     property Log: ILog read fLog;
@@ -110,17 +112,34 @@ begin
 end;
 
 function TApplication.StartupLog: boolean;
-var
-  consoleLogger: TConsoleLogWriter;
-  consoleLogFormat: TSimpleTextLogFormat;
+  function AddConsoleLogger(const aManager: TLogManager): TConsoleLogWriter;
+  var
+    LogFormat: TSimpleTextLogFormat;
+  begin
+    result := TConsoleLogWriter.Create(aManager);
+    LogFormat := TSimpleTextLogFormat.Create(aManager);
+    LogFormat.FormatStr := '[TAG] OBJECT: TEXT';
+    result.Format := LogFormat;
+    aManager.ImmediateWriters.Add(result as ILogWriter);
+  end;
+
+  function AddFileLogger(const aManager: TLogManager): TTextFileLogWriter;
+  var
+    LogFormat: TSimpleTextLogFormat;
+  begin
+    result := TTextFileLogWriter.Create(aManager, GetTextLogFilePath);
+    LogFormat := TSimpleTextLogFormat.Create(aManager);
+    LogFormat.FormatStr := '#NUMBER# TIME [TAG]OBJECT: TEXT';
+    result.Format := LogFormat;
+    aManager.DeferredWriters.Add(result as ILogWriter);
+  end;
+
 begin
   fLogManager := TLogManager.Create(self);
   LogManager.StandardLogTagToString := TStandardLogTagToString.Create;
-  consoleLogger := TConsoleLogWriter.Create(LogManager);
-  consoleLogFormat := TSimpleTextLogFormat.Create(LogManager);
-  consoleLogFormat.FormatStr := '[TAG] OBJECT: TEXT';
-  consoleLogger.Format := consoleLogFormat;
-  LogManager.ImmediateWriters.Add(consoleLogger as ILogWriter);
+  AddConsoleLogger(LogManager);
+  AddFileLogger(LogManager);
+  GlobalLogManager := LogManager;
   fLog := TLog.Create(LogManager, 'App');
   Log.Write(logTagStartup, 'Log system started');
   result := true;
@@ -148,8 +167,14 @@ function TApplication.ShutdownLog: boolean;
 begin
   Log.Write(logTagEnd, 'Log system shutdown...');
   Log.Free;
+  fLog := nil;
   LogManager.Free;
   result := true;
+end;
+
+function TApplication.GetTextLogFilePath: string;
+begin
+  result := GlobalConfigPath + TextLogFileName;
 end;
 
 function TApplication.WriteHelp: boolean;
