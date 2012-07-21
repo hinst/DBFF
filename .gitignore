@@ -4,5 +4,5 @@
 *.dll
 *.lps
 lib/
-/ZenGL_LinkLibraries.fpc
-/GotoConfigDir.bat
+ZenGL_LinkLibraries.fpc
+GotoConfigDir.bat
