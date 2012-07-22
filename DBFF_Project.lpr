@@ -11,6 +11,7 @@ uses
   Classes,
   SysUtils,
   CustApp,
+  IniFiles,
   {$ENDREGION}
 
   {$REGION Log units}
@@ -25,7 +26,9 @@ uses
   {$ENDREGION}
 
   {$REGION Custom units}
-  Common, EngineManager
+  Common,
+  EngineManager,
+  GameManager
   {$ENDREGION}
   ;
 
@@ -37,17 +40,21 @@ type
   public
     constructor Create(TheOwner: TComponent); override;
   protected
-    fLogManager: TLogManager;
+    fLogMan: TLogManager;
     fLog: ILog;
+    fGameMan: TGameManager;
+    fEngineRunning: boolean;
     procedure DoRun; override;
     {$REGION Startup block}
     function CheckCommandLineOptions: boolean;
     procedure PrepareConfig;
     function StartupConfig: boolean;
     function StartupLog: boolean;
+    function StartupEngine: boolean;
     {$ENDREGION}
     function Execute: boolean;
     {$REGION Shutdown block}
+    procedure ShutdownEngine;
     procedure ShutdownLog;
     {$ENDREGION}
     function GetTextLogFilePath: string;
@@ -59,8 +66,10 @@ type
         ResetEngineConfig = 'resetEngineConfig';
     end;
   public
-    property LogManager: TLogManager read fLogManager;
+    property LogMan: TLogManager read fLogMan;
     property Log: ILog read fLog;
+    property GameMan: TGameManager read fGameMan;
+    property EngineRunning: boolean read fEngineRunning;
     function WriteHelp: boolean;
     function CreateConfigDir: boolean;
     function ResetEngineConfig: boolean;
@@ -84,10 +93,12 @@ begin
   try
     result := Execute;
   except
-    on E: Exception do
+    on e: Exception do
     begin
       WriteLine('FATAL ERROR: Global exception occured.');
       WriteLine('Application will be no longer executed.');
+      WriteLine('Exception class: ' + e.ClassName);
+      WriteLine('Exception message: ' + e.Message);
       DumpExceptionBackTrace(output);
     end;
   end;
@@ -161,14 +172,23 @@ function TApplication.StartupLog: boolean;
   end;
 
 begin
-  fLogManager := TLogManager.Create(self);
-  LogManager.StandardLogTagToString := TStandardLogTagToString.Create;
-  AddConsoleLogger(LogManager);
-  AddFileLogger(LogManager);
-  GlobalLogManager := LogManager;
-  fLog := TLog.Create(LogManager, 'App');
+  fLogMan := TLogManager.Create(self);
+  LogMan.StandardLogTagToString := TStandardLogTagToString.Create;
+  AddConsoleLogger(LogMan);
+  AddFileLogger(LogMan);
+  GlobalLogManager := LogMan;
+  fLog := TLog.Create(LogMan, 'App');
   Log.Write(logTagStartup, 'Log system started');
   result := true;
+end;
+
+function TApplication.StartupEngine: boolean;
+begin
+  fGameMan := TGameManager.Create(self);
+  GlobalGameManager := GameMan;
+  GameMan.StartupEngine;
+  result := true;
+  fEngineRunning := true;
 end;
 
 function TApplication.Execute: boolean;
@@ -190,8 +210,25 @@ begin
   result := StartupLog;
   if not result then exit;
 
-  if HasOption(TOptionName.ResetEngineConfig) then
-    exit(ResetEngineConfig);
+  try
+    if HasOption(TOptionName.ResetEngineConfig) then
+      exit(ResetEngineConfig);
+    result := StartupEngine;
+  except
+    on e: Exception do
+    begin
+      Log.Write(logTagError, 'Global exception occured.' + LineEnding
+        + 'Application will be no longer executed.' + LineEnding
+        + 'Exception class: ' + e.ClassName + LineEnding
+        + 'Exception message: ' + e.Message);
+      DumpExceptionBackTrace(output);
+    end;
+  end;
+end;
+
+procedure TApplication.ShutdownEngine;
+begin
+  GameMan.Free;
 end;
 
 procedure TApplication.ShutdownLog;
@@ -202,9 +239,9 @@ begin
     Log.Free;
     fLog := nil;
   end;
-  if Assigned(LogManager) then
+  if Assigned(LogMan) then
   begin
-    LogManager.Free;
+    LogMan.Free;
   end;
 end;
 
@@ -235,13 +272,31 @@ end;
 function TApplication.ResetEngineConfig: boolean;
 var
   config: TEngineConfig;
+  configFile: TIniFile;
+  fileName: string;
 begin
+  Log.Write('Reset engine config requested.');
+  fileName := TEngineManager.GetConfigFilePath;
+  Log.Write('Engine config filepath is: "' + fileName + '"');
+  if FileExists(fileName) then
+  begin
+    Log.Write('Removing old file...');
+    DeleteFile(fileName);
+  end;
+  configFile := TIniFile.Create(fileName);
   config.SetDefaults;
+  config.Write(Log);
+  Log.Write('Saving...');
+  config.Write(configFile);
+  configFile.Free;
+  Log.Write('Done.');
+  result := true;
 end;
 
 procedure TApplication.Finalize;
 begin
   ShutdownLog;
+  ShutdownEngine;
 end;
 
 destructor TApplication.Destroy;
@@ -261,7 +316,8 @@ begin
   Application.Title := ApplicationTitle;
   WriteLine('Now starting application: "' + Application.Title + '"...');
   Application.Run;
-  Application.Free;
+  if not Application.EngineRunning then
+    Application.Free;
 
   WriteLine('***GLOBAL EXECUTION END***');
   WriteLine(''); // to separate memory leak info which is being written below

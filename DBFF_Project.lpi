@@ -43,7 +43,7 @@
         <PackageName Value="UltimateLibrary"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="3">
+    <Units Count="4">
       <Unit0>
         <Filename Value="DBFF_Project.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -59,6 +59,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="EngineManager"/>
       </Unit2>
+      <Unit3>
+        <Filename Value="GameManager.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="GameManager"/>
+      </Unit3>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

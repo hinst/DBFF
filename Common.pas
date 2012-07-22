@@ -8,7 +8,8 @@ uses
   Classes,
   SysUtils,
 
-  LogManager;
+  LogManager,
+  GameManager;
 
 const
   ApplicationTitle = 'D:BFF'; // Application title
@@ -20,6 +21,7 @@ const
 var
   GlobalConfigPath: string;
   GlobalLogManager: TLogManager;
+  GlobalGameManager: TGameManager;
 
 {
   Вывести указанный текст на стандартный вывод в случае если имеется консоль,
