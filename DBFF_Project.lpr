@@ -42,20 +42,32 @@ type
     procedure DoRun; override;
     {$REGION Startup block}
     function CheckCommandLineOptions: boolean;
+    procedure PrepareConfig;
     function StartupConfig: boolean;
     function StartupLog: boolean;
     {$ENDREGION}
     function Execute: boolean;
     {$REGION Shutdown block}
-    function ShutdownLog: boolean;
+    procedure ShutdownLog;
     {$ENDREGION}
     function GetTextLogFilePath: string;
+  public type
+    TOptionName = object // Command line options
+      const
+        Help = 'help';
+        CreateConfigDir = 'createConfigDir';
+        ResetEngineConfig = 'resetEngineConfig';
+    end;
   public
     property LogManager: TLogManager read fLogManager;
     property Log: ILog read fLog;
     function WriteHelp: boolean;
+    function CreateConfigDir: boolean;
+    function ResetEngineConfig: boolean;
+    procedure Finalize;
     destructor Destroy; override;
   end;
+
 
 { TMainApplication }
 
@@ -79,7 +91,8 @@ begin
       DumpExceptionBackTrace(output);
     end;
   end;
-  WriteLine('GLOBAL EXECUTION RESULT IS: ' + BoolToStr(result, true));
+  if not result then
+    WriteLine('***GLOBAL ERROR OCCURED***');
 end;
 
 function TApplication.CheckCommandLineOptions: boolean;
@@ -88,7 +101,9 @@ var
   errorMessage: string;
 begin
   validOptions := TStringList.Create;
-  validOptions.Add('help');
+  validOptions.Add(TOptionName.Help);
+  validOptions.Add(TOptionName.CreateConfigDir);
+  validOptions.Add(TOptionName.ResetEngineConfig);
   errorMessage := CheckOptions('',validOptions);
   result := errorMessage = '';
   if not result then
@@ -96,19 +111,30 @@ begin
     WriteLine('FATAL ERROR: Invalid command line options specified.');
     WriteLine('Error is: "' + errorMessage + '"');
     WriteLine('The application would be no longer executed.');
+    WriteLine('Consider starting the application with --help parameter.');
   end;
   validOptions.Free;
 end;
 
-function TApplication.StartupConfig: boolean;
+procedure TApplication.PrepareConfig;
 begin
   OnGetApplicationName := @DoOnGetApplicationName;
   OnGetVendorName := @DoOnGetVendorName;
   GlobalConfigPath := GetAppConfigDir(false);
   WriteLine('ConfigPath: "' + GlobalConfigPath + '"');
-  result := ForceDirectories(GlobalConfigPath);
+end;
+
+function TApplication.StartupConfig: boolean;
+begin
+  result := DirectoryExists(
+    ExcludeTrailingPathDelimiter(GlobalConfigPath)
+  );
   if not result then
-    WriteLine('FATAL ERROR: Could not create config path.');
+  begin
+    WriteLine('FATAL ERROR: Config path does not exists.');
+    WriteLine('Consider running application with --' + TOptionName.CreateConfigDir
+      + ' parameter specified.');
+  end;
 end;
 
 function TApplication.StartupLog: boolean;
@@ -147,29 +173,39 @@ end;
 
 function TApplication.Execute: boolean;
 begin
-  result := StartupConfig;
-
   result := CheckCommandLineOptions;
+  if not result then exit;
+
+  PrepareConfig;
+
+  if HasOption(TOptionName.Help) then
+    exit(WriteHelp);
+
+  if HasOption(TOptionName.CreateConfigDir) then
+    exit(CreateConfigDir);
+
+  result := StartupConfig;
   if not result then exit;
 
   result := StartupLog;
   if not result then exit;
 
-  if HasOption('help') then
-    exit(WriteHelp);
-
-  result := ShutdownLog;
-
-  result := true;
+  if HasOption(TOptionName.ResetEngineConfig) then
+    exit(ResetEngineConfig);
 end;
 
-function TApplication.ShutdownLog: boolean;
+procedure TApplication.ShutdownLog;
 begin
-  Log.Write(logTagEnd, 'Log system shutdown...');
-  Log.Free;
-  fLog := nil;
-  LogManager.Free;
-  result := true;
+  if Assigned(Log) then
+  begin
+    Log.Write(logTagEnd, 'Log system shutdown...');
+    Log.Free;
+    fLog := nil;
+  end;
+  if Assigned(LogManager) then
+  begin
+    LogManager.Free;
+  end;
 end;
 
 function TApplication.GetTextLogFilePath: string;
@@ -184,8 +220,33 @@ begin
   result := true;
 end;
 
+function TApplication.CreateConfigDir: boolean;
+begin
+  WriteLine('Creation of the config dir requested ("' + GlobalConfigDir + '")');
+  if DirectoryExists(GlobalConfigDir) then
+  begin
+    WriteLine('Config dir already exists.');
+    exit(true);
+  end;
+  result := ForceDirectories(GlobalConfigDir);
+  WriteLine('Operation result: ' + BoolToStr(result, true) + '.');
+end;
+
+function TApplication.ResetEngineConfig: boolean;
+var
+  config: TEngineConfig;
+begin
+  config.SetDefaults;
+end;
+
+procedure TApplication.Finalize;
+begin
+  ShutdownLog;
+end;
+
 destructor TApplication.Destroy;
 begin
+  Finalize;
   inherited Destroy;
 end;
 
@@ -193,6 +254,7 @@ var
   Application: TApplication;
 
 begin
+  WriteLine('');
   WriteLine('***GLOBAL EXECUTION START***');
 
   Application := TApplication.Create(nil);
@@ -202,6 +264,7 @@ begin
   Application.Free;
 
   WriteLine('***GLOBAL EXECUTION END***');
+  WriteLine(''); // to separate memory leak info which is being written below
 end.
 
 

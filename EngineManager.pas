@@ -9,6 +9,8 @@ uses
   SysUtils,
   IniFiles,
 
+  NiceExceptions,
+
   zgl_main,
   zgl_screen,
   zgl_window,
@@ -33,15 +35,20 @@ type
   public
     ScreenWidth: integer;
     ScreenHeight: integer;
-    procedure Read(const aFile: TIniFile);
+    FullScreen: boolean;
   public const
     DefaultScreenWidth = 1024;
     DefaultScreenHeight = 768;
     ScreenWidthIdent = 'Screen.Width';
     ScreenHeightIdent = 'Screen.Height';
+    DefaultFullScreen = true;
   public type
     EConfigInvalid = class(Exception);
     EUnspecifiedOption = class(EConfigInvalid);
+  public
+    procedure Read(const aFile: TIniFile);
+    procedure SetDefaults;
+    procedure Write(const aFile: TIniFile);
   end;
 
 implementation
@@ -69,12 +76,27 @@ end;
 
 procedure TEngineConfig.Read(const aFile: TIniFile);
 begin
-  ScreenWidth := aFile.ReadInteger('', 'Screen.Width', -1);
+  AssertArgumentAssigned(aFile, 'aFile');
+  ScreenWidth := aFile.ReadInteger('', ScreenWidthIdent, -1);
   if ScreenWidth = -1 then
     raise EUnspecifiedOption.Create(ScreenWidthIdent);
   ScreenHeight := aFile.ReadInteger('', 'Screen.Height', -1);
-  if SreenHeight = -1 then
+  if ScreenHeight = -1 then
     raise EUnspecifiedOption.Create(ScreenHeightIdent);
+end;
+
+procedure TEngineConfig.SetDefaults;
+begin
+  ScreenWidth := DefaultScreenWidth;
+  ScreenHeight := DefaultScreenHeight;
+  FullScreen := DefaultFullScreen;
+end;
+
+procedure TEngineConfig.Write(const aFile: TIniFile);
+begin
+  AssertArgumentAssigned(aFile, 'aFile');
+  aFile.WriteInteger('', ScreenWidthIdent, ScreenWidth);
+  aFile.WriteInteger('', ScreenHeightIdent, ScreenHeight);
 end;
 
 end.

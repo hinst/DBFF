@@ -33,6 +33,8 @@ function DoOnGetVendorName: string;
 // Возвращает имя приложения
 function DoOnGetApplicationName: string;
 
+function GlobalConfigDir: string;
+
 implementation
 
 procedure WriteLine(const aText: string);
@@ -49,6 +51,11 @@ end;
 function DoOnGetApplicationName: string;
 begin
   result := ApplicationName;
+end;
+
+function GlobalConfigDir: string;
+begin
+  result := ExcludeTrailingPathDelimiter(GlobalConfigPath);
 end;
 
 end.
