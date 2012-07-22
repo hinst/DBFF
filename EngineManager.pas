@@ -36,8 +36,9 @@ type
     procedure Read(const aFile: TIniFile);
   public const
     DefaultScreenWidth = 1024;
-    ScreenWidthIdent = 'Screen.Width';
     DefaultScreenHeight = 768;
+    ScreenWidthIdent = 'Screen.Width';
+    ScreenHeightIdent = 'Screen.Height';
   public type
     EConfigInvalid = class(Exception);
     EUnspecifiedOption = class(EConfigInvalid);
@@ -71,6 +72,9 @@ begin
   ScreenWidth := aFile.ReadInteger('', 'Screen.Width', -1);
   if ScreenWidth = -1 then
     raise EUnspecifiedOption.Create(ScreenWidthIdent);
+  ScreenHeight := aFile.ReadInteger('', 'Screen.Height', -1);
+  if SreenHeight = -1 then
+    raise EUnspecifiedOption.Create(ScreenHeightIdent);
 end;
 
 end.
