@@ -9,8 +9,10 @@ uses
   SysUtils,
 
   LogEntity,
+  NiceExceptions,
 
-  EngineManager;
+  EngineManager,
+  LevelDataContainer;
 
 type
 
@@ -21,12 +23,14 @@ type
     constructor Create(const aOwner: TComponent); reintroduce;
     procedure StartupEngine;
   private
-    fEngineMan: TEngineManager;
     fLog: ILog;
+    fEngineMan: TEngineManager;
+    fLevel: TLevelData;
     procedure Finalize;
   public
-    property EngineMan: TEngineManager read fEngineMan;
     property Log: ILog read fLog;
+    property EngineMan: TEngineManager read fEngineMan;
+    property Level: TLevelData read fLevel;
     procedure Load;
     procedure Draw;
     destructor Destroy; override;
@@ -39,11 +43,13 @@ uses
 
 procedure GlobalLoad;
 begin
+  AssertArgumentAssigned(GlobalGameManager, 'GlobalGameManager');
   GlobalGameManager.Load;
 end;
 
 procedure GlobalDraw;
 begin
+  AssertArgumentAssigned(GlobalGameManager, 'GlobalGameManager');
   GlobalGameManager.Draw;
 end;
 
@@ -59,6 +65,7 @@ procedure TGameManager.StartupEngine;
 begin
   fEngineMan := TEngineManager.Create(self);
   EngineMan.Draw := @GlobalDraw;
+  EngineMan.Load := @GlobalLoad;
   EngineMan.Startup(TEngineManager.GetConfigFilePath);
 end;
 

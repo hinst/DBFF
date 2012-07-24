@@ -43,7 +43,7 @@
         <PackageName Value="UltimateLibrary"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="4">
+    <Units Count="12">
       <Unit0>
         <Filename Value="DBFF_Project.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -64,6 +64,46 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="GameManager"/>
       </Unit3>
+      <Unit4>
+        <Filename Value="MapDataContainer.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="MapDataContainer"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="TerrainManager.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TerrainManager"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="MapDataFace.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="MapDataFace"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="TerrainManagerFace.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TerrainManagerFace"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="MapViewer.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="MapViewer"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="LevelDataContainer.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="LevelDataContainer"/>
+      </Unit9>
+      <Unit10>
+        <Filename Value="TestLevel.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TestLevel"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="LevelDataFace.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="LevelDataFace"/>
+      </Unit11>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

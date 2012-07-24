@@ -9,9 +9,11 @@ uses
   SysUtils,
   IniFiles,
 
+  {$REGION ZenGL units}
   zgl_main,
   zgl_screen,
   zgl_window,
+  {$ENDREGION}
 
   LogEntity,
   NiceExceptions;
@@ -99,10 +101,11 @@ begin
   );
   AssertArgumentAssigned(Assigned(Load), 'Load');
   AssertArgumentAssigned(Assigned(Draw), 'Draw');
-  zgl_Reg( SYS_LOAD, @Load);
-  zgl_Reg( SYS_DRAW, @Draw );
+  zgl_Reg(SYS_LOAD, Load);
+  zgl_Reg(SYS_DRAW, Draw);
+  wnd_SetCaption(ApplicationTitle);
+  Log.Write('Initializing engine...');
   zgl_Init;
-  Log.Write('Engine now running.');
 end;
 
 class function TEngineManager.GetConfigFilePath: string;

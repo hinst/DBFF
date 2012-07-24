@@ -24,11 +24,13 @@ uses
   TextFileLogWriter,
   SimpleLogTextFormat,
   {$ENDREGION}
+  NiceExceptions,
 
   {$REGION Custom units}
   Common,
   EngineManager,
-  GameManager
+  GameManager, MapDataContainer, TerrainManager, MapDataFace,
+TerrainManagerFace, MapViewer, LevelDataContainer, TestLevel, LevelDataFace
   {$ENDREGION}
   ;
 
@@ -95,11 +97,9 @@ begin
   except
     on e: Exception do
     begin
-      WriteLine('FATAL ERROR: Global exception occured.');
+      WriteLine('FATAL ERROR: Global unhandled exception occured.');
       WriteLine('Application will be no longer executed.');
-      WriteLine('Exception class: ' + e.ClassName);
-      WriteLine('Exception message: ' + e.Message);
-      DumpExceptionBackTrace(output);
+      WriteLine(GetFullExceptionInfo(e));
     end;
   end;
   if not result then
@@ -217,11 +217,9 @@ begin
   except
     on e: Exception do
     begin
-      Log.Write(logTagError, 'Global exception occured.' + LineEnding
+      Log.Write(logTagError, 'Global unhandled exception occured.' + LineEnding
         + 'Application will be no longer executed.' + LineEnding
-        + 'Exception class: ' + e.ClassName + LineEnding
-        + 'Exception message: ' + e.Message);
-      DumpExceptionBackTrace(output);
+        + GetFullExceptionInfo(e));
     end;
   end;
 end;
@@ -316,8 +314,7 @@ begin
   Application.Title := ApplicationTitle;
   WriteLine('Now starting application: "' + Application.Title + '"...');
   Application.Run;
-  if not Application.EngineRunning then
-    Application.Free;
+  Application.Free;
 
   WriteLine('***GLOBAL EXECUTION END***');
   WriteLine(''); // to separate memory leak info which is being written below
