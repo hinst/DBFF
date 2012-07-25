@@ -27,12 +27,9 @@ uses
   NiceExceptions,
 
   {$REGION Custom units}
-  Common,
-  EngineManager,
-  GameManager, MapDataContainer, TerrainManager, MapDataFace,
-TerrainManagerFace, MapViewer, LevelDataContainer, TestLevel, LevelDataFace
-  {$ENDREGION}
-  ;
+  Common, EngineManager, GameManager, MapDataContainer, TerrainManager,
+  MapDataFace, TerrainManagerFace, MapViewer, LevelDataContainer, TestLevel,
+  LevelDataFace;
 
 type
 

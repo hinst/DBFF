@@ -6,10 +6,10 @@ interface
 
 uses
   Classes, SysUtils,
-
   LevelDataFace,
   MapDataFace,
-  MapDataContainer;
+  MapDataContainer,
+  TerrainManager;
 
 type
 
@@ -20,6 +20,7 @@ type
     constructor Create(const aOwner: TComponent); reintroduce;
   private
     fMap: TMapData;
+    fTerrain: TTerrainManager;
     procedure Initialize;
     function GetMap: IMapData;
   public
@@ -39,6 +40,7 @@ end;
 procedure TLevelData.Initialize;
 begin
   fMap := TMapData.Create(self);
+  fTerrain := TTerrainManager.Create(self);
 end;
 
 function TLevelData.GetMap: IMapData;
