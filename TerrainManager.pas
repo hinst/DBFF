@@ -11,6 +11,7 @@ uses
   IniFiles,
   NiceExceptions,
   StringFeatures,
+  LogEntity,
   TerrainManagerFace,
   MapDataFace;
 
@@ -21,12 +22,13 @@ type
   TTerrain = object
   public
     constructor Init;
+    procedure Clean;
   public
     id: TTerrainType;
     Name: string;
     Color: LongWord;
     Texture: zglPTexture;
-    procedure Clean;
+    function ToText: string;
     destructor Done;
   end;
 
@@ -34,7 +36,7 @@ type
 
   { TTerrainManager }
 
-  TTerrainManager = class(TComponent)
+  TTerrainManager = class(TComponent, ITerrainManager)
   private
     fTerrains: TTerrains;
     procedure ReleaseTerrains;
@@ -46,6 +48,7 @@ type
     procedure LoadTerrains(const aFileName: string);
     procedure LoadTerrains(const aFile: TIniFile);
     procedure LoadTerrain(var aTerrain: TTerrain; const aFile: TIniFile);
+    function GetTerrainsInfoAsText: string;
     destructor Destroy; override;
   end;
 
@@ -62,6 +65,11 @@ begin
   Name := '';
   Color := 0;
   Texture := nil;
+end;
+
+function TTerrain.ToText: string;
+begin
+  result := IntToStr(id) + ': ' + Name + '; RC=' + IntToHex(Color, 6);
 end;
 
 destructor TTerrain.Done;
@@ -120,6 +128,15 @@ procedure TTerrainManager.LoadTerrain(var aTerrain: TTerrain;
 begin
   aTerrain.Color := StrHexToLongWord(aFile.ReadString(aTerrain.Name, ColorIdent, '000000'));
   aTerrain.Texture := nil;
+end;
+
+function TTerrainManager.GetTerrainsInfoAsText: string;
+var
+  i: integer;
+begin
+  result := 'Terrain types: ' + IntToStr(Length(Terrains)) + ' items total';
+  for i := 0 to Length(Terrains) - 1 do
+    result += Terrains[i].ToText + LineEnding;
 end;
 
 destructor TTerrainManager.Destroy;

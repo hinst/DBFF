@@ -16,6 +16,7 @@ uses
 
   {$REGION Log units}
   LogManager,
+  LogEntityFace,
   LogEntity,
   LogItem,
   LogWriter,
@@ -29,7 +30,7 @@ uses
   {$REGION Custom units}
   Common, EngineManager, GameManager, MapDataContainer, TerrainManager,
   MapDataFace, TerrainManagerFace, MapViewer, LevelDataContainer, TestLevel,
-  LevelDataFace;
+  LevelDataFace, LevelLoaderFace;
 
 type
 
@@ -130,6 +131,8 @@ begin
   OnGetVendorName := @DoOnGetVendorName;
   GlobalConfigPath := GetAppConfigDir(false);
   WriteLine('ConfigPath: "' + GlobalConfigPath + '"');
+  GlobalApplicationPath := IncludeTrailingPathDelimiter(self.Location);
+  WriteLine('ApplicationPath: "' + GlobalApplicationPath + '"');
 end;
 
 function TApplication.StartupConfig: boolean;

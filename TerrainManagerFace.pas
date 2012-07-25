@@ -9,7 +9,9 @@ uses
 
 type
   ITerrainManager = interface
-
+    procedure LoadTerrains(const aFileName: string);
+    // This function should be used for debugging
+    function GetTerrainsInfoAsText: string;
   end;
 
 implementation

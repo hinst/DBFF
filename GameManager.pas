@@ -8,11 +8,13 @@ uses
   Classes,
   SysUtils,
 
+  LogEntityFace,
   LogEntity,
   NiceExceptions,
 
   EngineManager,
-  LevelDataContainer;
+  LevelDataContainer,
+  TestLevel;
 
 type
 
@@ -82,7 +84,8 @@ end;
 
 procedure TGameManager.Load;
 begin
-
+  {$REGION 'Launch the test level'}
+  {$ENDREGION}
 end;
 
 procedure TGameManager.Draw;

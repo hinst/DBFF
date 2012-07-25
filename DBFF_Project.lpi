@@ -43,7 +43,7 @@
         <PackageName Value="UltimateLibrary"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="12">
+    <Units Count="13">
       <Unit0>
         <Filename Value="DBFF_Project.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -104,6 +104,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="LevelDataFace"/>
       </Unit11>
+      <Unit12>
+        <Filename Value="LevelLoaderFace.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="LevelLoaderFace"/>
+      </Unit12>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

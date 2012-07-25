@@ -5,12 +5,14 @@ unit LevelDataFace;
 interface
 
 uses
-  Classes, SysUtils,
-  MapDataFace;
+  MapDataFace,
+  TerrainManagerFace;
 
 type
   ILevelData = interface
     function GetMap: IMapData;
+    function GetTerrain: ITerrainManager;
+    property Terrain: ITerrainManager read GetTerrain;
     property Map: IMapData read GetMap;
   end;
 
