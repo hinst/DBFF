@@ -30,7 +30,7 @@ uses
   {$REGION Custom units}
   Common, EngineManager, GameManager, MapDataContainer, TerrainManager,
   MapDataFace, TerrainManagerFace, MapViewer, LevelDataContainer, TestLevel,
-  LevelDataFace, LevelLoaderFace;
+  LevelDataFace, LevelLoaderFace, ZenGL_FCL_Graphics;
 
 type
 
@@ -166,7 +166,7 @@ function TApplication.StartupLog: boolean;
   begin
     result := TTextFileLogWriter.Create(aManager, GetTextLogFilePath);
     LogFormat := TSimpleTextLogFormat.Create(aManager);
-    LogFormat.FormatStr := '#NUMBER# TIME [TAG]OBJECT: TEXT';
+    LogFormat.FormatStr := '#NUMBER# TIME [TAG] OBJECT: TEXT';
     result.Format := LogFormat;
     aManager.DeferredWriters.Add(result as ILogWriter);
   end;

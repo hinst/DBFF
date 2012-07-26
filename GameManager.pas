@@ -14,6 +14,7 @@ uses
 
   EngineManager,
   LevelDataContainer,
+  LevelLoaderFace,
   TestLevel;
 
 type
@@ -35,6 +36,8 @@ type
     property Level: TLevelData read fLevel;
     procedure Load;
     procedure Draw;
+    procedure LoadLevel(const aLevel: ILevelLoader);
+    procedure LoadTestLevel;
     destructor Destroy; override;
   end;
 
@@ -84,13 +87,54 @@ end;
 
 procedure TGameManager.Load;
 begin
-  {$REGION 'Launch the test level'}
-  {$ENDREGION}
+  LoadTestLevel;
 end;
 
 procedure TGameManager.Draw;
 begin
 
+end;
+
+procedure TGameManager.LoadLevel(const aLevel: ILevelLoader);
+var
+  levelLog: ILog;
+begin
+  AssertArgumentAssigned(Assigned(aLevel), 'aLevel');
+  if Assigned(Level) then
+  begin
+    Log.Write('Releasing existing level data...');
+    FreeAndNil(fLevel);
+  end;
+  fLevel := TLevelData.Create(self);
+  try
+    try
+      levelLog := TLog.Create(GlobalLogManager, 'LevelLoader');;
+      aLevel.Log := levelLog;
+      aLevel.Load(Level);
+    finally
+      levelLog.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      Log.Write(logTagError, 'Activating level loader caused an exception.');
+      raise;
+    end;
+  end;
+end;
+
+procedure TGameManager.LoadTestLevel;
+var
+  loader: TTestLevel;
+begin
+  Log.Write('Now loading test level...');
+  try
+    loader := TTestLevel.Create;
+    LoadLevel(loader);
+  finally
+    loader.Free;
+  end;
+  Log.Write('  Done.');
 end;
 
 destructor TGameManager.Destroy;

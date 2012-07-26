@@ -43,7 +43,7 @@
         <PackageName Value="UltimateLibrary"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="13">
+    <Units Count="14">
       <Unit0>
         <Filename Value="DBFF_Project.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -109,6 +109,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="LevelLoaderFace"/>
       </Unit12>
+      <Unit13>
+        <Filename Value="ZenGL_FCL_Graphics.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ZenGL_FCL_Graphics"/>
+      </Unit13>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

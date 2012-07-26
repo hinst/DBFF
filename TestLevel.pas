@@ -5,7 +5,8 @@ unit TestLevel;
 interface
 
 uses
-  Classes, SysUtils,
+  SysUtils,
+  NiceExceptions,
   LevelDataFace,
   LogEntityFace,
   LevelLoaderFace;
@@ -18,6 +19,8 @@ type
   private
     fLog: ILog;
     procedure SetLog(const aLog: ILog);
+  public const
+    TestLevelTerrainMap = '..' + PathDelim + 'data' + PathDelim + 'TestLevel.png';
   public
     procedure Load(const aLevel: ILevelData);
     property Log: ILog read fLog;
@@ -38,6 +41,8 @@ end;
 procedure TTestLevel.Load(const aLevel: ILevelData);
 begin
   aLevel.Terrain.LoadTerrains(GlobalApplicationPath + StandardTerrainsRelativePath);
+  if not Assigned(Log) then
+    raise EUnassigned.Create('Log');
   Log.Write(aLevel.Terrain.GetTerrainsInfoAsText);
 end;
 

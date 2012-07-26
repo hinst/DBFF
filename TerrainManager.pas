@@ -28,6 +28,7 @@ type
     Name: string;
     Color: LongWord;
     Texture: zglPTexture;
+    function TextureAssigned: boolean;
     function ToText: string;
     destructor Done;
   end;
@@ -67,9 +68,14 @@ begin
   Texture := nil;
 end;
 
+function TTerrain.TextureAssigned: boolean;
+begin
+  result := Assigned(Texture);
+end;
+
 function TTerrain.ToText: string;
 begin
-  result := IntToStr(id) + ': ' + Name + '; RC=' + IntToHex(Color, 6);
+  result := IntToHex(id, 6) + ': ' + Name + '; RC=' + IntToHex(Color, 6);
 end;
 
 destructor TTerrain.Done;
@@ -136,7 +142,7 @@ var
 begin
   result := 'Terrain types: ' + IntToStr(Length(Terrains)) + ' items total';
   for i := 0 to Length(Terrains) - 1 do
-    result += Terrains[i].ToText + LineEnding;
+    result += LineEnding + Terrains[i].ToText;
 end;
 
 destructor TTerrainManager.Destroy;
