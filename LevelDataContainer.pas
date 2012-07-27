@@ -55,11 +55,15 @@ type
     property Map: TMapData read fMap;
     property Terrain: TTerrainManager read fTerrain;
     procedure LoadTerrainMapFromImage(const aImage: TFPCustomImage);
-    procedure LoadTerrainMapFromImage(const aFileName: string);
+    procedure DoSomeShit;
+    procedure LoadTerrainMapFromImageFile(const aFileName: string);
     destructor Destroy; override;
   end;
 
 implementation
+
+uses
+  Common;
 
 { TLevelData }
 
@@ -71,6 +75,7 @@ end;
 
 procedure TLevelData.Initialize;
 begin
+  fLog := TLog.Create(GlobalLogManager, 'LevelData');
   fTerrain := TTerrainManager.Create(self);
   fMap := TMapData.Create(self);
 end;
@@ -90,6 +95,7 @@ var
   i: integer;
   terrains: TTerrains;
 begin
+  terrains := Terrain.Terrains; // direct access
   AssertAssigned(Assigned(Terrains), 'Terrains');
   for i := 0 to Length(Terrain.Terrains) - 1 do
     if Terrain.Terrains[i].Color = aColor then
@@ -130,20 +136,37 @@ procedure TLevelData.LoadTerrainMapFromImage(const aImage: TFPCustomImage);
 var
   matrix: TCells.TMatrix;
 begin
+  AssertAssigned(Map, 'Map');
+  AssertAssigned(Map.Cells, 'Map.Cells');
   Map.Cells.Reallocate(aImage.Width, aImage.Height);
   matrix := Map.Cells.Matrix; // direct access
   MapColors(matrix, aImage);
 end;
 
-procedure TLevelData.LoadTerrainMapFromImage(const aFileName: string);
+procedure TLevelData.DoSomeShit;
+begin
+
+end;
+
+procedure TLevelData.LoadTerrainMapFromImageFile(const aFileName: string);
+const
+  DEBUG = true;
 var
-  image: TFPCustomImage;
+  image: TFPMemoryImage;
+  reader: TFPReaderPNG;
 begin
   AssertFileExists(aFileName);
-  image := TFPCustomImage.Create(0, 0);
+  if DEBUG then
+    Log.Write('Now loading terrain map from image...'
+      + LineEnding + 'File name is: "' + aFileName + '"');
+  image := TFPMemoryImage.Create(0, 0);
+  Log.Write('Image created. Loading...');
   image.LoadFromFile(aFileName);
+  Log.Write('Processing image...');
   LoadTerrainMapFromImage(image);
+  Log.Write('Releasing image...');
   image.Free;
+  Log.Write('  Done.');
 end;
 
 destructor TLevelData.Destroy;

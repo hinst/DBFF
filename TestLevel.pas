@@ -19,8 +19,10 @@ type
   private
     fLog: ILog;
     procedure SetLog(const aLog: ILog);
+    function GetTerrainsInfoFilePath: string;
+    function GetTerrainMapImageFilePath: string;
   public const
-    TestLevelTerrainMap = '..' + PathDelim + 'data' + PathDelim + 'TestLevel.png';
+    TerrainMapImageFilePath = '..' + PathDelim + 'data' + PathDelim + 'TestLevel.png';
   public
     procedure Load(const aLevel: ILevelData);
     property Log: ILog read fLog;
@@ -38,12 +40,36 @@ begin
   fLog := aLog;
 end;
 
-procedure TTestLevel.Load(const aLevel: ILevelData);
+function TTestLevel.GetTerrainsInfoFilePath: string;
 begin
-  aLevel.Terrain.LoadTerrains(GlobalApplicationPath + StandardTerrainsRelativePath);
-  if not Assigned(Log) then
-    raise EUnassigned.Create('Log');
-  Log.Write(aLevel.Terrain.GetTerrainsInfoAsText);
+  result := GlobalApplicationPath + StandardTerrainsRelativePath;
+end;
+
+function TTestLevel.GetTerrainMapImageFilePath: string;
+begin
+  result := GlobalApplicationPath + TerrainMapImageFilePath;
+end;
+
+procedure TTestLevel.Load(const aLevel: ILevelData);
+  procedure LoadTerrains;
+  begin
+    aLevel.Terrain.LoadTerrains(GetTerrainsInfoFilePath);
+    Log.Write(aLevel.Terrain.GetTerrainsInfoAsText);
+  end;
+
+  procedure LoadTerrainMap;
+  begin
+    Log.Write('LTM1');
+    aLevel.DoSomeShit;
+    Log.Write('LTM2');
+    aLevel.LoadTerrainMapFromImageFile(GetTerrainMapImageFilePath);
+  end;
+
+begin
+  AssertArgumentAssigned(Assigned(aLevel), 'aLevel');
+  AssertAssigned(Assigned(Log), 'Log');
+  LoadTerrains;
+  LoadTerrainMap;
 end;
 
 end.

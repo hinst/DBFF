@@ -33,6 +33,7 @@ implementation
 constructor TMapData.Create(const aOwner: TComponent);
 begin
   inherited Create(aOwner);
+  Initialize;
 end;
 
 procedure TMapData.Initialize;
@@ -53,6 +54,7 @@ end;
 
 destructor TMapData.Destroy;
 begin
+  Finalize;
   inherited Destroy;
 end;
 

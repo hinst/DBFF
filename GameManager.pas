@@ -134,7 +134,6 @@ begin
   finally
     loader.Free;
   end;
-  Log.Write('  Done.');
 end;
 
 destructor TGameManager.Destroy;

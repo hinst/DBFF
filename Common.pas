@@ -17,7 +17,8 @@ const
   VendorName = 'EpicDevS'; // Vendor name should be a valid file name
   TextLogFileName = 'log.txt';
   EngineConfigFileName = 'EngineConfig.ini';
-  StandardTerrainsRelativePath = '..' + PathDelim + 'data' + PathDelim + 'StandardTerrain.ini';
+  StandardDataRelativePath = '..' + PathDelim + 'data' + PathDelim;
+  StandardTerrainsRelativePath = StandardDataRelativePath + 'StandardTerrain.ini';
 
 var
   GlobalConfigPath: string;

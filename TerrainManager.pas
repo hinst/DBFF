@@ -75,7 +75,7 @@ end;
 
 function TTerrain.ToText: string;
 begin
-  result := IntToHex(id, 6) + ': ' + Name + '; RC=' + IntToHex(Color, 6);
+  result := IntToStr(id) + ': ' + Name + '; RC=' + IntToHex(Color, 6);
 end;
 
 destructor TTerrain.Done;

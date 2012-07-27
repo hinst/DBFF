@@ -1,6 +1,7 @@
 unit LevelDataFace;
 
 {$mode objfpc}{$H+}
+{$INTERFACES CORBA}
 
 interface
 
@@ -11,9 +12,11 @@ uses
 type
   ILevelData = interface
     function GetMap: IMapData;
+    property Map: IMapData read GetMap;
     function GetTerrain: ITerrainManager;
     property Terrain: ITerrainManager read GetTerrain;
-    property Map: IMapData read GetMap;
+    procedure DoSomeShit;
+    procedure LoadTerrainMapFromImageFile(const aFileName: string);
   end;
 
 implementation

@@ -1,6 +1,7 @@
 unit TerrainManagerFace;
 
 {$mode objfpc}{$H+}
+{$INTERFACES CORBA}
 
 interface
 
