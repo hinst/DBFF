@@ -27,7 +27,8 @@ uses
   MapDataFace,
   MapDataContainer,
   TerrainManagerFace,
-  TerrainManager
+  TerrainManager,
+  MapViewer
   {$ENDREGION}
   ;
 
@@ -42,6 +43,7 @@ type
     fLog: ILog;
     fMap: TMapData;
     fTerrain: TTerrainManager;
+    fMapView: TMapView;
     procedure Initialize;
     function GetMap: IMapData;
     function GetTerrain: ITerrainManager;
@@ -54,9 +56,11 @@ type
     property Log: ILog read fLog;
     property Map: TMapData read fMap;
     property Terrain: TTerrainManager read fTerrain;
+    property MapView: TMapView read fMapView;
     procedure LoadTerrainMapFromImage(const aImage: TFPCustomImage);
-    procedure DoSomeShit;
     procedure LoadTerrainMapFromImageFile(const aFileName: string);
+    procedure Draw;
+    procedure ReceiveInput(const aTime: single);
     destructor Destroy; override;
   end;
 
@@ -78,6 +82,7 @@ begin
   fLog := TLog.Create(GlobalLogManager, 'LevelData');
   fTerrain := TTerrainManager.Create(self);
   fMap := TMapData.Create(self);
+  fMapView := TMapView.Create(self);
 end;
 
 function TLevelData.GetMap: IMapData;
@@ -141,11 +146,9 @@ begin
   Map.Cells.Reallocate(aImage.Width, aImage.Height);
   matrix := Map.Cells.Matrix; // direct access
   MapColors(matrix, aImage);
-end;
-
-procedure TLevelData.DoSomeShit;
-begin
-
+  MapView.Map := Map;
+  Log.Write('Updating map...');
+  MapView.Update;
 end;
 
 procedure TLevelData.LoadTerrainMapFromImageFile(const aFileName: string);
@@ -153,20 +156,31 @@ const
   DEBUG = true;
 var
   image: TFPMemoryImage;
-  reader: TFPReaderPNG;
 begin
   AssertFileExists(aFileName);
   if DEBUG then
     Log.Write('Now loading terrain map from image...'
       + LineEnding + 'File name is: "' + aFileName + '"');
   image := TFPMemoryImage.Create(0, 0);
-  Log.Write('Image created. Loading...');
+  if DEBUG then
+    Log.Write('Image created. Loading...');
   image.LoadFromFile(aFileName);
-  Log.Write('Processing image...');
+  if DEBUG then
+    Log.Write('Processing image ' + IntToStr(image.Width) + 'x' + IntToStr(image.Height) + '...');
   LoadTerrainMapFromImage(image);
-  Log.Write('Releasing image...');
+  if DEBUG then
+    Log.Write('Releasing image...');
   image.Free;
-  Log.Write('  Done.');
+end;
+
+procedure TLevelData.Draw;
+begin
+  MapView.DrawGridLines;
+end;
+
+procedure TLevelData.ReceiveInput(const aTime: single);
+begin
+  MapView.ReceiveInput(aTime);
 end;
 
 destructor TLevelData.Destroy;

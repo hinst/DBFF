@@ -27,16 +27,20 @@ type
   public
     constructor Create(const aOwner: TComponent); reintroduce;
     procedure Startup(const aConfigFilePath: string);
+  public type
+    TUpdateProcedure = procedure(DT: Double);
   private
     fLog: ILog;
     fDraw: TProcedure;
     fLoad: TProcedure;
+    fUpdate: TUpdateProcedure;
   public const
     Debug = true;
   public
     property Log: ILog read fLog;
     property Draw: TProcedure read fDraw write fDraw;
     property Load: TProcedure read fLoad write fLoad;
+    property Update: TUpdateProcedure read fUpdate write fUpdate;
     class function GetConfigFilePath: string;
     destructor Destroy; override;
   end;
@@ -100,8 +104,11 @@ begin
   scr_SetOptions(
     config.ScreenWidth, config.ScreenHeight, REFRESH_DEFAULT, config.FullScreen, config.VSync
   );
+  // I dout if every of these procedures should be strictly required
+  // Maybe it is better just not to register the handler if it is not assigned
   AssertArgumentAssigned(Assigned(Load), 'Load');
   AssertArgumentAssigned(Assigned(Draw), 'Draw');
+  AssertArgumentAssigned(Assigned(Update),'Update');
   zgl_Reg(SYS_LOAD, Load);
   zgl_Reg(SYS_DRAW, Draw);
   wnd_SetCaption(ApplicationTitle);

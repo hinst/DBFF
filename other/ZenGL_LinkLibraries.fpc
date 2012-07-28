@@ -1,8 +1,8 @@
 #Write ZenGL libraries specified
--Fu..\ZenGL\zengl-src-0.3.0rc2\src
--Fu..\ZenGL\zengl-src-0.3.0rc2\lib\jpeg\$FPCTARGET
--Fu..\ZenGL\zengl-src-0.3.0rc2\lib\msvcrt\$FPCCPU
--Fu..\ZenGL\zengl-src-0.3.0rc2\lib\ogg\$FPCTARGET
--Fu..\ZenGL\zengl-src-0.3.0rc2\lib\theora\$FPCTARGET
--Fu..\ZenGL\zengl-src-0.3.0rc2\lib\zlib\$FPCTARGET
--Fu..\ZenGL\zengl-src-0.3.0rc2\lib\zip\$FPCTARGET
+-Fu..\ZenGL\zengl-src-0.3.0\src
+-Fu..\ZenGL\zengl-src-0.3.0\lib\jpeg\$FPCTARGET
+-Fu..\ZenGL\zengl-src-0.3.0\lib\msvcrt\$FPCCPU
+-Fu..\ZenGL\zengl-src-0.3.0\lib\ogg\$FPCTARGET
+-Fu..\ZenGL\zengl-src-0.3.0\lib\theora\$FPCTARGET
+-Fu..\ZenGL\zengl-src-0.3.0\lib\zlib\$FPCTARGET
+-Fu..\ZenGL\zengl-src-0.3.0\lib\zip\$FPCTARGET

@@ -1,6 +1,7 @@
 unit TestLevel;
 
 {$mode objfpc}{$H+}
+{$INTERFACES CORBA}
 
 interface
 
@@ -59,9 +60,6 @@ procedure TTestLevel.Load(const aLevel: ILevelData);
 
   procedure LoadTerrainMap;
   begin
-    Log.Write('LTM1');
-    aLevel.DoSomeShit;
-    Log.Write('LTM2');
     aLevel.LoadTerrainMapFromImageFile(GetTerrainMapImageFilePath);
   end;
 

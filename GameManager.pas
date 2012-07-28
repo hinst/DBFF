@@ -8,6 +8,10 @@ uses
   Classes,
   SysUtils,
 
+  zgl_main,
+  zgl_mouse,
+  zgl_keyboard,
+
   LogEntityFace,
   LogEntity,
   NiceExceptions,
@@ -15,6 +19,7 @@ uses
   EngineManager,
   LevelDataContainer,
   LevelLoaderFace,
+  MapViewer,
   TestLevel;
 
 type
@@ -29,6 +34,7 @@ type
     fLog: ILog;
     fEngineMan: TEngineManager;
     fLevel: TLevelData;
+    procedure Initialize;
     procedure Finalize;
   public
     property Log: ILog read fLog;
@@ -36,6 +42,7 @@ type
     property Level: TLevelData read fLevel;
     procedure Load;
     procedure Draw;
+    procedure Update(const aTime: double);
     procedure LoadLevel(const aLevel: ILevelLoader);
     procedure LoadTestLevel;
     destructor Destroy; override;
@@ -58,20 +65,32 @@ begin
   GlobalGameManager.Draw;
 end;
 
+procedure GlobalUpdate(DT: Double);
+begin
+  AssertArgumentAssigned(GlobalGameManager, 'GlobalGameManager');
+  GlobalGameManager.Update(DT);
+end;
+
 { TGameManager }
 
 constructor TGameManager.Create(const aOwner: TComponent);
 begin
   inherited Create(aOwner);
-  fLog := TLog.Create(GlobalLogManager, 'GameManager');
+  Initialize;
 end;
 
 procedure TGameManager.StartupEngine;
 begin
-  fEngineMan := TEngineManager.Create(self);
   EngineMan.Draw := @GlobalDraw;
   EngineMan.Load := @GlobalLoad;
+  EngineMan.Update := @GlobalUpdate;
   EngineMan.Startup(TEngineManager.GetConfigFilePath);
+end;
+
+procedure TGameManager.Initialize;
+begin
+  fLog := TLog.Create(GlobalLogManager, 'GameManager');
+  fEngineMan := TEngineManager.Create(self);
 end;
 
 procedure TGameManager.Finalize;
@@ -92,7 +111,12 @@ end;
 
 procedure TGameManager.Draw;
 begin
+  Level.Draw;
+end;
 
+procedure TGameManager.Update(const aTime: double);
+begin
+  Level.ReceiveInput(aTime);
 end;
 
 procedure TGameManager.LoadLevel(const aLevel: ILevelLoader);

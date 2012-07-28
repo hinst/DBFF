@@ -15,7 +15,6 @@ type
     property Map: IMapData read GetMap;
     function GetTerrain: ITerrainManager;
     property Terrain: ITerrainManager read GetTerrain;
-    procedure DoSomeShit;
     procedure LoadTerrainMapFromImageFile(const aFileName: string);
   end;
 
