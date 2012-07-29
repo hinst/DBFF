@@ -39,18 +39,24 @@ type
     procedure AssignDefaults;
     procedure FocusViewOnMapCenter;
     procedure DetermineFieldDemensions;
+    function GetViewXLeft: single; inline;
+    function GetViewYUp: single; inline;
     procedure Finalize;
+  public type
+    TForeachVisualCell = procedure(const aX, aY: integer; const aXD, aYD: single);
   public const
     TileWidth = 64;
     TileHeight = 64;
-    DefaultXSpeed = 3;
-    DefaultYSpeed = 3;
+    DefaultXSpeed = 6;
+    DefaultYSpeed = 6;
     DefaultGridColor = $FFFFFF;
     DefaultGridAlpha = 255 div 2;
   public
     property Log: ILog read fLog write fLog;
     property ViewX: single read fViewX write fViewX;
     property ViewY: single read fViewY write fViewY;
+    property ViewXCorner: single read GetViewXLeft;
+    property ViewYCorner: single read GetViewYUp;
     property FieldWidth: single read fFieldWidth write fFieldWidth;
     property FieldHeight: single read fFieldHeight write fFieldHeight;
     property XSpeed: single read fXSpeed write fXSpeed;
@@ -62,7 +68,8 @@ type
     procedure Update;
     procedure ReceiveInput(const aT: single);
     procedure DrawDebugInfo;
-    procedure DrawTerrainLayer;
+    procedure DrawTerrainLayerSubcolors;
+    procedure ForeachVisibleCell(const aProcedure: TForeachVisualCell);
     procedure DrawGridLines;
     destructor Destroy; override;
   end;
@@ -108,6 +115,16 @@ begin
     + FloatToStr(FieldWidth) + ' x ' + FloatToStr(FieldHeight));
 end;
 
+function TMapView.GetViewXLeft: single;
+begin
+  result := ViewX - single(wndWidth) / 2;
+end;
+
+function TMapView.GetViewYUp: single;
+begin
+  result := ViewY - single(wndHeight) / 2;
+end;
+
 procedure TMapView.Finalize;
 begin
   FreeLog(fLog);
@@ -122,22 +139,22 @@ end;
 procedure TMapView.ReceiveInput(const aT: single);
   function DeltaX: single; inline;
   begin
-    result := aT / 1000 * fXSpeed;
+    result := aT / single(1000) * fXSpeed * single(TileWidth);
   end;
 
   function DeltaY: single; inline;
   begin
-    result := aT / 1000 * fYSpeed;
+    result := aT / single(1000) * fYSpeed * single(TileHeight);
   end;
 
 begin
-  if key_Down(K_UP) then
+  if key_Down(K_W) then
     fViewY -= DeltaY;
-  if key_Down(K_DOWN) then
+  if key_Down(K_S) then
     fViewY += DeltaY;
-  if key_Down(K_LEFT) then
+  if key_Down(K_A) then
     fViewX -= DeltaX;
-  if key_Down(K_RIGHT) then
+  if key_Down(K_D) then
     fViewX += DeltaX;
 end;
 
@@ -146,41 +163,82 @@ begin
 
 end;
 
-procedure TMapView.DrawTerrainLayer;
+procedure TMapView.DrawTerrainLayerSubcolors;
 begin
 
+end;
+
+procedure TMapView.ForeachVisibleCell(const aProcedure: TForeachVisualCell);
+var
+  x, y, yy: integer;
+  mcw, mch: integer;
+  xD, yD, xLA, yUA, xA, yA, yDD: single;
+begin
+  x := 0;
+  y := 0;
+  xLA := ViewXCorner;
+  yUA := ViewYCorner;
+  while xA < xLA do
+  begin
+    xA += TileWidth;
+    x += 1;
+  end;
+  while yA < yUA do
+  begin
+    yA += TileHeight;
+    y += 1;
+  end;
+  xD := xA - xLA;
+  yD := yA - yUA;
+  yDD := yD; // store
+  yy := y; // store
+  mcw := Map.Cells.Width;
+  mch := Map.Cells.Height;
+  while (x < mcw) and (xD < wndWidth) do
+  begin
+    y := yy;
+    yD := yDD;
+    while (y < mch) and (yD < wndHeight) do
+    begin
+      aProcedure(x, y, xD, yD);
+      y += 1;
+      yD += TileHeight;
+    end;
+    x += 1;
+    xD += TileWidth;
+  end;
 end;
 
 procedure TMapView.DrawGridLines;
   procedure DrawVerticalLines;
   var
-    x, xx: single;
+    xLA, xA, xD: single;
   begin
-    xx := ViewX - wndWidth / 2;
-    x := xx;
-    while x > 0 do
-      x -= TileWidth;
-    while xx < FieldWidth do
+    xLA := ViewXCorner;
+    xA := 0;
+    while xA < xLA do xA += TileWidth;
+    xD := xA - xLA;
+    while (xA <= FieldWidth) and (xD < wndWidth) do
     begin
-      x += TileWidth;
-      xx += TileWidth;
-      pr2d_Line(x, 0, x, wndHeight, GridColor, GridAlpha);
+      pr2d_Line(xD, 0, xD, wndHeight, GridColor, GridAlpha);
+      xA += TileWidth;
+      xD += TileWidth;
     end;
   end;
 
   procedure DrawHorizontalLines;
   var
-    y, yy: single;
+    yUA, yA, yD: single;
   begin
-    yy := ViewX - wndHeight / 2;
-    y := yy;
-    while y > 0 do
-      y -= TileHeight;
-    while yy < FieldWidth do
+    yUA := ViewYCorner;
+    yA := 0;
+    while yA < yUA do yA += TileHeight;
+    yD := yA - yUA;
+    while (yA <= FieldHeight) and (yD < wndHeight) do
     begin
-      y += TileHeight;
-      yy += TileHeight;
-      pr2d_Line(0, y, wndWidth, y, GridColor, GridAlpha);
+      pr2d_Line(0, yD, wndWidth, yD, GridColor, GridAlpha);
+      yA += TileHeight;
+      yD += TileHeight;
     end;
   end;
 

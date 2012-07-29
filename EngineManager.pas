@@ -111,6 +111,7 @@ begin
   AssertArgumentAssigned(Assigned(Update),'Update');
   zgl_Reg(SYS_LOAD, Load);
   zgl_Reg(SYS_DRAW, Draw);
+  zgl_Reg(SYS_UPDATE, Update);
   wnd_SetCaption(ApplicationTitle);
   Log.Write('Initializing engine...');
   zgl_Init;
