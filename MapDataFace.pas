@@ -15,7 +15,7 @@ type
   TTerrainType = integer;
 
   TCell = record
-    typ: TTerrainType;
+    &type: TTerrainType;
     busy: boolean;
   end;
 

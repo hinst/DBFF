@@ -50,6 +50,7 @@ type
     procedure LoadTerrains(const aFile: TIniFile);
     procedure LoadTerrain(var aTerrain: TTerrain; const aFile: TIniFile);
     function GetTerrainsInfoAsText: string;
+    function GetTypeColor(const aType: TTerrainType): LongWord;
     destructor Destroy; override;
   end;
 
@@ -124,7 +125,7 @@ begin
     Terrains[i].Init;
     Terrains[i].Name := sections[i];
     Terrains[i].id := i;
-    LoadTerrain(Terrains[i], aFile);
+    LoadTerrain(fTerrains[i], aFile);
   end;
   sections.Free;
 end;
@@ -143,6 +144,12 @@ begin
   result := 'Terrain types: ' + IntToStr(Length(Terrains)) + ' items total';
   for i := 0 to Length(Terrains) - 1 do
     result += LineEnding + Terrains[i].ToText;
+end;
+
+function TTerrainManager.GetTypeColor(const aType: TTerrainType): LongWord;
+begin
+  AssertIndexInBounds(0, aType, Length(Terrains) - 1, 'No such terrain type');
+  result := Terrains[aType].Color;
 end;
 
 destructor TTerrainManager.Destroy;

@@ -231,16 +231,13 @@ end;
 
 procedure TApplication.ShutdownLog;
 begin
-  if Assigned(Log) then
-  begin
-    Log.Write(logTagEnd, 'Log system shutdown...');
-    Log.Free;
-    fLog := nil;
-  end;
   if Assigned(LogMan) then
   begin
-    LogMan.Free;
+    Log.Write(logTagEnd, 'Log system shutdown...');
+    GlobalLogManager := nil;
+    FreeAndNil(fLogMan);
   end;
+  FreeLog(fLog);
 end;
 
 function TApplication.GetTextLogFilePath: string;

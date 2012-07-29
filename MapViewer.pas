@@ -1,6 +1,7 @@
 unit MapViewer;
 
 {$mode objfpc}{$H+}
+{$modeswitch nestedprocvars}
 
 interface
 
@@ -17,7 +18,8 @@ uses
   LogEntity,
   LogEntityFace,
 
-  MapDataFace;
+  MapDataFace,
+  TerrainManagerFace;
 
 type
 
@@ -33,6 +35,7 @@ type
     fFieldWidth, fFieldHeight: single;
     fXSpeed, fYSpeed: single;
     fMap: IMapData;
+    fTerrain: ITerrainManager;
     fGridColor: LongWord;
     fGridAlpha: byte;
     procedure Initialize;
@@ -41,9 +44,10 @@ type
     procedure DetermineFieldDemensions;
     function GetViewXLeft: single; inline;
     function GetViewYUp: single; inline;
+    procedure DrawTerrainLayerSubcolor(const aX, aY: integer; const aXD, aYD: single);
     procedure Finalize;
   public type
-    TForeachVisualCell = procedure(const aX, aY: integer; const aXD, aYD: single);
+    TForeachVisualCell = procedure(const aX, aY: integer; const aXD, aYD: single) of object;
   public const
     TileWidth = 64;
     TileHeight = 64;
@@ -62,6 +66,7 @@ type
     property XSpeed: single read fXSpeed write fXSpeed;
     property YSpeed: single read fYSpeed write fYSpeed;
     property Map: IMapData read fMap write fMap;
+    property Terrain: ITerrainManager read fTerrain write fTerrain;
     property GridColor: LongWord read fGridColor write fGridColor;
     property GridAlpha: byte read fGridAlpha write fGridAlpha;
       // it is necessary to call this procedure after changing the map data
@@ -125,6 +130,17 @@ begin
   result := ViewY - single(wndHeight) / 2;
 end;
 
+procedure TMapView.DrawTerrainLayerSubcolor(const aX, aY: integer; const aXD,
+  aYD: single);
+var
+  &type: TTerrainType;
+  color: LongWord;
+begin
+  &type := Map.Cells.Matrix[aX, aY].&type;
+  color := Terrain.GetTypeColor(&type);
+  pr2d_Rect(aXD, aYD, TileWidth, TileHeight, color, 255, PR2D_FILL);
+end;
+
 procedure TMapView.Finalize;
 begin
   FreeLog(fLog);
@@ -165,9 +181,10 @@ end;
 
 procedure TMapView.DrawTerrainLayerSubcolors;
 begin
-
+  ForeachVisibleCell(@DrawTerrainLayerSubcolor);
 end;
 
+  { Warning: some heavy calculations are taking place in this procedure }
 procedure TMapView.ForeachVisibleCell(const aProcedure: TForeachVisualCell);
 var
   x, y, yy: integer;
@@ -175,7 +192,9 @@ var
   xD, yD, xLA, yUA, xA, yA, yDD: single;
 begin
   x := 0;
+  xA := 0;
   y := 0;
+  yA := 0;
   xLA := ViewXCorner;
   yUA := ViewYCorner;
   while xA < xLA do
@@ -183,10 +202,20 @@ begin
     xA += TileWidth;
     x += 1;
   end;
+  if x > 0 then
+  begin
+    xA -= TileWidth;
+    x -= 1;
+  end;
   while yA < yUA do
   begin
     yA += TileHeight;
     y += 1;
+  end;
+  if y > 0 then
+  begin
+    yA -= TileHeight;
+    y -= 1;
   end;
   xD := xA - xLA;
   yD := yA - yUA;
@@ -200,6 +229,7 @@ begin
     yD := yDD;
     while (y < mch) and (yD < wndHeight) do
     begin
+      //WriteLN('calling aP');
       aProcedure(x, y, xD, yD);
       y += 1;
       yD += TileHeight;

@@ -132,7 +132,7 @@ begin
   fLevel := TLevelData.Create(self);
   try
     try
-      levelLog := TLog.Create(GlobalLogManager, 'LevelLoader');;
+      levelLog := TLog.Create(GlobalLogManager, 'LevelLoader');
       aLevel.Log := levelLog;
       aLevel.Load(Level);
     finally

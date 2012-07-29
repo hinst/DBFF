@@ -6,13 +6,15 @@ unit TerrainManagerFace;
 interface
 
 uses
-  Classes, SysUtils;
+  Classes, SysUtils,
+  MapDataFace;
 
 type
   ITerrainManager = interface
     procedure LoadTerrains(const aFileName: string);
     // This function should be used for debugging
     function GetTerrainsInfoAsText: string;
+    function GetTypeColor(const aType: TTerrainType): LongWord;
   end;
 
 implementation

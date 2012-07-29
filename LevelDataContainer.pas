@@ -50,7 +50,7 @@ type
       { Assign terrain types to the cells according to terrain substitution color information
       stored in the Terrain Manager property }
     function GetTerrainTypeByColor(const aColor: LongWord): TTerrainType;
-    procedure MapColors(const aMap: TCells.TMatrix; const aImage: TFPCustomImage);
+    procedure MapColors(var aMap: TCells.TMatrix; const aImage: TFPCustomImage);
     procedure Finalize;
   public
     property Log: ILog read fLog;
@@ -108,19 +108,26 @@ begin
   exit(-1);
 end;
 
-procedure TLevelData.MapColors(const aMap: TCells.TMatrix;
+procedure TLevelData.MapColors(var aMap: TCells.TMatrix;
   const aImage: TFPCustomImage);
+const
+  DEBUG = false;
 var
   x, y: integer;
   color: TFPColor;
   colorNumber: LongWord;
 begin
+  if DEBUG then
+    Log.Write('Now mapping colors...');
   for x := 0 to aImage.Width - 1 do
     for y := 0 to aImage.Height - 1 do
     begin
       color := aImage.Colors[x, y];
       colorNumber := FPColorToLongWordColor(color);
-      aMap[x,y].typ := GetTerrainTypeByColor(colorNumber);
+      aMap[x,y].&type := GetTerrainTypeByColor(colorNumber);
+      if DEBUG then
+        Log.Write('#' + IntToStr(x) + 'x' + IntToStr(y) + ': ' + IntToHex(colorNumber, 6)
+          + ' => ' + IntToStr(aMap[x,y].&type));
     end;
 end;
 
@@ -146,6 +153,7 @@ begin
   Map.Cells.Reallocate(aImage.Width, aImage.Height);
   matrix := Map.Cells.Matrix; // direct access
   MapColors(matrix, aImage);
+  MapView.Terrain := Terrain;
   MapView.Map := Map;
   Log.Write('Updating map...');
   MapView.Update;
@@ -175,6 +183,7 @@ end;
 
 procedure TLevelData.Draw;
 begin
+  MapView.DrawTerrainLayerSubcolors;
   MapView.DrawGridLines;
 end;
 
