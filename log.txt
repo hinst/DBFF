@@ -3,27 +3,28 @@
 ==============================
 [00000000ms] Begin
 [00000001ms] Current mode: 1280 x 1024
-[00000252ms] wglChoosePixelFormatARB: zDepth = 24; stencil = 0; fsaa = 0
-[00000273ms] GL_VERSION: 4.2.0
-[00000273ms] GL_RENDERER: GeForce GT 430/PCIe/SSE2
-[00000273ms] GL_MAX_TEXTURE_SIZE: 16384
-[00000273ms] GL_EXT_TEXTURE_COMPRESSION_S3TC: TRUE
-[00000273ms] GL_SGIS_GENERATE_MIPMAP: TRUE
-[00000273ms] GL_MAX_TEXTURE_UNITS_ARB: 4
-[00000273ms] GL_EXT_TEXTURE_FILTER_ANISOTROPIC: TRUE
-[00000273ms] GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT: 16
-[00000274ms] GL_EXT_BLEND_FUNC_SEPARATE: TRUE
-[00000274ms] GL_MAX_RENDERBUFFER_SIZE: 16384
-[00000274ms] GL_EXT_FRAMEBUFFER_OBJECT: TRUE
-[00000274ms] WGL_PBUFFER: TRUE
-[00000274ms] Support WaitVSync: TRUE
-[00000274ms] Ogg: Initialized
-[00000274ms] Theora: Initialized
-[00000276ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Texture_Rock.png"
-[00000277ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Texture_Desert.png"
-[00000277ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Mask_A.png"
-[00000278ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Mask_Simple.png"
-[00014413ms] Average FPS: 637
-[00014413ms] Timers to free: 1
-[00014413ms] Textures to free: 5
-[00014417ms] End
+[00000219ms] wglChoosePixelFormatARB: zDepth = 24; stencil = 0; fsaa = 0
+[00000240ms] GL_VERSION: 4.2.0
+[00000240ms] GL_RENDERER: GeForce GT 430/PCIe/SSE2
+[00000240ms] GL_MAX_TEXTURE_SIZE: 16384
+[00000240ms] GL_EXT_TEXTURE_COMPRESSION_S3TC: TRUE
+[00000240ms] GL_SGIS_GENERATE_MIPMAP: TRUE
+[00000240ms] GL_MAX_TEXTURE_UNITS_ARB: 4
+[00000241ms] GL_EXT_TEXTURE_FILTER_ANISOTROPIC: TRUE
+[00000241ms] GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT: 16
+[00000241ms] GL_EXT_BLEND_FUNC_SEPARATE: TRUE
+[00000241ms] GL_MAX_RENDERBUFFER_SIZE: 16384
+[00000241ms] GL_EXT_FRAMEBUFFER_OBJECT: TRUE
+[00000241ms] WGL_PBUFFER: TRUE
+[00000241ms] Support WaitVSync: TRUE
+[00000241ms] Ogg: Initialized
+[00000241ms] Theora: Initialized
+[00000243ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Texture_Rock.png"
+[00000245ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Texture_Desert.png"
+[00000246ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Mask_A.png"
+[00000247ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Mask_Simple.png"
+[00010353ms] Average FPS: 537
+[00010353ms] Timers to free: 1
+[00010353ms] Render Targets to free: 1
+[00010353ms] Textures to free: 5
+[00010370ms] End
