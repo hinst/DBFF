@@ -11,14 +11,19 @@ uses
 
   zgl_screen,
   zgl_window,
+  zgl_textures,
   zgl_primitives_2d,
   zgl_mouse,
   zgl_keyboard,
+  zgl_sprite_2d,
+  zgl_fx,
 
   LogEntity,
   LogEntityFace,
+  Generic2DArray,
 
   MapDataFace,
+  TerrainManager,
   TerrainManagerFace;
 
 type
@@ -35,16 +40,24 @@ type
     fFieldWidth, fFieldHeight: single;
     fXSpeed, fYSpeed: single;
     fMap: IMapData;
+    fMatrix: TCells.TMatrix; // direct access to Map.Cells.Matrix
     fTerrain: ITerrainManager;
+    fTerrainMan: TTerrainManager;
     fGridColor: LongWord;
     fGridAlpha: byte;
+    fFraming: TFPList;
     procedure Initialize;
     procedure AssignDefaults;
     procedure FocusViewOnMapCenter;
     procedure DetermineFieldDemensions;
     function GetViewXLeft: single; inline;
     function GetViewYUp: single; inline;
+    procedure SetTerrain(const aTerrain: ITerrainManager);
+    procedure ClearDrawn;
     procedure DrawTerrainLayerSubcolor(const aX, aY: integer; const aXD, aYD: single);
+    procedure ProcessFraming(const aX, aY: integer; const aXD, aYD: single);
+    procedure DrawTerrainLayerSimple(const aX, aY: integer; const aXD, aYD: single);
+    procedure ReleaseFraming;
     procedure Finalize;
   public type
     TForeachVisualCell = procedure(const aX, aY: integer; const aXD, aYD: single) of object;
@@ -66,7 +79,9 @@ type
     property XSpeed: single read fXSpeed write fXSpeed;
     property YSpeed: single read fYSpeed write fYSpeed;
     property Map: IMapData read fMap write fMap;
-    property Terrain: ITerrainManager read fTerrain write fTerrain;
+    property Matrix: TCells.TMatrix read fMatrix write fMatrix;
+    property Terrain: ITerrainManager read fTerrain write SetTerrain;
+    property TerrainMan: TTerrainManager read fTerrainMan;
     property GridColor: LongWord read fGridColor write fGridColor;
     property GridAlpha: byte read fGridAlpha write fGridAlpha;
       // it is necessary to call this procedure after changing the map data
@@ -74,6 +89,7 @@ type
     procedure ReceiveInput(const aT: single);
     procedure DrawDebugInfo;
     procedure DrawTerrainLayerSubcolors;
+    procedure DrawTerrainLayerSimples;
     procedure ForeachVisibleCell(const aProcedure: TForeachVisualCell);
     procedure DrawGridLines;
     destructor Destroy; override;
@@ -83,6 +99,27 @@ implementation
 
 uses
   Common;
+
+type
+  TDrawFraming = record
+    xd, yd: single;
+    Up, Down, Left, Right: boolean;
+    typee: TTerrainType;
+  end;
+
+  PDrawFraming = ^TDrawFraming;
+
+function SortFraming(Item1, Item2: pointer): integer;
+var
+  framing1, framing2: PDrawFraming;
+begin
+  framing1 := PDrawFraming(Item1);
+  framing2 := PDrawFraming(Item2);
+  if framing1^.typee > framing2^.typee then
+    result := 1
+  else
+    result := -1;
+end;
 
 { TMapView }
 
@@ -130,15 +167,113 @@ begin
   result := ViewY - single(wndHeight) / 2;
 end;
 
-procedure TMapView.DrawTerrainLayerSubcolor(const aX, aY: integer; const aXD,
-  aYD: single);
+procedure TMapView.SetTerrain(const aTerrain: ITerrainManager);
+begin
+  fTerrain := aTerrain;
+  fTerrainMan := TTerrainManager(aTerrain.Reverse);
+end;
+
+procedure TMapView.ClearDrawn;
+begin
+end;
+
+procedure TMapView.DrawTerrainLayerSubcolor(const aX, aY: integer; const aXD, aYD: single);
 var
-  &type: TTerrainType;
+  typee: TTerrainType;
   color: LongWord;
 begin
-  &type := Map.Cells.Matrix[aX, aY].&type;
-  color := Terrain.GetTypeColor(&type);
-  pr2d_Rect(aXD, aYD, TileWidth, TileHeight, color, 255, PR2D_FILL);
+  typee := Map.Cells.Matrix[aX, aY].typee;
+  if typee = -1 then
+    exit;
+  color := Terrain.GetTypeColor(typee);
+  pr2d_Rect(aXD, aYD, TileWidth+1, TileHeight+1, color, 255, PR2D_FILL);
+end;
+
+procedure TMapView.ProcessFraming(const aX, aY: integer; const aXD, aYD: single);
+var
+  c, U, D, L, R: TTerrainType;
+  framing : PDrawFraming;
+
+  procedure CleanUDLR; inline;
+  begin
+    U := -1;
+    D := -1;
+    L := -1;
+    R := -1;
+  end;
+
+  function f: PDrawFraming; inline;
+  begin
+    if framing = nil then
+      New(framing);
+    result := framing;
+  end;
+
+begin
+  c := Matrix[aX, aY].typee;
+  CleanUDLR;
+  framing := nil;
+
+  // UP
+  if aY > 0 then
+    U := Matrix[aX, aY - 1].typee;
+  if c <> U then
+    f^.Up := true;
+
+  // DOWN
+  if aY < Map.Cells.Height - 1 then
+    D := Matrix[aX, aY + 1].typee;
+  if c <> D then
+    f^.Down := true;
+
+  // LEFT
+  if aX > 0 then
+    L := Matrix[aX - 1, aY].typee;
+  if c <> L then
+    f^.Left := true;
+
+  // RIGHT
+  if aX < Map.Cells.Width - 1 then
+    R := Matrix[aX + 1, aY].typee;
+  if c <> R then
+    f^.Right := true;
+
+  if framing = nil then exit;
+  framing^.xd := aXD;
+  framing^.yd := aYD;
+  fFraming.Add(framing);
+end;
+
+procedure TMapView.DrawTerrainLayerSimple(const aX, aY: integer; const aXD, aYD: single);
+var
+  typee: TTerrainType;
+  texture: zglPTexture;
+  t: TTerrain;
+begin
+  typee := Matrix[aX, aY].typee;
+  t := TerrainMan.Terrains[typee];
+  texture := t.Texture;
+  if texture = nil then
+    exit;
+  ssprite2d_Draw(TerrainMan.SMask, aXD, aYD, TileWidth, TileHeight, 0);
+  ProcessFraming(aX, aY, aXD, aYD);
+  {
+  fx_SetBlendMode( FX_BLEND_MULT, FALSE );
+  ssprite2d_Draw(texture, aXD, aYD, TileWidth, TileHeight, 0);
+  fx_SetBlendMode( FX_BLEND_NORMAL );
+  }
+end;
+
+procedure TMapView.ReleaseFraming;
+var
+  p: pointer;
+  f: PDrawFraming;
+begin
+  for p in fFraming do
+  begin
+    f := PDrawFraming(p);
+    Dispose(f);
+  end;
 end;
 
 procedure TMapView.Finalize;
@@ -148,6 +283,7 @@ end;
 
 procedure TMapView.Update;
 begin
+  fMatrix := Map.Cells.Matrix;
   DetermineFieldDemensions;
   FocusViewOnMapCenter;
 end;
@@ -182,6 +318,14 @@ end;
 procedure TMapView.DrawTerrainLayerSubcolors;
 begin
   ForeachVisibleCell(@DrawTerrainLayerSubcolor);
+end;
+
+procedure TMapView.DrawTerrainLayerSimples;
+begin
+  fFraming := TFPList.Create;
+  ForeachVisibleCell(@DrawTerrainLayerSimple);
+  fFraming.Sort(@SortFraming);
+  FreeAndNil(fFraming);
 end;
 
   { Warning: some heavy calculations are taking place in this procedure }

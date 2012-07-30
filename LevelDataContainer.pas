@@ -124,10 +124,10 @@ begin
     begin
       color := aImage.Colors[x, y];
       colorNumber := FPColorToLongWordColor(color);
-      aMap[x,y].&type := GetTerrainTypeByColor(colorNumber);
+      aMap[x,y].typee := GetTerrainTypeByColor(colorNumber);
       if DEBUG then
         Log.Write('#' + IntToStr(x) + 'x' + IntToStr(y) + ': ' + IntToHex(colorNumber, 6)
-          + ' => ' + IntToStr(aMap[x,y].&type));
+          + ' => ' + IntToStr(aMap[x,y].typee));
     end;
 end;
 
@@ -183,8 +183,9 @@ end;
 
 procedure TLevelData.Draw;
 begin
-  MapView.DrawTerrainLayerSubcolors;
-  MapView.DrawGridLines;
+  //MapView.DrawTerrainLayerSubcolors;
+  MapView.DrawTerrainLayerSimples;
+  //MapView.DrawGridLines;
 end;
 
 procedure TLevelData.ReceiveInput(const aTime: single);

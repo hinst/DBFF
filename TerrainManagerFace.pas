@@ -15,6 +15,7 @@ type
     // This function should be used for debugging
     function GetTerrainsInfoAsText: string;
     function GetTypeColor(const aType: TTerrainType): LongWord;
+    function Reverse: TObject;
   end;
 
 implementation
