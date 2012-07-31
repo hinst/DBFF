@@ -313,12 +313,12 @@ begin
   if f^.Up then
   begin
     rtarget_Set(FramingTexture);
-    fx_SetBlendMode(FX_BLEND_MASK);
+    fx_SetBlendMode(FX_BLEND_NORMAL);
     ssprite2d_Draw(TerrainMan.SMask, 0, 0, TileWidth, TileHeight, 0);
     fx_SetBlendMode(FX_BLEND_MULT, FALSE);
     ssprite2d_Draw(texture, 0, 0, TileWidth, TileHeight, 0);
-    fx_SetBlendMode(FX_BLEND_NORMAL);
     rtarget_Set(nil);
+    fx_SetBlendMode(FX_BLEND_NORMAL);
     ssprite2d_Draw(FramingTexture^.Surface, xD, yD - TileHeight, TileWidth, TileHeight, 0);
   end;
 end;

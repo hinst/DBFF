@@ -48,7 +48,6 @@ type
   private
     fLog: ILog;
     fTerrains: TTerrains;
-    fHMask: zglPTexture;
     fSMask: zglPTexture;
     procedure Initialize;
     procedure LoadTerrainsFromList(const aFile: TIniFile; const aList: TStrings);
@@ -65,7 +64,6 @@ type
   public
     property Log: ILog read fLog;
     property Terrains: TTerrains read fTerrains;
-    property HMask: zglPTexture read fHMask;
     property SMask: zglPTexture read fSMask;
     procedure LoadTerrains(const aFileName: string);
     procedure LoadTerrains(const aFile: TIniFile);
@@ -157,7 +155,6 @@ const
   end;
 
 begin
-  fHMask := LoadMask(HMaskIdent);
   fSMask := LoadMask(SMaskIdent);
 end;
 
