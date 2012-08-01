@@ -55,6 +55,7 @@ uses
 
 procedure GlobalLoad;
 begin
+  GlobalEngineRunning := true;
   AssertArgumentAssigned(GlobalGameManager, 'GlobalGameManager');
   GlobalGameManager.Load;
 end;
@@ -71,6 +72,11 @@ begin
   GlobalGameManager.Update(DT);
 end;
 
+procedure GlobalFinalize;
+begin
+  GlobalEngineRunning := false;
+end;
+
 { TGameManager }
 
 constructor TGameManager.Create(const aOwner: TComponent);
@@ -84,6 +90,7 @@ begin
   EngineMan.Draw := @GlobalDraw;
   EngineMan.Load := @GlobalLoad;
   EngineMan.Update := @GlobalUpdate;
+  EngineMan.OnEngineFinalize := @GlobalFinalize;
   EngineMan.Startup(TEngineManager.GetConfigFilePath);
 end;
 

@@ -22,7 +22,7 @@ uses
   {$ENDREGION}
 
   {$REGION Custom units}
-  ZenGL_FCL_Graphics,
+  ZenGLFCLGraphics,
   LevelDataFace,
   MapDataFace,
   MapDataContainer,

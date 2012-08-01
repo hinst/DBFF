@@ -3,7 +3,7 @@ program MaskGenerator;
 {$mode objfpc}{$H+}
 
 uses
-  interfaces,
+  Interfaces,
   MaskGeneration,
   BGRABitmap;
 
@@ -14,7 +14,7 @@ begin
   b := TBGRABitmap.Create(64, 64);
   randomize;
   DrawDebris(b);
-  b.SaveToFile('mask.png');
+  b.SaveToFile('image.png');
   b.Free;
 end.
 

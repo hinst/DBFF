@@ -314,7 +314,7 @@ begin
   begin
     rtarget_Set(FramingTexture);
     fx_SetBlendMode(FX_BLEND_NORMAL);
-    ssprite2d_Draw(TerrainMan.SMask, 0, 0, TileWidth, TileHeight, 0);
+    //ssprite2d_Draw(TerrainMan.SMask, 0, 0, TileWidth, TileHeight, 0);
     fx_SetBlendMode(FX_BLEND_MULT, FALSE);
     ssprite2d_Draw(texture, 0, 0, TileWidth, TileHeight, 0);
     rtarget_Set(nil);

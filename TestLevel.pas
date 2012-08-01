@@ -21,6 +21,7 @@ type
     fLog: ILog;
     procedure SetLog(const aLog: ILog);
     function GetTerrainsInfoFilePath: string;
+    function GetMasksInfoFilePath: string;
     function GetTerrainMapImageFilePath: string;
   public const
     TerrainMapImageFilePath = '..' + PathDelim + 'data' + PathDelim + 'TestLevel.png';
@@ -46,6 +47,11 @@ begin
   result := GlobalApplicationPath + StandardTerrainsRelativePath;
 end;
 
+function TTestLevel.GetMasksInfoFilePath: string;
+begin
+  result := GlobalApplicationPath + StandardMasksRelativePath;
+end;
+
 function TTestLevel.GetTerrainMapImageFilePath: string;
 begin
   result := GlobalApplicationPath + TerrainMapImageFilePath;
@@ -56,6 +62,7 @@ procedure TTestLevel.Load(const aLevel: ILevelData);
   begin
     aLevel.Terrain.LoadTerrains(GetTerrainsInfoFilePath);
     Log.Write(aLevel.Terrain.GetTerrainsInfoAsText);
+    aLevel.Terrain.LoadMasks(GetMasksInfoFilePath);
   end;
 
   procedure LoadTerrainMap;

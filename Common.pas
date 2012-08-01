@@ -19,12 +19,14 @@ const
   EngineConfigFileName = 'EngineConfig.ini';
   StandardDataRelativePath = '..' + PathDelim + 'data' + PathDelim;
   StandardTerrainsRelativePath = StandardDataRelativePath + 'StandardTerrain.ini';
+  StandardMasksRelativePath = StandardDataRelativePath + 'Masks.ini';
 
 var
   GlobalConfigPath: string;
   GlobalLogManager: TLogManager;
   GlobalGameManager: TGameManager;
   GlobalApplicationPath: string;
+  GlobalEngineRunning: boolean;
 
 {
   Вывести указанный текст на стандартный вывод в случае если имеется консоль,
@@ -63,5 +65,7 @@ begin
   result := ExcludeTrailingPathDelimiter(GlobalConfigPath);
 end;
 
+initialization
+  GlobalEngineRunning := false;
 end.
 

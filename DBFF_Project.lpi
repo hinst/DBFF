@@ -110,9 +110,9 @@
         <UnitName Value="LevelLoaderFace"/>
       </Unit12>
       <Unit13>
-        <Filename Value="ZenGL_FCL_Graphics.pas"/>
+        <Filename Value="ZenGLFCLGraphics.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ZenGL_FCL_Graphics"/>
+        <UnitName Value="ZenGLFCLGraphics"/>
       </Unit13>
     </Units>
   </ProjectOptions>

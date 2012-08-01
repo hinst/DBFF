@@ -48,27 +48,26 @@ type
   private
     fLog: ILog;
     fTerrains: TTerrains;
-    fSMask: zglPTexture;
+    fMasks: zglPTexture;
     procedure Initialize;
+    procedure LoadTerrains(const aFile: TIniFile);
     procedure LoadTerrainsFromList(const aFile: TIniFile; const aList: TStrings);
-    procedure LoadMasks(const aFile: TIniFile);
+    procedure LoadTerrain(var aTerrain: TTerrain; const aFile: TIniFile);
+    procedure LoadTerrainTexture(var aTerrain: TTerrain; const aFile: TIniFile);
     procedure ReleaseTerrains;
+    procedure LoadMasks(const aFile: TIniFile);
     procedure Finalize;
   public const
     ColorIdent = 'replacingColor';
     TextureFilePathIdent = 'textureFile';
     WarnOnNoTexture = true;
     CommonSection = 'common';
-    HMaskIdent = 'hmask';
-    SMaskIdent = 'smask';
   public
     property Log: ILog read fLog;
     property Terrains: TTerrains read fTerrains;
-    property SMask: zglPTexture read fSMask;
+    property Masks: zglPTexture read fMasks;
     procedure LoadTerrains(const aFileName: string);
-    procedure LoadTerrains(const aFile: TIniFile);
-    procedure LoadTerrain(var aTerrain: TTerrain; const aFile: TIniFile);
-    procedure LoadTerrainTexture(var aTerrain: TTerrain; const aFile: TIniFile);
+    procedure LoadMasks(const aFileName: string);
     function GetTerrainsInfoAsText: string;
     function GetTypeColor(const aType: TTerrainType): LongWord;
     function Reverse: TObject;
@@ -100,11 +99,8 @@ end;
 
 destructor TTerrain.Done;
 begin
-  // difficult situation here
-  {
-  if Assigned(Texture) then
+  if GlobalEngineRunning and Assigned(Texture) then
     tex_Del(Texture);
-  }
   Clean;
 end;
 
@@ -140,13 +136,13 @@ procedure TTerrainManager.LoadMasks(const aFile: TIniFile);
 const
   DEBUG = true;
 
-  function LoadMask(const aIdent: string): zglPTexture;
+  function LoadMask(const aSection: string): zglPTexture;
   var
     MaskFilePath: string;
   begin
-    MaskFilePath := aFile.ReadString(CommonSection, aIdent, '');
+    MaskFilePath := aFile.ReadString(aSection, TextureFilePathIdent, '');
     if DEBUG then
-      Log.Write('Now loading hmask'
+      Log.Write('Now loading mask "' + aSection + '"'
         + LineEnding + '"' + MaskFilePath + '"');
     MaskFilePath := GlobalApplicationPath + MaskFilePath;
     if not FileExists(MaskFilePath) then
@@ -154,8 +150,15 @@ const
     result := tex_LoadFromFile(MaskFilePath);
   end;
 
+var
+  sections: TStrings;
+  s: string;
 begin
-  fSMask := LoadMask(SMaskIdent);
+  sections := TStringList.Create;
+  aFile.ReadSections(sections);
+  for s in sections do
+    LoadMask(s);
+  sections.Free;
 end;
 
 procedure TTerrainManager.ReleaseTerrains;
@@ -183,6 +186,16 @@ begin
   ini.Free;
 end;
 
+procedure TTerrainManager.LoadMasks(const aFileName: string);
+var
+  ini: TIniFile;
+begin
+  AssertFileExists(aFileName);
+  ini := TIniFile.Create(aFileName);
+  LoadMasks(ini);
+  ini.Free;
+end;
+
 procedure TTerrainManager.LoadTerrains(const aFile: TIniFile);
   procedure LoadTheTerrains;
   var
@@ -200,7 +213,6 @@ procedure TTerrainManager.LoadTerrains(const aFile: TIniFile);
 
 begin
   LoadTheTerrains;
-  LoadMasks(aFile);
 end;
 
 procedure TTerrainManager.LoadTerrain(var aTerrain: TTerrain;

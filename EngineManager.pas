@@ -34,6 +34,7 @@ type
     fDraw: TProcedure;
     fLoad: TProcedure;
     fUpdate: TUpdateProcedure;
+    fOnEngineFinalize: TProcedure;
   public const
     Debug = true;
   public
@@ -41,6 +42,7 @@ type
     property Draw: TProcedure read fDraw write fDraw;
     property Load: TProcedure read fLoad write fLoad;
     property Update: TUpdateProcedure read fUpdate write fUpdate;
+    property OnEngineFinalize: TProcedure read fOnEngineFinalize write fOnEngineFinalize;
     class function GetConfigFilePath: string;
     destructor Destroy; override;
   end;
@@ -112,6 +114,7 @@ begin
   zgl_Reg(SYS_LOAD, Load);
   zgl_Reg(SYS_DRAW, Draw);
   zgl_Reg(SYS_UPDATE, Update);
+  zgl_Reg(SYS_EXIT, OnEngineFinalize);
   wnd_SetCaption(ApplicationTitle);
   Log.Write('Initializing engine...');
   zgl_Init;

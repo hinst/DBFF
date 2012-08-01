@@ -30,7 +30,7 @@ uses
   {$REGION Custom units}
   Common, EngineManager, GameManager, MapDataContainer, TerrainManager,
   MapDataFace, TerrainManagerFace, MapViewer, LevelDataContainer, TestLevel,
-  LevelDataFace, LevelLoaderFace, ZenGL_FCL_Graphics;
+  LevelDataFace, LevelLoaderFace, ZenGLFCLGraphics;
 
 type
 
@@ -43,7 +43,6 @@ type
     fLogMan: TLogManager;
     fLog: ILog;
     fGameMan: TGameManager;
-    fEngineRunning: boolean;
     procedure DoRun; override;
     {$REGION Startup block}
     function CheckCommandLineOptions: boolean;
@@ -69,7 +68,6 @@ type
     property LogMan: TLogManager read fLogMan;
     property Log: ILog read fLog;
     property GameMan: TGameManager read fGameMan;
-    property EngineRunning: boolean read fEngineRunning;
     function WriteHelp: boolean;
     function CreateConfigDir: boolean;
     function ResetEngineConfig: boolean;
@@ -188,7 +186,6 @@ begin
   GlobalGameManager := GameMan;
   GameMan.StartupEngine;
   result := true;
-  fEngineRunning := true;
 end;
 
 function TApplication.Execute: boolean;
