@@ -88,6 +88,7 @@ var
   result: boolean = false;
 begin
   Terminate; // prevent loop of this method
+  Randomize;
   try
     result := Execute;
   except

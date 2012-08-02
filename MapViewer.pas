@@ -22,6 +22,7 @@ uses
   LogEntity,
   LogEntityFace,
   Generic2DArray,
+  NiceExceptions,
 
   MapDataFace,
   TerrainManager,
@@ -35,6 +36,27 @@ type
   TMapView = class(TComponent)
   public
     constructor Create(const aOwner: TComponent); reintroduce;
+  public type
+    TForeachVisualCell = procedure(const aX, aY: integer; const aXD, aYD: single) of object;
+
+    TCellMaskInfo = record
+      Up, Down, Left, Right: integer;
+    end;
+
+    PCellMaskInfo = ^TCellMaskInfo;
+
+    TDrawFraming = record
+      xD, yD: single;
+      cmi: PCellMaskInfo;
+      typee: TTerrainType;
+    end;
+
+    PDrawFraming = ^TDrawFraming;
+
+    TCellMaskInfoColumn = array of PCellMaskInfo;
+
+    TCellMaskInfoMatrix = array of TCellMaskInfoColumn;
+
   private
     fLog: ILog;
     fViewX, fViewY: single;
@@ -44,7 +66,10 @@ type
     fMatrix: TCells.TMatrix; // direct access to Map.Cells.Matrix; cached
     fMapWidth, fMapHeight: integer; // direct access to Map.Cells.Width and Map.Cells.Height; cached
     fTerrain: ITerrainManager;
-    fTerrainMan: TTerrainManager;
+    fTerrainMan: TTerrainManager; // direct access to Terrain.Reverse
+    fMaskTexture: zglPTexture; // direct access to TerrainMan.Masks.Area^.Surface
+    fMaskCount: integer; // direct access to TerrainMan.Masks.Count
+    fMasks: TCellMaskInfoMatrix;
     fGridColor: LongWord;
     fGridAlpha: byte;
     fFramings: TFPList;
@@ -53,19 +78,24 @@ type
     procedure AssignDefaults;
     procedure FocusViewOnMapCenter;
     procedure DetermineFieldDemensions;
+    procedure DetermineMasks;
     function GetViewXLeft: single; inline;
     function GetViewYUp: single; inline;
     procedure SetTerrain(const aTerrain: ITerrainManager);
     procedure ClearDrawn;
     procedure DrawTerrainLayerSubcolor(const aX, aY: integer; const aXD, aYD: single);
+    procedure CheckCellFraming(const aX, aY: integer; var aU, aD, aL, aR: boolean); inline;
     function ProcessFraming(const aX, aY: integer; const aXD, aYD: single): boolean; inline;
+    procedure OptimizeFraming;
     procedure DrawTerrainLayerSimple(const aX, aY: integer; const aXD, aYD: single);
-    procedure DrawFraming(const aP: pointer); inline;
+    procedure DrawFraming(const aP: PDrawFraming); inline;
+    procedure DrawBorderFrame(const aTexture: zglPTexture;
+      const aMaskFrame: integer; const aAngle: single;
+      const aXD, aYD: single); inline;
     procedure DrawFramings;
     procedure ReleaseFraming;
+    procedure ReleaseMasks;
     procedure Finalize;
-  public type
-    TForeachVisualCell = procedure(const aX, aY: integer; const aXD, aYD: single) of object;
   public const
     TileWidth = 64;
     TileHeight = 64;
@@ -89,6 +119,9 @@ type
     property MapHeight: integer read fMapHeight;
     property Terrain: ITerrainManager read fTerrain write SetTerrain;
     property TerrainMan: TTerrainManager read fTerrainMan;
+    property MaskTexture: zglPTexture read fMaskTexture;
+    property MaskCount: integer read fMaskCount;
+    property Masks: TCellMaskInfoMatrix read fMasks;
     property GridColor: LongWord read fGridColor write fGridColor;
     property GridAlpha: byte read fGridAlpha write fGridAlpha;
     property Framings: TFPList read fFramings;
@@ -109,24 +142,9 @@ implementation
 uses
   Common;
 
-type
-  TDrawFraming = record
-    xD, yD: single;
-    Up, Down, Left, Right: boolean;
-    typee: TTerrainType;
-  end;
-
-  PDrawFraming = ^TDrawFraming;
-
-procedure Clean(const aFraming: PDrawFraming); overload;
-begin
-  aFraming^.Up := false;
-  aFraming^.Down := false;
-  aFraming^.Left := false;
-  aFraming^.Right := false;
-end;
-
 function SortFraming(Item1, Item2: pointer): integer;
+type
+  PDrawFraming = TMapView.PDrawFraming;
 var
   framing1, framing2: PDrawFraming;
 begin
@@ -176,6 +194,39 @@ begin
     + FloatToStr(FieldWidth) + ' x ' + FloatToStr(FieldHeight));
 end;
 
+procedure TMapView.DetermineMasks;
+var
+  U, D, L, R: boolean;
+  x, y: integer;
+  maskInfo: PCellMaskInfo;
+begin
+  Log.Write('Now determining masks...');
+  if Length(Masks) <> 0 then
+    ReleaseMasks;
+  SetLength(fMasks, MapWidth, MapHeight);
+  AssertArgumentAssigned(Assigned(Matrix), 'Matrix');
+  for x := 0 to MapWidth - 1 do
+    for y := 0 to MapHeight - 1 do
+    begin
+      CheckCellFraming(x, y, U, D, L, R);
+      if U or D or L or R then
+      begin
+        New(maskInfo);
+        if U then
+          maskInfo^.Up := random(MaskCount);
+        if D then
+          maskInfo^.Down := random(MaskCount);
+        if L then
+          maskInfo^.Left := random(MaskCount);
+        if R then
+          maskInfo^.Right := random(MaskCount);
+        Masks[x, y] := maskInfo;
+      end
+      else
+        Masks[x, y] := nil;
+    end;
+end;
+
 function TMapView.GetViewXLeft: single;
 begin
   result := ViewX - single(wndWidth) / 2;
@@ -190,6 +241,8 @@ procedure TMapView.SetTerrain(const aTerrain: ITerrainManager);
 begin
   fTerrain := aTerrain;
   fTerrainMan := TTerrainManager(aTerrain.Reverse);
+  fMaskTexture := TerrainMan.Masks.Area^.Surface;
+  fMaskCount := TerrainMan.Masks.Count;
 end;
 
 procedure TMapView.ClearDrawn;
@@ -208,11 +261,10 @@ begin
   pr2d_Rect(aXD, aYD, TileWidth+1, TileHeight+1, color, 255, PR2D_FILL);
 end;
 
-function TMapView.ProcessFraming(const aX, aY: integer; const aXD, aYD: single
-  ): boolean;
+procedure TMapView.CheckCellFraming(const aX, aY: integer; var aU, aD, aL,
+  aR: boolean);
 var
-  c, U, D, L, R: TTerrainType;
-  framing : PDrawFraming;
+  C, U, D, L, R: TTerrainType;
 
   procedure CleanUDLR; inline;
   begin
@@ -222,53 +274,60 @@ var
     R := -1;
   end;
 
-  function f: PDrawFraming; inline;
-  begin
-    if framing = nil then
-    begin
-      New(framing);
-      Clean(framing);
-    end;
-    result := framing;
-  end;
-
 begin
-  //WriteLN(aX, ' ', aY);
   c := Matrix[aX, aY].typee;
   CleanUDLR;
-  framing := nil;
-
   // UP
   if aY > 0 then
     U := Matrix[aX, aY - 1].typee;
-  if c <> U then
-    f^.Up := true;
+  aU := C > U;
 
   // DOWN
   if aY < MapHeight - 1 then
     D := Matrix[aX, aY + 1].typee;
-  if c <> D then
-    f^.Down := true;
+  aD := C > D;
 
   // LEFT
   if aX > 0 then
     L := Matrix[aX - 1, aY].typee;
-  if c <> L then
-    f^.Left := true;
+  aL := C > L;
 
   // RIGHT
   if aX < MapWidth - 1 then
     R := Matrix[aX + 1, aY].typee;
-  if c <> R then
-    f^.Right := true;
+  aR := C > R;
+end;
 
-  result := Assigned(framing);
+function TMapView.ProcessFraming(const aX, aY: integer; const aXD, aYD: single
+  ): boolean;
+var
+  mask: PCellMaskInfo;
+  framing: PDrawFraming;
+
+begin
+  mask := Masks[aX, aY];
+  result := Assigned(mask);
   if not result then
     exit;
+
+  New(framing);
+
   framing^.xD := aXD;
   framing^.yD := aYD;
-  framing^.typee := c;
+  framing^.cmi := mask;
+  framing^.typee := Matrix[aX, aY].typee;
   Framings.Add(framing);
+end;
+
+procedure TMapView.OptimizeFraming;
+var
+  i: integer;
+  f: PDrawFraming;
+begin
+  for i := 0 to Framings.Count - 1 do
+  begin
+    f := PDrawFraming(Framings[i]);
+  end;
 end;
 
 procedure TMapView.DrawTerrainLayerSimple(const aX, aY: integer; const aXD, aYD: single);
@@ -284,10 +343,8 @@ begin
   if texture = nil then
     exit;
   isAnyFraming := ProcessFraming(aX, aY, aXD, aYD);
-  {
   if not isAnyFraming then
     ssprite2d_Draw(texture, aXD, aYD, TileWidth, TileHeight, 0);
-  }
   {
   fx_SetBlendMode( FX_BLEND_MULT, FALSE );
   ssprite2d_Draw(TerrainMan.SMask, aXD, aYD, TileWidth, TileHeight, 0);
@@ -295,13 +352,15 @@ begin
   }
 end;
 
-procedure TMapView.DrawFraming(const aP: pointer);
+procedure TMapView.DrawFraming(const aP: PDrawFraming);
 var
   f: PDrawFraming;
   typee: TTerrainType;
   t: TTerrain;
   texture: zglPTexture;
+  MaskFrame: integer;
   xD, yD: single;
+  cmi: TCellMaskInfo;
 begin
   f := PDrawFraming(aP);
   typee := f^.typee;
@@ -310,17 +369,39 @@ begin
   t := TerrainMan.Terrains[typee];
   texture := t.Texture;
   ssprite2d_Draw(texture, xD, yD, TileWidth, TileHeight, 0);
-  if f^.Up then
-  begin
-    rtarget_Set(FramingTexture);
-    fx_SetBlendMode(FX_BLEND_NORMAL);
-    //ssprite2d_Draw(TerrainMan.SMask, 0, 0, TileWidth, TileHeight, 0);
-    fx_SetBlendMode(FX_BLEND_MULT, FALSE);
-    ssprite2d_Draw(texture, 0, 0, TileWidth, TileHeight, 0);
-    rtarget_Set(nil);
-    fx_SetBlendMode(FX_BLEND_NORMAL);
-    ssprite2d_Draw(FramingTexture^.Surface, xD, yD - TileHeight, TileWidth, TileHeight, 0);
-  end;
+
+  cmi := f^.cmi^;
+  DrawBorderFrame(texture, cmi.Up, 0, xD, yD - TileHeight);
+  DrawBorderFrame(texture, cmi.Down, 180, xD, yD + TileHeight);
+  DrawBorderFrame(texture, cmi.Left, -90, xD - TileWidth, yD);
+  DrawBorderFrame(texture, cmi.Right, +90, xD + TileWidth, yD);
+end;
+
+procedure TMapView.DrawBorderFrame(const aTexture: zglPTexture;
+  const aMaskFrame: integer; const aAngle: single;
+  const aXD, aYD: single);
+begin
+  if aMaskFrame = - 1 then
+    exit;
+  rtarget_Set(FramingTexture);
+  fx_SetBlendMode(FX_BLEND_MULT, FALSE);
+  pr2d_Rect(
+    0, 0, TileWidth, TileHeight, // XYWH
+    0, 0, // color, alpha
+    PR2D_FILL
+  );
+  fx_SetBlendMode(FX_BLEND_NORMAL);
+  asprite2d_Draw(
+    MaskTexture,
+    0, 0, TileWidth, TileHeight, // XYWH
+    aAngle, // angle
+    aMaskFrame
+  );
+  fx_SetBlendMode(FX_BLEND_MULT, FALSE);
+  ssprite2d_Draw(aTexture, 0, 0, TileWidth, TileHeight, 0);
+  rtarget_Set(nil);
+  fx_SetBlendMode(FX_BLEND_NORMAL);
+  ssprite2d_Draw(FramingTexture^.Surface, aXD, aYD, TileWidth, TileHeight, 0);
 end;
 
 procedure TMapView.DrawFramings;
@@ -346,8 +427,25 @@ begin
   Framings.Clear;
 end;
 
+procedure TMapView.ReleaseMasks;
+var
+  x, y: integer;
+  maskInfo: PCellMaskInfo;
+begin
+  for x := 0 to Length(Masks) - 1 do
+    for y := 0 to Length(Masks[x]) - 1 do
+      if Masks[x, y] <> nil then
+      begin
+        maskInfo := Masks[x, y];
+        Dispose(maskInfo);
+        Masks[x, y] := nil;
+      end;
+  SetLength(fMasks, 0, 0);
+end;
+
 procedure TMapView.Finalize;
 begin
+  ReleaseMasks;
   FreeAndNil(fFramings);
   FreeLog(fLog);
 end;
@@ -358,10 +456,11 @@ begin
   fMapWidth := Map.Cells.Width;
   fMapHeight := Map.Cells.Height;
   DetermineFieldDemensions;
+  DetermineMasks;
   FocusViewOnMapCenter;
 
   fFramings := TFPList.Create;
-  fFramingTexture := rtarget_Add(tex_CreateZero(TileWidth, TileHeight), RT_DEFAULT);;
+  fFramingTexture := rtarget_Add(tex_CreateZero(TileWidth, TileHeight), RT_DEFAULT);
 end;
 
 procedure TMapView.ReceiveInput(const aT: single);
@@ -397,11 +496,23 @@ begin
 end;
 
 procedure TMapView.DrawTerrainLayerSimples;
+const
+  DEBUG = false;
 begin
+  if DEBUG then
+    Log.Write('Stage 1');
   ForeachVisibleCell(@DrawTerrainLayerSimple);
+  if DEBUG then
+    Log.Write('Stage 2');
   Framings.Sort(@SortFraming);
+  if DEBUG then
+    Log.Write('Stage 3');
   DrawFramings;
+  if DEBUG then
+    Log.Write('Stage 4');
   ReleaseFraming;
+  if DEBUG then
+    Log.Write('Stage F');
 end;
 
   { Warning: some heavy calculations are taking place in this procedure }

@@ -18,6 +18,7 @@ uses
   LogEntity,
   LogEntityFace,
 
+  ZenGLFCLGraphics,
   TerrainManagerFace,
   MapDataFace;
 
@@ -48,7 +49,7 @@ type
   private
     fLog: ILog;
     fTerrains: TTerrains;
-    fMasks: zglPTexture;
+    fMasks: TMultiTexture;
     procedure Initialize;
     procedure LoadTerrains(const aFile: TIniFile);
     procedure LoadTerrainsFromList(const aFile: TIniFile; const aList: TStrings);
@@ -65,7 +66,7 @@ type
   public
     property Log: ILog read fLog;
     property Terrains: TTerrains read fTerrains;
-    property Masks: zglPTexture read fMasks;
+    property Masks: TMultiTexture read fMasks;
     procedure LoadTerrains(const aFileName: string);
     procedure LoadMasks(const aFileName: string);
     function GetTerrainsInfoAsText: string;
@@ -115,6 +116,7 @@ end;
 procedure TTerrainManager.Initialize;
 begin
   fLog := TLog.Create(GlobalLogManager, 'TerrainManager');
+  Masks.Init;
 end;
 
 procedure TTerrainManager.LoadTerrainsFromList(const aFile: TIniFile;
@@ -153,11 +155,20 @@ const
 var
   sections: TStrings;
   s: string;
+  texture: zglPTexture;
 begin
   sections := TStringList.Create;
   aFile.ReadSections(sections);
+  Masks.Count := sections.Count;
+  if DEBUG then
+    Log.Write('Now loading masks: ' + IntToStr(Masks.Count) + ' items');
   for s in sections do
-    LoadMask(s);
+  begin
+    texture := LoadMask(s);
+    Masks.Add(texture);
+    tex_Del(texture);
+  end;
+  Masks.FinishArea;
   sections.Free;
 end;
 
