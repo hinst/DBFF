@@ -34,16 +34,16 @@
     </RunParams>
     <RequiredPackages Count="3">
       <Item1>
-        <PackageName Value="FCL"/>
+        <PackageName Value="ZenGL_Package"/>
       </Item1>
       <Item2>
-        <PackageName Value="ZenGL_Package"/>
+        <PackageName Value="FCL"/>
       </Item2>
       <Item3>
         <PackageName Value="UltimateLibrary"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="14">
+    <Units Count="17">
       <Unit0>
         <Filename Value="DBFF_Project.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -114,6 +114,20 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="ZenGLFCLGraphics"/>
       </Unit13>
+      <Unit14>
+        <Filename Value="EngineManagerFace.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="EngineManagerFace"/>
+      </Unit14>
+      <Unit15>
+        <Filename Value="ZenGL_LinkLibraries.fpc"/>
+        <IsPartOfProject Value="True"/>
+      </Unit15>
+      <Unit16>
+        <Filename Value="TextureCache.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TextureCache"/>
+      </Unit16>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

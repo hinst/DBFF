@@ -1,6 +1,7 @@
 unit GameManager;
 
 {$mode objfpc}{$H+}
+{$INTERFACES CORBA}
 
 interface
 
@@ -15,7 +16,10 @@ uses
   LogEntityFace,
   LogEntity,
   NiceExceptions,
+  JobThread,
+  SynchroThread,
 
+  ZenGLFCLGraphics,
   EngineManager,
   LevelDataContainer,
   LevelLoaderFace,
@@ -29,20 +33,27 @@ type
   TGameManager = class(TComponent)
   public
     constructor Create(const aOwner: TComponent); reintroduce;
-    procedure StartupEngine;
   private
     fLog: ILog;
-    fEngineMan: TEngineManager;
+    fJobThread: TJobThread;
+    fEngine: TEngineManager;
     fLevel: TLevelData;
+    fLevelActive: boolean;
     procedure Initialize;
+    procedure ReceiveDebugKeys;
     procedure Finalize;
   public
     property Log: ILog read fLog;
-    property EngineMan: TEngineManager read fEngineMan;
+    property JobThread: TJobThread read fJobThread;
+    property Engine: TEngineManager read fEngine;
     property Level: TLevelData read fLevel;
+    property LevelActive: boolean read fLevelActive write fLevelActive;
+    procedure StartupEngine;
     procedure Load;
     procedure Draw;
     procedure Update(const aTime: double);
+    procedure ReceiveInput(const aTime: double);
+    procedure UserLoadLevel(const aLevel: ILevelLoader);
     procedure LoadLevel(const aLevel: ILevelLoader);
     procedure LoadTestLevel;
     destructor Destroy; override;
@@ -52,6 +63,17 @@ implementation
 
 uses
   Common;
+
+type
+
+  { TLoadLevelJob }
+
+  TLoadLevelJob = class(TInterfacedObject, IThreadJob)
+  public
+    GameManager: TGameManager;
+    Loader: ILevelLoader;
+    procedure Execute(const aThread: TJobThread);
+  end;
 
 procedure GlobalLoad;
 begin
@@ -77,6 +99,25 @@ begin
   GlobalEngineRunning := false;
 end;
 
+{ TLoadLevelJob }
+
+procedure TLoadLevelJob.Execute(const aThread: TJobThread);
+begin
+  try
+    try
+      GameManager.LoadLevel(Loader);
+    finally
+      Loader.Free;
+    end;
+  except
+    on e: Exception do
+    begin
+      GameManager.Log.Write(logTagError, 'An error occured while executing load level job');
+      GameManager.Log.Write(GetFullExceptionInfo(e));
+    end;
+  end;
+end;
+
 { TGameManager }
 
 constructor TGameManager.Create(const aOwner: TComponent);
@@ -85,45 +126,73 @@ begin
   Initialize;
 end;
 
-procedure TGameManager.StartupEngine;
-begin
-  EngineMan.Draw := @GlobalDraw;
-  EngineMan.Load := @GlobalLoad;
-  EngineMan.Update := @GlobalUpdate;
-  EngineMan.OnEngineFinalize := @GlobalFinalize;
-  EngineMan.Startup(TEngineManager.GetConfigFilePath);
-end;
-
 procedure TGameManager.Initialize;
 begin
   fLog := TLog.Create(GlobalLogManager, 'GameManager');
-  fEngineMan := TEngineManager.Create(self);
+  fJobThread := TJobThread.Create;
+  JobThread.Start;
+  LevelActive := false;
+  fEngine := TEngineManager.Create(self);
+end;
+
+procedure TGameManager.StartupEngine;
+begin
+  Engine.Draw := @GlobalDraw;
+  Engine.Load := @GlobalLoad;
+  Engine.Update := @GlobalUpdate;
+  Engine.OnEngineFinalize := @GlobalFinalize;
+  Engine.Startup;
+end;
+
+procedure TGameManager.ReceiveDebugKeys;
+begin
+  if key_Press(K_F1) then
+    LoadTestLevel;
 end;
 
 procedure TGameManager.Finalize;
 begin
-  if Assigned(Log) then
-  begin
-    Log.Free;
-    fLog := nil;
-  end;
-  if Assigned(EngineMan) then
-    FreeAndNil(fEngineMan);
+  LevelActive := false;
+  FreeAndNil(fEngine);
+  FreeAndNil(fJobThread);
+  FreeLog(fLog);
 end;
 
 procedure TGameManager.Load;
 begin
-  LoadTestLevel;
+  //LoadTestLevel;
 end;
 
 procedure TGameManager.Draw;
 begin
-  Level.Draw;
+  Engine.PerformBatch;
+  if LevelActive then
+    Level.Draw;
 end;
 
 procedure TGameManager.Update(const aTime: double);
 begin
-  Level.ReceiveInput(aTime);
+  if not GlobalEngineRunning then exit;
+  ReceiveInput(aTime);
+end;
+
+procedure TGameManager.ReceiveInput(const aTime: double);
+begin
+  ReceiveDebugKeys;
+  if LevelActive then
+    Level.ReceiveInput(aTime);
+
+  key_ClearState;
+end;
+
+procedure TGameManager.UserLoadLevel(const aLevel: ILevelLoader);
+var
+  job: TLoadLevelJob;
+begin
+  job := TLoadLevelJob.Create;
+  job.GameManager := self;
+  job.Loader := aLevel;
+  JobThread.Add(job);
 end;
 
 procedure TGameManager.LoadLevel(const aLevel: ILevelLoader);
@@ -142,6 +211,7 @@ begin
       levelLog := TLog.Create(GlobalLogManager, 'LevelLoader');
       aLevel.Log := levelLog;
       aLevel.Load(Level);
+      LevelActive := true;
     finally
       levelLog.Free;
     end;
@@ -159,12 +229,8 @@ var
   loader: TTestLevel;
 begin
   Log.Write('Now loading test level...');
-  try
-    loader := TTestLevel.Create;
-    LoadLevel(loader);
-  finally
-    loader.Free;
-  end;
+  loader := TTestLevel.Create;
+  UserLoadLevel(loader);
 end;
 
 destructor TGameManager.Destroy;

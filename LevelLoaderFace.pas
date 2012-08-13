@@ -1,6 +1,7 @@
 unit LevelLoaderFace;
 
 {$mode objfpc}{$H+}
+{$INTERFACES CORBA}
 
 interface
 

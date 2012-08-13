@@ -1,6 +1,7 @@
 unit EngineManager;
 
 {$mode objfpc}{$H+}
+{$DEFINE DEBUG_BATCH}
 
 interface
 
@@ -10,23 +11,36 @@ uses
   IniFiles,
 
   {$REGION ZenGL units}
+  zgl_types,
   zgl_main,
   zgl_screen,
   zgl_window,
+  zgl_textures,
+  zgl_render_target,
+  zgl_fx,
+  zgl_primitives_2d,
+  zgl_sprite_2d,
   {$ENDREGION}
 
+  SynchroThread,
   LogEntityFace,
   LogEntity,
-  NiceExceptions;
+  NiceExceptions,
+
+  EngineManagerFace,
+  ZenGLFCLGraphics;
 
 type
 
   { TEngineManager }
 
-  TEngineManager = class(TComponent)
+  TEngineManager = class(TComponent, IEngineManager)
   public
     constructor Create(const aOwner: TComponent); reintroduce;
-    procedure Startup(const aConfigFilePath: string);
+      // also loads configuration from the configuration file
+    procedure Initialize;
+    procedure Startup;
+    procedure Finalize;
   public type
     TUpdateProcedure = procedure(DT: Double);
   private
@@ -35,15 +49,24 @@ type
     fLoad: TProcedure;
     fUpdate: TUpdateProcedure;
     fOnEngineFinalize: TProcedure;
+    fBatch: TSynchroThread;
+    function GetBatch: TSynchroThread;
   public const
-    Debug = true;
+    DEBUG = true;
   public
     property Log: ILog read fLog;
     property Draw: TProcedure read fDraw write fDraw;
     property Load: TProcedure read fLoad write fLoad;
     property Update: TUpdateProcedure read fUpdate write fUpdate;
     property OnEngineFinalize: TProcedure read fOnEngineFinalize write fOnEngineFinalize;
+    property Batch: TSynchroThread read fBatch;
     class function GetConfigFilePath: string;
+    function PerformBatch: boolean;
+    function LoadTexture(const aFileName: string): zglPTexture;
+    function DirectCopyTexture(const aTexture: zglPTexture): zglPTexture;
+    procedure DirectCleanTexture(const aTexture: zglPRenderTarget);
+    function CreateRenderTarget(const aWidth, aHeight: integer): zglPRenderTarget;
+    procedure DisposeTexture(const aTexture: zglPTexture);
     destructor Destroy; override;
   end;
 
@@ -86,10 +109,19 @@ uses
 constructor TEngineManager.Create(const aOwner: TComponent);
 begin
   inherited Create(aOwner);
-  fLog := TLog.Create(GlobalLogManager, 'EngineManager');
+  Initialize;
 end;
 
-procedure TEngineManager.Startup(const aConfigFilePath: string);
+procedure TEngineManager.Initialize;
+begin
+  fLog := TLog.Create(GlobalLogManager, 'EngineManager');
+  fBatch := TSynchroThread.Create(self);
+  {$IFDEF DEBUG_BATCH}
+  Batch.EnableDebug(TLog.Create(GlobalLogManager, 'Batch'));
+  {$ENDIF}
+end;
+
+procedure TEngineManager.Startup;
 var
   configFilePath: string;
   configFile: TIniFile;
@@ -100,7 +132,7 @@ begin
   configFile := TIniFile.Create(configFilePath);
   config.Read(configFile);
   configFile.Free;
-  if Debug then
+  if DEBUG then
     config.Write(Log);
   Log.Write('Now starting up the engine...');
   scr_SetOptions(
@@ -120,18 +152,83 @@ begin
   zgl_Init;
 end;
 
+procedure TEngineManager.Finalize;
+begin
+  FreeAndNil(fBatch);
+  FreeLog(fLog);
+end;
+
+function TEngineManager.GetBatch: TSynchroThread;
+begin
+  result := Batch;
+end;
+
 class function TEngineManager.GetConfigFilePath: string;
 begin
   result := GlobalConfigPath + EngineConfigFileName;
 end;
 
+function TEngineManager.PerformBatch: boolean;
+begin
+  result := Batch.ExecuteOne;
+end;
+
+function TEngineManager.LoadTexture(const aFileName: string): zglPTexture;
+var
+  job: TLoadTexture;
+begin
+  job := TLoadTexture.Create(aFileName);
+  Batch.Execute(job);
+  result := job.Result;
+end;
+
+function TEngineManager.DirectCopyTexture(const aTexture: zglPTexture
+  ): zglPTexture;
+var
+  target: zglPRenderTarget;
+begin
+  target := rtarget_Add(tex_CreateZero(aTexture^.Width, aTexture^.Height), RT_DEFAULT);
+  rtarget_Set(target);
+  ssprite2d_Draw(aTexture, 0, 0, aTexture^.Width, aTexture^.Height, 0);
+  rtarget_Set(nil);
+  result := target^.Surface;
+  target^.Surface := nil;
+  rtarget_Del(target);
+end;
+
+procedure TEngineManager.DirectCleanTexture(const aTexture: zglPRenderTarget);
+begin
+  fx_SetBlendMode(FX_BLEND_MULT, FALSE);
+  pr2d_Rect(
+    0, 0, aTexture^.Surface^.Width, aTexture^.Surface^.Height, // XYWH
+    0, 0, // color, alpha
+    PR2D_FILL
+  );
+  fx_SetBlendMode(FX_BLEND_NORMAL);
+end;
+
+function TEngineManager.CreateRenderTarget(const aWidth, aHeight: integer
+  ): zglPRenderTarget;
+var
+  job: TCreateRenderTarget;
+begin
+  job := TCreateRenderTarget.Create(aWidth, aHeight);
+  Batch.Execute(job);
+  result := job.Result;
+end;
+
+procedure TEngineManager.DisposeTexture(const aTexture: zglPTexture);
+var
+  job: ISynchroJob;
+begin
+  if aTexture = nil then exit;
+  job := TDisposeTexture.Create(aTexture);
+  Batch.Execute(job);
+end;
+
 destructor TEngineManager.Destroy;
 begin
-  if Assigned(Log) then
-  begin
-    Log.Free;
-    fLog := nil;
-  end;
+  Finalize;
   inherited Destroy;
 end;
 

@@ -72,9 +72,12 @@ procedure TTestLevel.Load(const aLevel: ILevelData);
 
 begin
   AssertArgumentAssigned(Assigned(aLevel), 'aLevel');
-  AssertAssigned(Assigned(Log), 'Log');
+  AssertAssigned(Log, 'Log');
+  Log.Write('Loanding test level: loading terrains...');
   LoadTerrains;
+  Log.Write('Loanding test level: loading terrain map...');
   LoadTerrainMap;
+  Log.Write('Loanding test level - Done.');
 end;
 
 end.

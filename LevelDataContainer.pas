@@ -60,7 +60,7 @@ type
     procedure LoadTerrainMapFromImage(const aImage: TFPCustomImage);
     procedure LoadTerrainMapFromImageFile(const aFileName: string);
     procedure Draw;
-    procedure ReceiveInput(const aTime: single);
+    procedure ReceiveInput(const aTime: double);
     destructor Destroy; override;
   end;
 
@@ -101,7 +101,8 @@ var
   terrains: TTerrains;
 begin
   terrains := Terrain.Terrains; // direct access
-  AssertAssigned(Assigned(Terrains), 'Terrains');
+  if Length(Terrains) = 0 then
+    raise EUnassigned.Create('Terrains');
   for i := 0 to Length(Terrain.Terrains) - 1 do
     if Terrain.Terrains[i].Color = aColor then
       exit(Terrain.Terrains[i].id);
@@ -179,16 +180,17 @@ begin
   if DEBUG then
     Log.Write('Releasing image...');
   image.Free;
+  if DEBUG then
+    Log.Write('Releasing image - Done.');
 end;
 
 procedure TLevelData.Draw;
 begin
-  //MapView.DrawTerrainLayerSubcolors;
   MapView.DrawTerrainLayerSimples;
-  //MapView.DrawGridLines;
+  MapView.DrawGridLines;
 end;
 
-procedure TLevelData.ReceiveInput(const aTime: single);
+procedure TLevelData.ReceiveInput(const aTime: double);
 begin
   MapView.ReceiveInput(aTime);
 end;

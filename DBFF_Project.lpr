@@ -30,7 +30,8 @@ uses
   {$REGION Custom units}
   Common, EngineManager, GameManager, MapDataContainer, TerrainManager,
   MapDataFace, TerrainManagerFace, MapViewer, LevelDataContainer, TestLevel,
-  LevelDataFace, LevelLoaderFace, ZenGLFCLGraphics;
+  LevelDataFace, LevelLoaderFace, ZenGLFCLGraphics, 
+EngineManagerFace, TextureCache;
 
 type
 

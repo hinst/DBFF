@@ -17,6 +17,8 @@ uses
   StringFeatures,
   LogEntity,
   LogEntityFace,
+  SynchroThread,
+  EngineManager,
 
   ZenGLFCLGraphics,
   TerrainManagerFace,
@@ -50,6 +52,7 @@ type
     fLog: ILog;
     fTerrains: TTerrains;
     fMasks: TMultiTexture;
+    fEngine: TEngineManager;
     procedure Initialize;
     procedure LoadTerrains(const aFile: TIniFile);
     procedure LoadTerrainsFromList(const aFile: TIniFile; const aList: TStrings);
@@ -67,6 +70,7 @@ type
     property Log: ILog read fLog;
     property Terrains: TTerrains read fTerrains;
     property Masks: TMultiTexture read fMasks;
+    property Engine: TEngineManager read fEngine;
     procedure LoadTerrains(const aFileName: string);
     procedure LoadMasks(const aFileName: string);
     function GetTerrainsInfoAsText: string;
@@ -116,7 +120,9 @@ end;
 procedure TTerrainManager.Initialize;
 begin
   fLog := TLog.Create(GlobalLogManager, 'TerrainManager');
-  Masks.Init;
+  fEngine := GlobalGameManager.Engine;
+  fMasks := TMultiTexture.Create;
+  Masks.Engine := fEngine;
 end;
 
 procedure TTerrainManager.LoadTerrainsFromList(const aFile: TIniFile;
@@ -149,7 +155,7 @@ const
     MaskFilePath := GlobalApplicationPath + MaskFilePath;
     if not FileExists(MaskFilePath) then
       raise EFileNotFound.Create(MaskFilePath);
-    result := tex_LoadFromFile(MaskFilePath);
+    result := Engine.LoadTexture(MaskFilePath);
   end;
 
 var
@@ -166,7 +172,9 @@ begin
   begin
     texture := LoadMask(s);
     Masks.Add(texture);
-    tex_Del(texture);
+    if DEBUG then
+      Log.Write('Now disposing texture...');
+    Engine.DisposeTexture(texture);
   end;
   Masks.FinishArea;
   sections.Free;
@@ -254,7 +262,7 @@ begin
         + LineEnding + '"' + textureFilePath + '"');
     textureFilePath := GlobalApplicationPath + textureFilePath;
     if FileExists(textureFilePath) then
-      aTerrain.Texture := tex_LoadFromFile(textureFilePath)
+      aTerrain.Texture := Engine.LoadTexture(textureFilePath)
     else
       Log.Write(logTagError, 'File does not exists'
         + LineEnding + '"' + textureFilePath + '"');
