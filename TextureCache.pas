@@ -11,7 +11,11 @@ uses
   zgl_textures,
   zgl_window,
 
-  EngineManager;
+  NiceExceptions,
+  LogEntityFace,
+  NoLogEntity,
+
+  EngineManagerFace;
 
 type
 
@@ -38,16 +42,19 @@ type
   private type
     TCache = array of PMapTextureCacheItem;
   private
-    fEngine: TEngineManager;
+    fLog: ILog;
+    fEngine: IEngineManager;
     fCache: TCache;
-    fDistance: integer;
+    fCleaningDistance: integer;
     property Cache: TCache read fCache;
     procedure Initialize;
+    procedure SetLog(const aLog: ILog); inline;
     function GetCacheItem(const x, y: integer): PMapTextureCacheItem; inline;
     procedure Finalize;
   public
-    property Engine: TEngineManager read fEngine write fEngine;
-    property Distance: integer read fDistance write fDistance;
+    property Engine: IEngineManager read fEngine write fEngine;
+    property CleaningDistance: integer read fCleaningDistance write fCleaningDistance;
+    property Log: ILog read fLog write SetLog;
     function GetDefaultDistance(const aTileWidth: integer): integer;
     property Access[const x, y: integer]: PMapTextureCacheItem read GetCacheItem;
     function AddNew: PMapTextureCacheItem;
@@ -57,6 +64,9 @@ type
   end;
 
 implementation
+
+uses
+  Common;
 
 { TMapTextureCache }
 
@@ -76,13 +86,21 @@ procedure TMapTextureCache.Initialize;
   end;
 
 begin
+  fLog := TNoLog.Create;
   SetLength(fCache, MAX_MAP_TEXTURE_CACHE);
   PreClean;
 end;
 
+procedure TMapTextureCache.SetLog(const aLog: ILog);
+begin
+  WriteLN('!!!');
+  FreeLog(fLog);
+  fLog := aLog;
+end;
+
 function TMapTextureCache.GetDefaultDistance(const aTileWidth: integer): integer;
 begin
-  result := wndWidth div aTileWidth;
+  result := Round((wndWidth div aTileWidth) * 1.5);
 end;
 
 function TMapTextureCache.GetCacheItem(const x, y: integer
@@ -95,27 +113,25 @@ begin
   for i := 0 to Length(Cache) - 1 do
   begin
     item := Cache[i];
-    if item <> nil then
-    begin
-      if (item^.x = x) and (item^.y = y) then
-      begin
-        result := item;
-        break;
-      end;
-    end;
+    if item = nil then continue;
+    if item^.x <> x then continue;
+    if item^.y <> y then continue;
+    result := item;
+    break;
   end;
 end;
 
 procedure TMapTextureCache.Finalize;
 begin
+  CleanAll(GlobalEngineRunning);
   SetLength(fCache, 0);
+  FreeLog(fLog);
 end;
 
 function TMapTextureCache.AddNew: PMapTextureCacheItem;
 var
   i: integer;
 begin
-  result := nil;
   for i := 0 to Length(Cache) - 1 do
     if Cache[i] = nil then
     begin
@@ -123,25 +139,37 @@ begin
       Cache[i] := result;
       break;
     end;
+  if result = nil then
+    Log.Write('Warning: insertion of a cache item impossible');
 end;
 
 procedure TMapTextureCache.Clean(const aX, aY: integer);
+  {$DEFINE DEBUG_THIS}
 var
   i: integer;
   item: PMapTextureCacheItem;
+  distance: integer;
 begin
+  {$IFDEF DEBUG_THIS}
+  AssertAssigned(Engine, 'Engine');
+  {$ENDIF}
   for i := 0 to Length(Cache) - 1 do
   begin
     if Cache[i] = nil then
       continue;
     item := Cache[i];
-    if item^.x + item^.y > Distance then
+    distance := Abs(item^.x - Ax) + Abs(item^.y - aY);
+    if distance > CleaningDistance then
     begin
-      Engine.DisposeTexture(item^.texture);
+      Log.Write('Now cleaning: ' + IntToStr(item^.x) + ':' + IntToStr(item^.y)
+        + '(' + IntToStr(distance) + ' > ' + IntToStr(CleaningDistance) + ')');
+      if Assigned(item^.texture) then
+        Engine.DisposeTexture(item^.texture);
       Dispose(item);
       Cache[i] := nil;
     end;
   end;
+  {$UNDEF DEBUG_THIS}
 end;
 
 procedure TMapTextureCache.CleanAll(const aDisposeTextures: boolean);

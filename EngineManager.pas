@@ -1,7 +1,7 @@
 unit EngineManager;
 
 {$mode objfpc}{$H+}
-{$DEFINE DEBUG_BATCH}
+{$UNDEF DEBUG_BATCH}
 
 interface
 

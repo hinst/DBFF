@@ -192,6 +192,7 @@ end;
 procedure TTerrainManager.Finalize;
 begin
   ReleaseTerrains;
+  FreeAndNil(fMasks);
   FreeLog(fLog);
 end;
 

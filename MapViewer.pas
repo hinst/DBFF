@@ -1,7 +1,7 @@
 unit MapViewer;
 
 {$mode objfpc}{$H+}
-{$modeswitch nestedprocvars}
+{$DEFINE LOG_TEXTURE_CACHE}
 
 interface
 
@@ -81,9 +81,9 @@ type
     fFramings: TFPList;
     fFramingTexture: zglPRenderTarget;
     fCellTexture: zglPRenderTarget;
-    fCache: TMapTextureCache;
     fEngine: IEngineManager;
-    fStopDrawing: boolean;
+    fCache: TMapTextureCache;
+    fAllowNewCacheItem: boolean;
     procedure Initialize;
     procedure AssignDefaults;
     procedure FocusViewOnMapCenter;
@@ -136,9 +136,9 @@ type
     property Framings: TFPList read fFramings;
     property FramingTexture: zglPRenderTarget read fFramingTexture;
     property CellTexture: zglPRenderTarget read fCellTexture;
-    property Cache: TMapTextureCache read fCache;
     property Engine: IEngineManager read fEngine;
-    property StopDrawing: boolean read fStopDrawing;
+    property Cache: TMapTextureCache read fCache;
+    property AllowNewCacheItem: boolean read fAllowNewCacheItem;
       // it is necessary to call this procedure after changing the map data
     procedure Update;
     procedure ReceiveInput(const aT: double);
@@ -209,9 +209,13 @@ end;
 procedure TMapView.Initialize;
 begin
   fLog := TLog.Create(GlobalLogManager, 'MapView');
-  fCache := TMapTextureCache.Create;
-  Cache.Distance := Cache.GetDefaultDistance(TileWidth);
   fEngine := GlobalGameManager.Engine;
+  fCache := TMapTextureCache.Create;
+  Cache.Engine := Engine;
+  Cache.CleaningDistance := Cache.GetDefaultDistance(TileWidth);
+  {$IFDEF LOG_TEXTURE_CACHE}
+  Cache.Log := TLog.Create(GlobalLogManager, 'MTCache');
+  {$ENDIF}
   AssignDefaults;
 end;
 
@@ -405,12 +409,16 @@ end;
 
 procedure TMapView.DrawFramingCached(const aF: PDrawFraming);
 const
-  DEBUG = true;
+  DEBUG = false;
 var
   cacheItem: PMapTextureCacheItem;
 begin
+  if DEBUG then
+    Log.Write('DrawFramingCached - method start...');
+  if DEBUG then
+    AssertAssigned(Cache, 'Cache');
   cacheItem := Cache.Access[aF^.x, aF^.y];
-  if cacheItem = nil then
+  if (cacheItem = nil) and (AllowNewCacheItem) then
   begin
     if DEBUG then
       Log.Write('Encountering cell '
@@ -431,9 +439,9 @@ begin
     cacheItem^.texture := Engine.DirectCopyTexture(CellTexture^.Surface);
     if DEBUG then
       Log.Write('Marking the redrawing cycle to be interrupted...');
-    fStopDrawing := true;
-  end
-  else
+    fAllowNewCacheItem := false;
+  end;
+  if Assigned(cacheItem) then
   begin
     if DEBUG then
       Log.Write('Now drawing texture from cache...');
@@ -446,7 +454,7 @@ end;
 procedure TMapView.DrawFraming(const aF: PDrawFraming);
 
 const
-  DEBUG = true;
+  DEBUG = false;
 
   procedure OverlapDebugMessage(const aDirection: string;
     const aWhat: TTerrainType;
@@ -505,7 +513,7 @@ end;
 procedure TMapView.OverlapByFrame(const aTerrainType: TTerrainType;
   const aMaskIndex: integer; const aAngle: single);
 const
-  DEBUG = true;
+  DEBUG = false;
 var
   texture: zglPTexture;
   mask: zglPTexture;
@@ -540,12 +548,13 @@ procedure TMapView.DrawFramings;
 var
   i: integer;
 begin
-  fStopDrawing := false;
+  fAllowNewCacheItem := true;
   for i := 0 to Framings.Count - 1 do
   begin
     DrawFramingCached(Framings[i]);
-    if StopDrawing then break;
+    //if false = AllowNewCacheItem then break;
   end;
+  Cache.Clean(Round(ViewX / TileWidth), Round(ViewY / TileHeight));
 end;
 
 procedure TMapView.ReleaseFraming;
@@ -640,7 +649,7 @@ end;
 
 procedure TMapView.DrawTerrainLayerSimples;
 const
-  DEBUG = true;
+  DEBUG = false;
 begin
   if DEBUG then
     Log.Write('Stage 1');
