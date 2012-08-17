@@ -31,7 +31,7 @@ uses
   Common, EngineManager, GameManager, MapDataContainer, TerrainManager,
   MapDataFace, TerrainManagerFace, MapViewer, LevelDataContainer, TestLevel,
   LevelDataFace, LevelLoaderFace, ZenGLFCLGraphics, 
-EngineManagerFace, TextureCache;
+EngineManagerFace, TextureCache, UnitManager, UnitManagerFace, MapUnit;
 
 type
 

@@ -97,6 +97,8 @@ type
     function ProcessFraming(const aX, aY: integer; const aXD, aYD: single): boolean; inline;
     procedure DrawTerrainLayerSimple(const aX, aY: integer; const aXD, aYD: single);
     procedure DrawFramingCached(const aF: PDrawFraming); inline;
+    procedure DrawWithoutFraming(const aF: PDrawFraming); inline;
+    procedure DrawAndCache(const aF: PDrawFraming); inline;
     procedure DrawFraming(const aF: PDrawFraming); inline;
     procedure OverlapByFrame(const aTerrainType: TTerrainType;
       const aMaskIndex: integer; const aAngle: single);
@@ -418,28 +420,12 @@ begin
   if DEBUG then
     AssertAssigned(Cache, 'Cache');
   cacheItem := Cache.Access[aF^.x, aF^.y];
-  if (cacheItem = nil) and (AllowNewCacheItem) then
+  if cacheItem = nil then
   begin
-    if DEBUG then
-      Log.Write('Encountering cell '
-        + IntToStr(aF^.x) + ':' + IntToStr(aF^.y)
-        + ' for the first time...');
-    cacheItem := Cache.AddNew;
-    if cacheItem = nil then
-    begin
-      if DEBUG then
-        Log.Write('Warning: cache does not returns new cache item');
-      exit;
-    end;
-    cacheItem^.x := aF^.x;
-    cacheItem^.y := aF^.y;
-    DrawFraming(aF);
-    if DEBUG then
-      Log.Write('Adding to the cache...');
-    cacheItem^.texture := Engine.DirectCopyTexture(CellTexture^.Surface);
-    if DEBUG then
-      Log.Write('Marking the redrawing cycle to be interrupted...');
-    fAllowNewCacheItem := false;
+    if AllowNewCacheItem then
+      DrawAndCache(aF)
+    else
+      DrawWithoutFraming(aF);
   end;
   if Assigned(cacheItem) then
   begin
@@ -449,6 +435,44 @@ begin
     if DEBUG then
       Log.Write('  Drawing texture from cache: DONE.');
   end;
+end;
+
+procedure TMapView.DrawWithoutFraming(const aF: PDrawFraming);
+var
+  texture: zglPTexture;
+begin
+  texture := TerrainMan.Terrains[aF^.typee].Texture;
+  ssprite2d_Draw(texture, aF^.xD, aF^.yD, TileWidth, TileHeight, 0);
+end;
+
+procedure TMapView.DrawAndCache(const aF: PDrawFraming);
+const
+  DEBUG = false;
+var
+  cacheItem: PMapTextureCacheItem;
+begin
+  if DEBUG then
+    Log.Write('Drawing and caching... '
+      + IntToStr(aF^.x) + ':' + IntToStr(aF^.y)
+      + ' for the first time...');
+  cacheItem := Cache.AddNew;
+  if cacheItem = nil then
+  begin
+    if DEBUG then
+      Log.Write('Warning: cache does not returns new cache item');
+    exit;
+  end;
+  cacheItem^.x := aF^.x;
+  cacheItem^.y := aF^.y;
+  DrawFraming(aF);
+  if DEBUG then
+    Log.Write('Copying texture...');
+  cacheItem^.texture := Engine.DirectCopyTexture(CellTexture^.Surface);
+  if DEBUG then
+    Log.Write('Marking the redrawing cycle to be interrupted...');
+  fAllowNewCacheItem := false;
+  // draw
+  ssprite2d_Draw(CellTexture^.Surface, aF^.xD, aF^.yD, TileWidth, TileHeight, 0);
 end;
 
 procedure TMapView.DrawFraming(const aF: PDrawFraming);

@@ -26,6 +26,19 @@ uses
 
 type
 
+  { TGraphicalPoint }
+
+  TGraphicalPoint = object
+  public
+    constructor Init;
+  private
+    fX, fY: single;
+  public
+    property X: single read fX write fX;
+    property Y: single read fY write fY;
+    destructor Done;
+  end;
+
   TMultiTexture = class;
 
   { TMultiTexture }
@@ -134,6 +147,20 @@ begin
   result += (aColor.red shr 8) * 256 * 256;
   result += (aColor.green shr 8) * 256;
   result += (aColor.blue shr 8) * 1;
+end;
+
+{ TGraphicalPoint }
+
+constructor TGraphicalPoint.Init;
+begin
+  X := 0;
+  Y := 0;
+end;
+
+destructor TGraphicalPoint.Done;
+begin
+  X := 0;
+  Y := 0;
 end;
 
 { TCreateRenderTarget }

@@ -19,6 +19,16 @@ type
     busy: boolean;
   end;
 
+  TCellNumber = object
+  private
+    fX, fY: integer;
+  public
+    property X: integer read fX write fX;
+    property Y: integer read fY write fY;
+  end;
+
+  PCelNumber = ^TCellNumber;
+
   TCells = specialize T2Array<TCell>;
 
   IMapData = interface

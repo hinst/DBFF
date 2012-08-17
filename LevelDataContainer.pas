@@ -28,7 +28,8 @@ uses
   MapDataContainer,
   TerrainManagerFace,
   TerrainManager,
-  MapViewer
+  MapViewer,
+  UnitManager
   {$ENDREGION}
   ;
 
@@ -44,6 +45,7 @@ type
     fMap: TMapData;
     fTerrain: TTerrainManager;
     fMapView: TMapView;
+    fUnitMan: TUnitManager;
     procedure Initialize;
     function GetMap: IMapData;
     function GetTerrain: ITerrainManager;
@@ -57,6 +59,7 @@ type
     property Map: TMapData read fMap;
     property Terrain: TTerrainManager read fTerrain;
     property MapView: TMapView read fMapView;
+    property UnitMan: TUnitManager read fUnitMan;
     procedure LoadTerrainMapFromImage(const aImage: TFPCustomImage);
     procedure LoadTerrainMapFromImageFile(const aFileName: string);
     procedure Draw;
@@ -83,6 +86,7 @@ begin
   fTerrain := TTerrainManager.Create(self);
   fMap := TMapData.Create(self);
   fMapView := TMapView.Create(self);
+  fUnitMan := TUnitManager.Create(self);
 end;
 
 function TLevelData.GetMap: IMapData;
@@ -134,15 +138,10 @@ end;
 
 procedure TLevelData.Finalize;
 begin
-  if Assigned(Log) then
-  begin
-    Log.Free;
-    fLog := nil;
-  end;
-  if Assigned(Map) then
-    FreeAndNil(fMap);
-  if Assigned(Terrain) then
-    FreeAndNil(fTerrain);
+  FreeAndNil(fUnitMan);
+  FreeAndNil(fMap);
+  FreeAndNil(fTerrain);
+  FreeLog(fLog);
 end;
 
 procedure TLevelData.LoadTerrainMapFromImage(const aImage: TFPCustomImage);

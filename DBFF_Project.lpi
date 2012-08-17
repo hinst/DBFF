@@ -43,7 +43,7 @@
         <PackageName Value="UltimateLibrary"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="17">
+    <Units Count="20">
       <Unit0>
         <Filename Value="DBFF_Project.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -128,6 +128,21 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="TextureCache"/>
       </Unit16>
+      <Unit17>
+        <Filename Value="UnitManager.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UnitManager"/>
+      </Unit17>
+      <Unit18>
+        <Filename Value="UnitManagerFace.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UnitManagerFace"/>
+      </Unit18>
+      <Unit19>
+        <Filename Value="MapUnit.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="MapUnit"/>
+      </Unit19>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
