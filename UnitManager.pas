@@ -9,11 +9,17 @@ uses
   SysUtils,
   fgl,
 
+  Common,
   UnitManagerFace,
-  MapUnit;
+  BuildingUnit,
+  BuildingUnitFaceA,
+  MapUnit,
+  BasicVehicleFactoryUnit;
 
 type
   TUnitList = specialize TFPGList<TMapUnit>;
+
+  TBuildingTypes = specialize TFPGList<TBuildingType>;
 
   { TUnitManager }
 
@@ -22,10 +28,14 @@ type
     constructor Create(const aOwner: TComponent); reintroduce;
   private
     fMapUnits: TUnitList;
+    fBuildingTypes: TBuildingTypes;
     procedure Initialize;
     procedure Finalize;
   public
     property MapUnits: TUnitList read fMapUnits;
+    property BuildingTypes: TBuildingTypes read fBuildingTypes;
+    procedure LoadBasicBuildingTypes;
+    function AddNewBuildingType: IAbstractBuildingType;
     destructor Destroy; override;
   end;
 
@@ -41,12 +51,28 @@ end;
 
 procedure TUnitManager.Initialize;
 begin
+  fBuildingTypes := TBuildingTypes.Create;
   fMapUnits := TUnitList.Create;
 end;
 
 procedure TUnitManager.Finalize;
 begin
   FreeAndNil(fMapUnits);
+  FreeAndNil(fBuildingTypes);
+end;
+
+procedure TUnitManager.LoadBasicBuildingTypes;
+var
+  basicVehicleFactory: TBasicVehicleFactoryType;
+begin
+  basicVehicleFactory := TBasicVehicleFactoryType.Create;
+  basicVehicleFactory.Load(GlobalGameManager.Engine);
+  BuildingTypes.Add(basicVehicleFactory);
+end;
+
+function TUnitManager.AddNewBuildingType: IAbstractBuildingType;
+begin
+  result := TBuildingType.Create;
 end;
 
 destructor TUnitManager.Destroy;

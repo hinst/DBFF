@@ -7,7 +7,8 @@ interface
 
 uses
   MapDataFace,
-  TerrainManagerFace;
+  TerrainManagerFace,
+  UnitManagerFace;
 
 type
   ILevelData = interface
@@ -15,6 +16,8 @@ type
     property Map: IMapData read GetMap;
     function GetTerrain: ITerrainManager;
     property Terrain: ITerrainManager read GetTerrain;
+    function GetUnitManager: IUnitManager;
+    property UnitManager: IUnitManager read GetUnitManager;
     procedure LoadTerrainMapFromImageFile(const aFileName: string);
   end;
 

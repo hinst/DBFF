@@ -6,12 +6,11 @@ unit UnitManagerFace;
 interface
 
 uses
-  Classes,
-  SysUtils;
+  BuildingUnitFaceA;
 
 type
   IUnitManager = interface
-
+    function AddNewBuildingType: IAbstractBuildingType;
   end;
 
 implementation

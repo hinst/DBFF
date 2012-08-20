@@ -1,4 +1,4 @@
-unit LevelDataContainer;
+unit LevelData;
 
 {$mode objfpc}{$H+}
 
@@ -29,6 +29,7 @@ uses
   TerrainManagerFace,
   TerrainManager,
   MapViewer,
+  UnitManagerFace,
   UnitManager
   {$ENDREGION}
   ;
@@ -49,9 +50,10 @@ type
     procedure Initialize;
     function GetMap: IMapData;
     function GetTerrain: ITerrainManager;
-      { Assign terrain types to the cells according to terrain substitution color information
-      stored in the Terrain Manager property }
+    function GetUnitManager: IUnitManager;
     function GetTerrainTypeByColor(const aColor: LongWord): TTerrainType;
+    { Assign terrain types to the cells according to terrain substitution color information
+      stored in the Terrain Manager property }
     procedure MapColors(var aMap: TCells.TMatrix; const aImage: TFPCustomImage);
     procedure Finalize;
   public
@@ -97,6 +99,11 @@ end;
 function TLevelData.GetTerrain: ITerrainManager;
 begin
   result := fTerrain;
+end;
+
+function TLevelData.GetUnitManager: IUnitManager;
+begin
+  result := fUnitMan;
 end;
 
 function TLevelData.GetTerrainTypeByColor(const aColor: LongWord): TTerrainType;

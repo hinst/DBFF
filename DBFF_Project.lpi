@@ -43,7 +43,7 @@
         <PackageName Value="UltimateLibrary"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="20">
+    <Units Count="26">
       <Unit0>
         <Filename Value="DBFF_Project.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -90,12 +90,12 @@
         <UnitName Value="MapViewer"/>
       </Unit8>
       <Unit9>
-        <Filename Value="LevelDataContainer.pas"/>
+        <Filename Value="LevelData.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="LevelDataContainer"/>
+        <UnitName Value="LevelData"/>
       </Unit9>
       <Unit10>
-        <Filename Value="TestLevel.pas"/>
+        <Filename Value="LevelUnits\TestLevel.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="TestLevel"/>
       </Unit10>
@@ -143,6 +143,36 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="MapUnit"/>
       </Unit19>
+      <Unit20>
+        <Filename Value="MapUnitFace.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="MapUnitFace"/>
+      </Unit20>
+      <Unit21>
+        <Filename Value="MapUnits\BuildingUnit.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="BuildingUnit"/>
+      </Unit21>
+      <Unit22>
+        <Filename Value="MapUnits\BuildingUnitFaceA.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="BuildingUnitFaceA"/>
+      </Unit22>
+      <Unit23>
+        <Filename Value="LevelUnits\DefaultLevel.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="DefaultLevel"/>
+      </Unit23>
+      <Unit24>
+        <Filename Value="MapUnits\BasicVehicleFactoryUnit.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="BasicVehicleFactoryUnit"/>
+      </Unit24>
+      <Unit25>
+        <Filename Value="GameManagerFace.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="GameManagerFace"/>
+      </Unit25>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -153,11 +183,13 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
+      <OtherUnitFiles Value="MapUnits;LevelUnits"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Linking>
       <Debugging>
         <UseHeaptrc Value="True"/>
+        <UseExternalDbgSyms Value="True"/>
       </Debugging>
     </Linking>
     <Other>

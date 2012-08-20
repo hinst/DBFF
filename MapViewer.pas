@@ -24,6 +24,7 @@ uses
   Generic2DArray,
   NiceExceptions,
 
+  Common,
   TextureCache,
   MapDataFace,
   EngineManagerFace,
@@ -153,9 +154,6 @@ type
   end;
 
 implementation
-
-uses
-  Common;
 
 function SortFraming(Item1, Item2: pointer): integer;
 type

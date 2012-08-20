@@ -19,9 +19,12 @@ uses
   JobThread,
   SynchroThread,
 
+  GameManagerFace,
   ZenGLFCLGraphics,
+  EngineManagerFace,
   EngineManager,
-  LevelDataContainer,
+  LevelDataFace,
+  LevelData,
   LevelLoaderFace,
   MapViewer,
   TestLevel;
@@ -30,7 +33,7 @@ type
 
   { TGameManager }
 
-  TGameManager = class(TComponent)
+  TGameManager = class(TComponent, IGameManager)
   public
     constructor Create(const aOwner: TComponent); reintroduce;
   private
@@ -39,6 +42,8 @@ type
     fEngine: TEngineManager;
     fLevel: TLevelData;
     fLevelActive: boolean;
+    function GetEngine: IEngineManager;
+    function GetLevel: ILevelData;
     procedure Initialize;
     procedure ReceiveDebugKeys;
     procedure Finalize;
@@ -126,6 +131,16 @@ begin
   Initialize;
 end;
 
+function TGameManager.GetEngine: IEngineManager;
+begin
+  result := fEngine;
+end;
+
+function TGameManager.GetLevel: ILevelData;
+begin
+  result := fLevel;
+end;
+
 procedure TGameManager.Initialize;
 begin
   fLog := TLog.Create(GlobalLogManager, 'GameManager');
@@ -207,14 +222,10 @@ begin
   end;
   fLevel := TLevelData.Create(self);
   try
-    try
-      levelLog := TLog.Create(GlobalLogManager, 'LevelLoader');
-      aLevel.Log := levelLog;
-      aLevel.Load(Level);
-      LevelActive := true;
-    finally
-      levelLog.Free;
-    end;
+    levelLog := TLog.Create(GlobalLogManager, 'LevelLoader');
+    aLevel.Log := levelLog;
+    aLevel.Load(Level);
+    LevelActive := true;
   except
     on E: Exception do
     begin

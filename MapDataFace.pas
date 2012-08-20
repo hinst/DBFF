@@ -27,7 +27,7 @@ type
     property Y: integer read fY write fY;
   end;
 
-  PCelNumber = ^TCellNumber;
+  PCellNumber = ^TCellNumber;
 
   TCells = specialize T2Array<TCell>;
 

@@ -7,6 +7,8 @@ interface
 
 uses
   SysUtils,
+
+  DefaultLevel,
   NiceExceptions,
   LevelDataFace,
   LogEntityFace,
@@ -16,10 +18,8 @@ type
 
   { TTestLevel }
 
-  TTestLevel = class(TInterfacedObject, ILevelLoader)
+  TTestLevel = class(TDefaultLevel, ILevelLoader)
   private
-    fLog: ILog;
-    procedure SetLog(const aLog: ILog);
     function GetTerrainsInfoFilePath: string;
     function GetMasksInfoFilePath: string;
     function GetTerrainMapImageFilePath: string;
@@ -27,20 +27,12 @@ type
     TerrainMapImageFilePath = '..' + PathDelim + 'data' + PathDelim + 'TestLevel.png';
   public
     procedure Load(const aLevel: ILevelData);
-    property Log: ILog read fLog;
   end;
 
 implementation
 
 uses
   Common;
-
-{ TTestLevel }
-
-procedure TTestLevel.SetLog(const aLog: ILog);
-begin
-  fLog := aLog;
-end;
 
 function TTestLevel.GetTerrainsInfoFilePath: string;
 begin
@@ -73,11 +65,11 @@ procedure TTestLevel.Load(const aLevel: ILevelData);
 begin
   AssertArgumentAssigned(Assigned(aLevel), 'aLevel');
   AssertAssigned(Log, 'Log');
-  Log.Write('Loanding test level: loading terrains...');
+  Log.Write('Loading test level: loading terrains...');
   LoadTerrains;
-  Log.Write('Loanding test level: loading terrain map...');
+  Log.Write('Loading test level: loading terrain map...');
   LoadTerrainMap;
-  Log.Write('Loanding test level - Done.');
+  Log.Write('Loading test level - Done.');
 end;
 
 end.

@@ -9,7 +9,7 @@ uses
   SysUtils,
 
   LogManager,
-  GameManager;
+  GameManagerFace;
 
 const
   ApplicationTitle = 'D:BFF'; // Application title
@@ -24,7 +24,7 @@ const
 var
   GlobalConfigPath: string;
   GlobalLogManager: TLogManager;
-  GlobalGameManager: TGameManager;
+  GlobalGameManager: IGameManager;
   GlobalApplicationPath: string;
   GlobalEngineRunning: boolean;
 

@@ -10,32 +10,15 @@ uses
 
   zgl_textures,
 
+  MapUnitFace,
   MapDataFace;
 
 type
-  TMapUnit = class
-  end;
-
-  { TBuilding }
-
-  TBuilding = class(TMapUnit)
-  private
-    fTexture: zglPTexture;
-    fLeftTopCell: TCellNumber;
-    function GetLeftTopCell: PCellNumber; inline;
-  public
-    property Texture: zglPTexture read fTexture;
-    property LeftTopCell: PCellNumber read GetLeftTopCell;
+  TMapUnit = class(IMapUnit)
+    procedure Draw; virtual; abstract;
   end;
 
 implementation
-
-{ TBuilding }
-
-function TBuilding.GetLeftTopCell: PCellNumber;
-begin
-  resutl := @fLeftTopCell;
-end;
 
 end.
 

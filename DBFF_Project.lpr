@@ -29,9 +29,11 @@ uses
 
   {$REGION Custom units}
   Common, EngineManager, GameManager, MapDataContainer, TerrainManager,
-  MapDataFace, TerrainManagerFace, MapViewer, LevelDataContainer, TestLevel,
+  MapDataFace, TerrainManagerFace, MapViewer, LevelData, TestLevel,
   LevelDataFace, LevelLoaderFace, ZenGLFCLGraphics, 
-EngineManagerFace, TextureCache, UnitManager, UnitManagerFace, MapUnit;
+EngineManagerFace, TextureCache, UnitManager, UnitManagerFace, MapUnit, 
+MapUnitFace, BuildingUnit, BuildingUnitFaceA, DefaultLevel, 
+BasicVehicleFactoryUnit, GameManagerFace;
 
 type
 
@@ -307,7 +309,7 @@ begin
   WriteLine('***GLOBAL EXECUTION START***');
 
   Application := TApplication.Create(nil);
-  Application.Title := ApplicationTitle;
+  Application.Title:='TMainApplication';
   WriteLine('Now starting application: "' + Application.Title + '"...');
   Application.Run;
   Application.Free;

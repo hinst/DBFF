@@ -18,7 +18,7 @@ uses
   LogEntity,
   LogEntityFace,
   SynchroThread,
-  EngineManager,
+  EngineManagerFace,
 
   ZenGLFCLGraphics,
   TerrainManagerFace,
@@ -52,7 +52,7 @@ type
     fLog: ILog;
     fTerrains: TTerrains;
     fMasks: TMultiTexture;
-    fEngine: TEngineManager;
+    fEngine: IEngineManager;
     procedure Initialize;
     procedure LoadTerrains(const aFile: TIniFile);
     procedure LoadTerrainsFromList(const aFile: TIniFile; const aList: TStrings);
@@ -70,7 +70,7 @@ type
     property Log: ILog read fLog;
     property Terrains: TTerrains read fTerrains;
     property Masks: TMultiTexture read fMasks;
-    property Engine: TEngineManager read fEngine;
+    property Engine: IEngineManager read fEngine;
     procedure LoadTerrains(const aFileName: string);
     procedure LoadMasks(const aFileName: string);
     function GetTerrainsInfoAsText: string;
