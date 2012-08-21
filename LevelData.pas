@@ -59,7 +59,7 @@ type
   public
     property Log: ILog read fLog;
     property Map: TMapData read fMap;
-    property Terrain: TTerrainManager read fTerrain;
+    property TerrainManager: TTerrainManager read fTerrain;
     property MapView: TMapView read fMapView;
     property UnitMan: TUnitManager read fUnitMan;
     procedure LoadTerrainMapFromImage(const aImage: TFPCustomImage);
@@ -111,12 +111,12 @@ var
   i: integer;
   terrains: TTerrains;
 begin
-  terrains := Terrain.Terrains; // direct access
+  terrains := TerrainManager.Terrains; // direct access
   if Length(Terrains) = 0 then
     raise EUnassigned.Create('Terrains');
-  for i := 0 to Length(Terrain.Terrains) - 1 do
-    if Terrain.Terrains[i].Color = aColor then
-      exit(Terrain.Terrains[i].id);
+  for i := 0 to Length(TerrainManager.Terrains) - 1 do
+    if TerrainManager.Terrains[i].Color = aColor then
+      exit(TerrainManager.Terrains[i].id);
   exit(-1);
 end;
 
@@ -160,10 +160,10 @@ begin
   Map.Cells.Reallocate(aImage.Width, aImage.Height);
   matrix := Map.Cells.Matrix; // direct access
   MapColors(matrix, aImage);
-  MapView.Terrain := Terrain;
+  MapView.TerrainManager := TerrainManager;
   MapView.Map := Map;
-  Log.Write('Updating map...');
-  MapView.Update;
+  Log.Write('Updating view...');
+  MapView.UpdateView;
 end;
 
 procedure TLevelData.LoadTerrainMapFromImageFile(const aFileName: string);
@@ -192,8 +192,7 @@ end;
 
 procedure TLevelData.Draw;
 begin
-  MapView.DrawTerrainLayerSimples;
-  MapView.DrawGridLines;
+  MapView.Draw;
 end;
 
 procedure TLevelData.ReceiveInput(const aTime: double);

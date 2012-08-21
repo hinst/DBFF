@@ -8,6 +8,7 @@ uses
   Classes,
   SysUtils,
 
+  Common,
   BuildingUnit,
   EngineManagerFace;
 
@@ -28,14 +29,12 @@ type
 
 implementation
 
-uses
-  Common;
-
 { TBasicVehicleFactoryType }
 
 function TBasicVehicleFactoryType.GetTextureName: string;
 begin
-  result := StandardDataRelativePath + 'Units' + DirectorySeparator + 'Building_sample.png';
+  result := GlobalApplicationPath + StandardDataRelativePath
+    + 'Units' + DirectorySeparator + 'Building_sample.png';
 end;
 
 procedure TBasicVehicleFactoryType.Load(const aEngine: IEngineManager);

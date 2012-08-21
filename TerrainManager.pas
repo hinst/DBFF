@@ -22,6 +22,7 @@ uses
 
   ZenGLFCLGraphics,
   TerrainManagerFace,
+  TerrainManagerFaceE,
   MapDataFace;
 
 type
@@ -45,7 +46,7 @@ type
 
   { TTerrainManager }
 
-  TTerrainManager = class(TComponent, ITerrainManager)
+  TTerrainManager = class(TComponent, ITerrainManager, ITerrainManagerE)
   public
     constructor Create(const aOwner: TComponent); reintroduce;
   private

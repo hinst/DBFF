@@ -29,11 +29,12 @@ uses
 
   {$REGION Custom units}
   Common, EngineManager, GameManager, MapDataContainer, TerrainManager,
-  MapDataFace, TerrainManagerFace, MapViewer, LevelData, TestLevel,
+  MapDataFace, TerrainManagerFace, TerrainViewer, LevelData, TestLevel,
   LevelDataFace, LevelLoaderFace, ZenGLFCLGraphics, 
-EngineManagerFace, TextureCache, UnitManager, UnitManagerFace, MapUnit, 
-MapUnitFace, BuildingUnit, BuildingUnitFaceA, DefaultLevel, 
-BasicVehicleFactoryUnit, GameManagerFace;
+  EngineManagerFace, TextureCache, UnitManager, UnitManagerFace, MapUnit,
+  MapUnitFace, BuildingUnit, BuildingUnitFaceA, DefaultLevel,
+  BasicVehicleFactoryUnit, GameManagerFace, MapViewerFace, MapViewer, 
+TerrainManagerFaceE;
 
 type
 

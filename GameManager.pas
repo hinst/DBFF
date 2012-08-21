@@ -26,7 +26,7 @@ uses
   LevelDataFace,
   LevelData,
   LevelLoaderFace,
-  MapViewer,
+  TerrainViewer,
   TestLevel;
 
 type

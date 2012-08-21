@@ -3,29 +3,30 @@
 ==============================
 [00000000ms] Begin
 [00000001ms] Current mode: 1280 x 1024
-[00000212ms] wglChoosePixelFormatARB: zDepth = 24; stencil = 0; fsaa = 0
-[00000231ms] GL_VERSION: 4.2.0
-[00000231ms] GL_RENDERER: GeForce GT 430/PCIe/SSE2
-[00000231ms] GL_MAX_TEXTURE_SIZE: 16384
-[00000231ms] GL_EXT_TEXTURE_COMPRESSION_S3TC: TRUE
-[00000231ms] GL_SGIS_GENERATE_MIPMAP: TRUE
-[00000231ms] GL_MAX_TEXTURE_UNITS_ARB: 4
-[00000231ms] GL_EXT_TEXTURE_FILTER_ANISOTROPIC: TRUE
-[00000231ms] GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT: 16
-[00000231ms] GL_EXT_BLEND_FUNC_SEPARATE: TRUE
-[00000231ms] GL_MAX_RENDERBUFFER_SIZE: 16384
-[00000231ms] GL_EXT_FRAMEBUFFER_OBJECT: TRUE
-[00000232ms] WGL_PBUFFER: TRUE
-[00000232ms] Support WaitVSync: TRUE
-[00000232ms] Ogg: Initialized
-[00000232ms] Theora: Initialized
-[00001224ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Texture_Rock.png"
-[00001241ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Texture_Desert.png"
-[00001274ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Texture_Water.png"
-[00001307ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Masks\003.1.png"
-[00001357ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Masks\003.1R.png"
-[00025285ms] Average FPS: 60
-[00025285ms] Timers to free: 1
-[00025285ms] Render Targets to free: 3
-[00025300ms] Textures to free: 88
-[00025336ms] End
+[00000201ms] wglChoosePixelFormatARB: zDepth = 24; stencil = 0; fsaa = 0
+[00000223ms] GL_VERSION: 4.2.0
+[00000223ms] GL_RENDERER: GeForce GT 430/PCIe/SSE2
+[00000223ms] GL_MAX_TEXTURE_SIZE: 16384
+[00000224ms] GL_EXT_TEXTURE_COMPRESSION_S3TC: TRUE
+[00000224ms] GL_SGIS_GENERATE_MIPMAP: TRUE
+[00000224ms] GL_MAX_TEXTURE_UNITS_ARB: 4
+[00000224ms] GL_EXT_TEXTURE_FILTER_ANISOTROPIC: TRUE
+[00000224ms] GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT: 16
+[00000224ms] GL_EXT_BLEND_FUNC_SEPARATE: TRUE
+[00000224ms] GL_MAX_RENDERBUFFER_SIZE: 16384
+[00000224ms] GL_EXT_FRAMEBUFFER_OBJECT: TRUE
+[00000224ms] WGL_PBUFFER: TRUE
+[00000224ms] Support WaitVSync: TRUE
+[00000224ms] Ogg: Initialized
+[00000224ms] Theora: Initialized
+[00001525ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Texture_Rock.png"
+[00001558ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Texture_Desert.png"
+[00001591ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Texture_Water.png"
+[00001624ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Masks\003.1.png"
+[00001691ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Masks\003.1R.png"
+[00001808ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Units\Building_sample.png"
+[00019301ms] Average FPS: 60
+[00019301ms] Timers to free: 1
+[00019301ms] Render Targets to free: 3
+[00019318ms] Textures to free: 82
+[00019347ms] End

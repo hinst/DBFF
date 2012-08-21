@@ -30,6 +30,7 @@ type
     fMapUnits: TUnitList;
     fBuildingTypes: TBuildingTypes;
     procedure Initialize;
+    procedure ReleaseBuildingTypes;
     procedure Finalize;
   public
     property MapUnits: TUnitList read fMapUnits;
@@ -55,9 +56,18 @@ begin
   fMapUnits := TUnitList.Create;
 end;
 
+procedure TUnitManager.ReleaseBuildingTypes;
+var
+  buildingType: TBuildingType;
+begin
+  for buildingType in BuildingTypes do
+    FreeAndNil(buildingType);
+end;
+
 procedure TUnitManager.Finalize;
 begin
   FreeAndNil(fMapUnits);
+  ReleaseBuildingTypes;
   FreeAndNil(fBuildingTypes);
 end;
 

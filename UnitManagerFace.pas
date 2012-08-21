@@ -10,6 +10,7 @@ uses
 
 type
   IUnitManager = interface
+    procedure LoadBasicBuildingTypes;
     function AddNewBuildingType: IAbstractBuildingType;
   end;
 

@@ -69,6 +69,8 @@ begin
   LoadTerrains;
   Log.Write('Loading test level: loading terrain map...');
   LoadTerrainMap;
+  Log.Write('Loading test level: loading basic building types...');
+  aLevel.UnitManager.LoadBasicBuildingTypes;
   Log.Write('Loading test level - Done.');
 end;
 

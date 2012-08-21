@@ -1,7 +1,10 @@
 unit EngineManager;
 
 {$mode objfpc}{$H+}
+
 {$UNDEF DEBUG_BATCH}
+{$DEFINE DEBUG_WRITE_ENGINE_CONFIG}
+{$DEFINE DEBUG_WRITE_ON_LOADTEXTURE}
 
 interface
 
@@ -51,8 +54,6 @@ type
     fOnEngineFinalize: TProcedure;
     fBatch: TSynchroThread;
     function GetBatch: TSynchroThread;
-  public const
-    DEBUG = true;
   public
     property Log: ILog read fLog;
     property Draw: TProcedure read fDraw write fDraw;
@@ -132,8 +133,9 @@ begin
   configFile := TIniFile.Create(configFilePath);
   config.Read(configFile);
   configFile.Free;
-  if DEBUG then
-    config.Write(Log);
+  {$IFDEF DEBUG_WRITE_ENGINE_CONFIG}
+  config.Write(Log);
+  {$ENDIF}
   Log.Write('Now starting up the engine...');
   scr_SetOptions(
     config.ScreenWidth, config.ScreenHeight, REFRESH_DEFAULT, config.FullScreen, config.VSync
@@ -177,6 +179,7 @@ function TEngineManager.LoadTexture(const aFileName: string): zglPTexture;
 var
   job: TLoadTexture;
 begin
+  Log.Write('Loading texture "' + aFileName + '"...');
   job := TLoadTexture.Create(aFileName);
   Batch.Execute(job);
   result := job.Result;

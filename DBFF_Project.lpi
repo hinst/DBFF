@@ -43,7 +43,7 @@
         <PackageName Value="UltimateLibrary"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="26">
+    <Units Count="29">
       <Unit0>
         <Filename Value="DBFF_Project.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -85,9 +85,9 @@
         <UnitName Value="TerrainManagerFace"/>
       </Unit7>
       <Unit8>
-        <Filename Value="MapViewer.pas"/>
+        <Filename Value="TerrainViewer.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="MapViewer"/>
+        <UnitName Value="TerrainViewer"/>
       </Unit8>
       <Unit9>
         <Filename Value="LevelData.pas"/>
@@ -173,6 +173,21 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="GameManagerFace"/>
       </Unit25>
+      <Unit26>
+        <Filename Value="MapViewerFace.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="MapViewerFace"/>
+      </Unit26>
+      <Unit27>
+        <Filename Value="MapViewer.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="MapViewer"/>
+      </Unit27>
+      <Unit28>
+        <Filename Value="TerrainManagerFaceE.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TerrainManagerFaceE"/>
+      </Unit28>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -189,7 +204,6 @@
     <Linking>
       <Debugging>
         <UseHeaptrc Value="True"/>
-        <UseExternalDbgSyms Value="True"/>
       </Debugging>
     </Linking>
     <Other>
