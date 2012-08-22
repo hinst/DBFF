@@ -60,8 +60,7 @@ implementation
 
 procedure TBuildingType.Finalize;
 begin
-  if GlobalEngineRunning then
-    GlobalGameManager.Engine.DisposeTexture(fTexture);
+  GlobalGameManager.Engine.DisposeTexture(fTexture);
 end;
 
 destructor TBuildingType.Destroy;

@@ -11,6 +11,8 @@ uses
   zgl_textures,
   zgl_sprite_2d,
 
+  NiceExceptions,
+
   Common,
   MapDataFace,
   MapScrollManager,
@@ -26,9 +28,11 @@ type
     fHatTexture: zglPTexture;
     function GetTextureFileName: string;
     function GetHatTextureFileName: string;
+    procedure Finalize;
   public
     property HatTexture: zglPTexture read fHatTexture;
     procedure Load(const aEngine: IEngineManager);
+    destructor Destroy; override;
   end;
 
   TBasicVehicleFactory = class(TBuilding)
@@ -54,6 +58,7 @@ implementation
 constructor TBasicVehicleFactory.Create(const aType: TBuildingType);
 begin
   inherited Create(aType);
+  Initialize;
 end;
 
 function TBasicVehicleFactory.GetMyType: TBasicVehicleFactoryType;
@@ -132,10 +137,21 @@ begin
     + 'Units' + DirectorySeparator + 'BuildingHat1.png';
 end;
 
+procedure TBasicVehicleFactoryType.Finalize;
+begin
+  GlobalGameManager.Engine.DisposeTexture(fHatTexture);
+end;
+
 procedure TBasicVehicleFactoryType.Load(const aEngine: IEngineManager);
 begin
   fTexture := aEngine.LoadTexture(GetTextureFileName);
   fHatTexture := aEngine.LoadTexture(GetHatTextureFileName);
+end;
+
+destructor TBasicVehicleFactoryType.Destroy;
+begin
+  Finalize;
+  inherited Destroy;
 end;
 
 end.

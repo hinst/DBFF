@@ -168,6 +168,7 @@ end;
 procedure TGameManager.Finalize;
 begin
   LevelActive := false;
+  FreeAndNil(fLevel);
   FreeAndNil(fEngine);
   FreeAndNil(fJobThread);
   FreeLog(fLog);
@@ -189,6 +190,8 @@ procedure TGameManager.Update(const aTime: double);
 begin
   if not GlobalEngineRunning then exit;
   ReceiveInput(aTime);
+  if LevelActive then
+    Level.Update(aTime);
 end;
 
 procedure TGameManager.ReceiveInput(const aTime: double);

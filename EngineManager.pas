@@ -14,7 +14,6 @@ uses
   IniFiles,
 
   {$REGION ZenGL units}
-  zgl_types,
   zgl_main,
   zgl_screen,
   zgl_window,
@@ -225,8 +224,11 @@ var
   job: ISynchroJob;
 begin
   if aTexture = nil then exit;
-  job := TDisposeTexture.Create(aTexture);
-  Batch.Execute(job);
+  if GlobalEngineRunning then
+  begin
+    job := TDisposeTexture.Create(aTexture);
+    Batch.Execute(job);
+  end;
   aTexture := nil;
 end;
 
