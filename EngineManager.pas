@@ -67,7 +67,7 @@ type
     function DirectCopyTexture(const aTexture: zglPTexture): zglPTexture;
     procedure DirectCleanTexture(const aTexture: zglPRenderTarget);
     function CreateRenderTarget(const aWidth, aHeight: integer): zglPRenderTarget;
-    procedure DisposeTexture(const aTexture: zglPTexture);
+    procedure DisposeTexture(var aTexture: zglPTexture);
     destructor Destroy; override;
   end;
 
@@ -220,13 +220,14 @@ begin
   result := job.Result;
 end;
 
-procedure TEngineManager.DisposeTexture(const aTexture: zglPTexture);
+procedure TEngineManager.DisposeTexture(var aTexture: zglPTexture);
 var
   job: ISynchroJob;
 begin
   if aTexture = nil then exit;
   job := TDisposeTexture.Create(aTexture);
   Batch.Execute(job);
+  aTexture := nil;
 end;
 
 destructor TEngineManager.Destroy;

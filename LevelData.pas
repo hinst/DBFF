@@ -27,6 +27,7 @@ uses
   MapDataFace,
   MapDataContainer,
   TerrainManagerFace,
+  TerrainManagerFaceE,
   TerrainManager,
   MapViewer,
   UnitManagerFace,
@@ -164,6 +165,7 @@ begin
   MapView.Map := Map;
   Log.Write('Updating view...');
   MapView.UpdateView;
+  MapView.Scroll.FocusOnMapCenter;
 end;
 
 procedure TLevelData.LoadTerrainMapFromImageFile(const aFileName: string);

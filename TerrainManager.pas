@@ -21,28 +21,13 @@ uses
   EngineManagerFace,
 
   ZenGLFCLGraphics,
+
+  Common,
   TerrainManagerFace,
   TerrainManagerFaceE,
   MapDataFace;
 
 type
-
-  { TTerrain }
-
-  TTerrain = object
-  public
-    constructor Init;
-    procedure Clean;
-  public
-    id: TTerrainType;
-    Name: string;
-    Color: LongWord;
-    Texture: zglPTexture;
-    function ToText: string;
-    destructor Done;
-  end;
-
-  TTerrains = array of TTerrain;
 
   { TTerrainManager }
 
@@ -59,8 +44,10 @@ type
     procedure LoadTerrainsFromList(const aFile: TIniFile; const aList: TStrings);
     procedure LoadTerrain(var aTerrain: TTerrain; const aFile: TIniFile);
     procedure LoadTerrainTexture(var aTerrain: TTerrain; const aFile: TIniFile);
+    function GetTerrains: TTerrains;
     procedure ReleaseTerrains;
     procedure LoadMasks(const aFile: TIniFile);
+    function GetMasks: TMultiTexture;
     procedure Finalize;
   public const
     ColorIdent = 'replacingColor';
@@ -81,34 +68,6 @@ type
   end;
 
 implementation
-
-uses
-  Common;
-
-constructor TTerrain.Init;
-begin
-  Clean;
-end;
-
-procedure TTerrain.Clean;
-begin
-  id := 0;
-  Name := '';
-  Color := 0;
-  Texture := nil;
-end;
-
-function TTerrain.ToText: string;
-begin
-  result := IntToStr(id) + ': ' + Name + '; RC=' + IntToHex(Color, 6);
-end;
-
-destructor TTerrain.Done;
-begin
-  if GlobalEngineRunning and Assigned(Texture) then
-    tex_Del(Texture);
-  Clean;
-end;
 
 { TTerrainManager }
 
@@ -179,6 +138,11 @@ begin
   end;
   Masks.FinishArea;
   sections.Free;
+end;
+
+function TTerrainManager.GetMasks: TMultiTexture;
+begin
+  result := fMasks;
 end;
 
 procedure TTerrainManager.ReleaseTerrains;
@@ -269,6 +233,11 @@ begin
       Log.Write(logTagError, 'File does not exists'
         + LineEnding + '"' + textureFilePath + '"');
   end;
+end;
+
+function TTerrainManager.GetTerrains: TTerrains;
+begin
+  result := fTerrains;
 end;
 
 function TTerrainManager.GetTerrainsInfoAsText: string;

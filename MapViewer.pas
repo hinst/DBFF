@@ -12,6 +12,7 @@ uses
 
   TerrainViewer,
   MapDataFace,
+  MapScrollManager,
   TerrainManagerFace,
   TerrainManagerFaceE;
 
@@ -24,6 +25,7 @@ type
     constructor Create(const aOwner: TComponent);
   private
     fTerrainView: TTerrainView;
+    fScroll: TMapScrollManager;
     procedure Initialize;
     procedure SetTerrainManager(const aManager: ITerrainManagerE);
     procedure SetMap(const aMap: IMapData);
@@ -31,6 +33,7 @@ type
     procedure Finalize;
   public
     property TerrainView: TTerrainView read fTerrainView;
+    property Scroll: TMapScrollManager read fScroll;
     property TerrainManager: ITerrainManagerE write SetTerrainManager;
     property Map: IMapData write SetMap;
     procedure Draw;
@@ -51,7 +54,9 @@ end;
 
 procedure TMapView.Initialize;
 begin
+  fScroll := TMapScrollManager.Create;
   fTerrainView := TTerrainView.Create(self);
+  TerrainView.Scroll := fScroll;
 end;
 
 procedure TMapView.SetTerrainManager(const aManager: ITerrainManagerE);
@@ -63,6 +68,7 @@ end;
 procedure TMapView.SetMap(const aMap: IMapData);
 begin
   AssertAssignedTerrainView;
+  Scroll.Map := aMap;
   TerrainView.Map := aMap;
 end;
 
@@ -73,6 +79,7 @@ end;
 
 procedure TMapView.Finalize;
 begin
+  FreeAndNil(fScroll);
   FreeAndNil(fTerrainView);
 end;
 
@@ -83,13 +90,14 @@ end;
 
 procedure TMapView.UpdateView;
 begin
+  Scroll.Update;
   TerrainView.Update;
 end;
 
 procedure TMapView.ReceiveInput(const aTime: double);
 begin
   AssertAssignedTerrainView;
-  TerrainView.ReceiveInput(aTime);
+  Scroll.ReceiveInput(aTime);
 end;
 
 destructor TMapView.Destroy;

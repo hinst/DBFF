@@ -9,6 +9,9 @@ uses
   BuildingUnitFaceA;
 
 type
+
+  { IUnitManager }
+
   IUnitManager = interface
     procedure LoadBasicBuildingTypes;
     function AddNewBuildingType: IAbstractBuildingType;

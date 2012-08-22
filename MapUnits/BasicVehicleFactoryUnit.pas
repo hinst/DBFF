@@ -24,7 +24,6 @@ type
   end;
 
   TBasicVehicleFactory = class(TBuilding)
-
   end;
 
 implementation

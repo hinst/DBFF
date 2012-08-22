@@ -43,7 +43,7 @@
         <PackageName Value="UltimateLibrary"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="29">
+    <Units Count="31">
       <Unit0>
         <Filename Value="DBFF_Project.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -188,6 +188,16 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="TerrainManagerFaceE"/>
       </Unit28>
+      <Unit29>
+        <Filename Value="MapScrollManager.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="MapScrollManager"/>
+      </Unit29>
+      <Unit30>
+        <Filename Value="UnitViewer.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UnitViewer"/>
+      </Unit30>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

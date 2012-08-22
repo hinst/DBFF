@@ -2,6 +2,7 @@ unit TerrainViewer;
 
 {$mode objfpc}{$H+}
 {$DEFINE LOG_TEXTURE_CACHE}
+{$DEFINE USE_INLINE}
 
 interface
 
@@ -25,12 +26,12 @@ uses
   NiceExceptions,
 
   Common,
+  MapScrollManager,
   MapViewerFace,
   TextureCache,
   MapDataFace,
   EngineManagerFace,
-  TerrainManager,
-  TerrainManagerFace;
+  TerrainManagerFaceE;
 
 type
 
@@ -67,14 +68,11 @@ type
 
   private
     fLog: ILog;
-    fViewX, fViewY: single;
-    fFieldWidth, fFieldHeight: single;
-    fXSpeed, fYSpeed: single;
     fMap: IMapData;
+    fScroll: TMapScrollManager;
     fMatrix: TCells.TMatrix; // direct access to Map.Cells.Matrix; cached
     fMapWidth, fMapHeight: integer; // direct access to Map.Cells.Width and Map.Cells.Height; cached
-    fTerrain: ITerrainManager;
-    fTerrainMan: TTerrainManager; // direct access to Terrain.Reverse
+    fTerrain: ITerrainManagerE;
     fMaskTexture: zglPTexture; // direct access to TerrainMan.Masks.Area^.Surface
     fMaskCount: integer; // direct access to TerrainMan.Masks.Count
     fMasks: TCellMaskInfoMatrix;
@@ -88,52 +86,55 @@ type
     fAllowNewCacheItem: boolean;
     procedure Initialize;
     procedure AssignDefaults;
-    procedure FocusViewOnMapCenter;
-    procedure DetermineFieldDemensions;
     procedure DetermineMasks;
-    function GetViewXLeft: single; inline;
-    function GetViewYUp: single; inline;
+    function GetViewXLeft: single;
+    function GetViewYUp: single;
     function GetFieldWidth: single;
     function GetFieldHeight: single;
-    procedure SetTerrain(const aTerrain: ITerrainManager);
+    function GetTileWidth: integer;
+    function GetTileHeight: integer;
+    procedure SetTerrain(const aTerrain: ITerrainManagerE);
     procedure DrawTerrainLayerSubcolor(const aX, aY: integer; const aXD, aYD: single);
-    procedure CheckCellFraming(const aX, aY: integer; out aU, aD, aL, aR: TTerrainType); inline;
-    function ProcessFraming(const aX, aY: integer; const aXD, aYD: single): boolean; inline;
-    procedure DrawTerrainLayerSimple(const aX, aY: integer; const aXD, aYD: single);
-    procedure DrawFramingCached(const aF: PDrawFraming); inline;
-    procedure DrawWithoutFraming(const aF: PDrawFraming); inline;
-    procedure DrawAndCache(const aF: PDrawFraming); inline;
-    procedure DrawFraming(const aF: PDrawFraming); inline;
+    procedure CheckCellFraming(const aX, aY: integer; out aU, aD, aL, aR: TTerrainType);
+      {$IFDEF USE_INLINE} inline; {$ENDIF}
+    function ProcessFraming(const aX, aY: integer; const aXD, aYD: single): boolean;
+    {$IFDEF USE_INLINE} inline; {$ENDIF}
+    procedure DrawTerrainLayer(const aX, aY: integer; const aXD, aYD: single);
+      {$IFDEF USE_INLINE} inline; {$ENDIF}
+    procedure DrawFramingCached(const aF: PDrawFraming);
+      {$IFDEF USE_INLINE} inline; {$ENDIF}
+    procedure DrawWithoutFraming(const aF: PDrawFraming);
+      {$IFDEF USE_INLINE} inline; {$ENDIF}
+    procedure DrawAndCache(const aF: PDrawFraming);
+      {$IFDEF USE_INLINE} inline; {$ENDIF}
+    procedure DrawFraming(const aF: PDrawFraming);
+      {$IFDEF USE_INLINE} inline; {$ENDIF}
     procedure OverlapByFrame(const aTerrainType: TTerrainType;
       const aMaskIndex: integer; const aAngle: single);
+      {$IFDEF USE_INLINE} inline; {$ENDIF}
     procedure DrawBottomCellTexture(const aTexture: zglPTexture);
+      {$IFDEF USE_INLINE} inline; {$ENDIF}
     procedure DrawFramings;
     procedure ReleaseFraming;
     procedure ReleaseMasks;
     procedure Finalize;
   public const
-    TileWidth = 64;
-    TileHeight = 64;
-    DefaultXSpeed = 6;
-    DefaultYSpeed = 6;
     DefaultGridColor = $FFFFFF;
     DefaultGridAlpha = 255 div 2;
   public
     property Log: ILog read fLog write fLog;
-    property ViewX: single read fViewX write fViewX;
-    property ViewY: single read fViewY write fViewY;
+    property Scroll: TMapScrollManager read fScroll write fScroll;
     property ViewXCorner: single read GetViewXLeft;
     property ViewYCorner: single read GetViewYUp;
-    property FieldWidth: single read fFieldWidth write fFieldWidth;
-    property FieldHeight: single read fFieldHeight write fFieldHeight;
-    property XSpeed: single read fXSpeed write fXSpeed;
-    property YSpeed: single read fYSpeed write fYSpeed;
+    property FieldWidth: single read GetFieldWidth;
+    property FieldHeight: single read GetFieldHeight;
+    property TileWidth: integer read GetTileWidth;
+    property TileHeight: integer read GetTileHeight;
     property Map: IMapData read fMap write fMap;
     property Matrix: TCells.TMatrix read fMatrix write fMatrix;
     property MapWidth: integer read fMapWidth;
     property MapHeight: integer read fMapHeight;
-    property Terrain: ITerrainManager read fTerrain write SetTerrain;
-    property TerrainMan: TTerrainManager read fTerrainMan;
+    property Terrain: ITerrainManagerE read fTerrain write SetTerrain;
     property MaskTexture: zglPTexture read fMaskTexture;
     property MaskCount: integer read fMaskCount;
     property Masks: TCellMaskInfoMatrix read fMasks;
@@ -147,7 +148,6 @@ type
     property AllowNewCacheItem: boolean read fAllowNewCacheItem;
       // it is necessary to call this procedure after changing the map data
     procedure Update;
-    procedure ReceiveInput(const aT: double);
     procedure DrawDebugInfo;
     procedure DrawTerrainLayerSubcolors;
     procedure DrawTerrainLayer;
@@ -224,24 +224,8 @@ end;
 
 procedure TTerrainView.AssignDefaults;
 begin
-  XSpeed := DefaultXSpeed;
-  YSpeed := DefaultYSpeed;
   GridColor := DefaultGridColor;
   GridAlpha := DefaultGridAlpha;
-end;
-
-procedure TTerrainView.FocusViewOnMapCenter;
-begin
-  ViewX := FieldWidth / 2;
-  ViewY := FieldHeight / 2;
-end;
-
-procedure TTerrainView.DetermineFieldDemensions;
-begin
-  FieldWidth := Map.Cells.Width * TileWidth;
-  FieldHeight := Map.Cells.Height * TileHeight;
-  Log.Write('Field dimensions determined: '
-    + FloatToStr(FieldWidth) + ' x ' + FloatToStr(FieldHeight));
 end;
 
 procedure TTerrainView.DetermineMasks;
@@ -296,30 +280,39 @@ end;
 
 function TTerrainView.GetViewXLeft: single;
 begin
-  result := ViewX - single(wndWidth) / 2;
+  result := Scroll.ViewLeft;
 end;
 
 function TTerrainView.GetViewYUp: single;
 begin
-  result := ViewY - single(wndHeight) / 2;
+  result := Scroll.ViewTop;
 end;
 
 function TTerrainView.GetFieldWidth: single;
 begin
-  result := FieldWidth;
+  result := Scroll.FieldWidth;
 end;
 
 function TTerrainView.GetFieldHeight: single;
 begin
-  result := FieldHeight;
+  result := Scroll.FieldHeight;
 end;
 
-procedure TTerrainView.SetTerrain(const aTerrain: ITerrainManager);
+function TTerrainView.GetTileWidth: integer;
+begin
+  result := Scroll.TileWidth;
+end;
+
+function TTerrainView.GetTileHeight: integer;
+begin
+  result := Scroll.TileHeight;
+end;
+
+procedure TTerrainView.SetTerrain(const aTerrain: ITerrainManagerE);
 begin
   fTerrain := aTerrain;
-  fTerrainMan := TTerrainManager(aTerrain.Reverse);
-  fMaskTexture := TerrainMan.Masks.Area^.Surface;
-  fMaskCount := TerrainMan.Masks.Count;
+  fMaskTexture := Terrain.Masks.Area^.Surface;
+  fMaskCount := Terrain.Masks.Count;
 end;
 
 procedure TTerrainView.DrawTerrainLayerSubcolor(const aX, aY: integer; const aXD, aYD: single);
@@ -403,7 +396,7 @@ begin
   Framings.Add(framing);
 end;
 
-procedure TTerrainView.DrawTerrainLayerSimple(const aX, aY: integer; const aXD, aYD: single);
+procedure TTerrainView.DrawTerrainLayer(const aX, aY: integer; const aXD, aYD: single);
 var
   typee: TTerrainType;
   texture: zglPTexture;
@@ -411,7 +404,7 @@ var
   isAnyFraming: boolean;
 begin
   typee := Matrix[aX, aY].typee;
-  t := TerrainMan.Terrains[typee];
+  t := Terrain.Terrains[typee];
   texture := t.Texture;
   if texture = nil then
     exit;
@@ -452,7 +445,7 @@ procedure TTerrainView.DrawWithoutFraming(const aF: PDrawFraming);
 var
   texture: zglPTexture;
 begin
-  texture := TerrainMan.Terrains[aF^.typee].Texture;
+  texture := Terrain.Terrains[aF^.typee].Texture;
   ssprite2d_Draw(texture, aF^.xD, aF^.yD, TileWidth, TileHeight, 0);
 end;
 
@@ -517,7 +510,7 @@ var
   cmi: PCellMaskInfo;
 
 begin
-  t := TerrainMan.Terrains[aF^.typee];
+  t := Terrain.Terrains[aF^.typee];
   DrawBottomCellTexture(t.Texture);
   if aF^.cmi^.Up <> -1 then
   begin
@@ -557,12 +550,12 @@ begin
   begin
     AssertAssigned(FramingTexture, 'FramingTexture');
     AssertAssigned(MaskTexture, 'MaskTexture');
-    AssertAssigned(TerrainMan, 'TerrainMan');
+    AssertAssigned(Terrain, 'Terrain');
   end;
   rtarget_Set(FramingTexture);
   Engine.DirectCleanTexture(FramingTexture);
   asprite2d_Draw(MaskTexture, 0, 0, TileWidth, TileHeight, aAngle, aMaskIndex);
-  texture := TerrainMan.Terrains[aTerrainType].Texture;
+  texture := Terrain.Terrains[aTerrainType].Texture;
   fx_SetBlendMode(FX_BLEND_MULT, false);
   ssprite2d_Draw(texture, 0, 0, TileWidth, TileHeight, 0);
   fx_SetBlendMode(FX_BLEND_NORMAL);
@@ -589,7 +582,7 @@ begin
     DrawFramingCached(Framings[i]);
     //if false = AllowNewCacheItem then break;
   end;
-  Cache.Clean(Round(ViewX / TileWidth), Round(ViewY / TileHeight));
+  Cache.Clean(Round(Scroll.ViewX / TileWidth), Round(Scroll.ViewY / TileHeight));
 end;
 
 procedure TTerrainView.ReleaseFraming;
@@ -639,37 +632,13 @@ begin
   fMatrix := Map.Cells.Matrix;
   fMapWidth := Map.Cells.Width;
   fMapHeight := Map.Cells.Height;
-  DetermineFieldDemensions;
   DetermineMasks;
-  FocusViewOnMapCenter;
 
   fFramings := TFPList.Create;
   Log.Write('Updating map: creating surfaces...');
   fFramingTexture := Engine.CreateRenderTarget(TileWidth, TileHeight);
   fCellTexture := Engine.CreateRenderTarget(TileWidth, TileHeight);
   Log.Write('Updating map: creating surfaces - Done.');
-end;
-
-procedure TTerrainView.ReceiveInput(const aT: double);
-  function DeltaX: single; inline;
-  begin
-    result := aT / single(1000) * fXSpeed * single(TileWidth);
-  end;
-
-  function DeltaY: single; inline;
-  begin
-    result := aT / single(1000) * fYSpeed * single(TileHeight);
-  end;
-
-begin
-  if key_Down(K_W) then
-    fViewY -= DeltaY;
-  if key_Down(K_S) then
-    fViewY += DeltaY;
-  if key_Down(K_A) then
-    fViewX -= DeltaX;
-  if key_Down(K_D) then
-    fViewX += DeltaX;
 end;
 
 procedure TTerrainView.DrawDebugInfo;
@@ -688,7 +657,7 @@ const
 begin
   if DEBUG then
     Log.Write('Stage 1');
-  ForeachVisibleCell(@DrawTerrainLayerSimple);
+  ForeachVisibleCell(@DrawTerrainLayer);
   if DEBUG then
     Log.Write('Stage 2');
   Framings.Sort(@SortFraming);

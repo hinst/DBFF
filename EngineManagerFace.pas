@@ -22,7 +22,7 @@ type
     function DirectCopyTexture(const aTexture: zglPTexture): zglPTexture;
     procedure DirectCleanTexture(const aTexture: zglPRenderTarget);
     function CreateRenderTarget(const aWidth, aHeight: integer): zglPRenderTarget;
-    procedure DisposeTexture(const aTexture: zglPTexture);
+    procedure DisposeTexture(var aTexture: zglPTexture);
   end;
 
 implementation
