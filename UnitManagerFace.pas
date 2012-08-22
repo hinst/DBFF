@@ -15,6 +15,7 @@ type
   IUnitManager = interface
     procedure LoadBasicBuildingTypes;
     function AddNewBuildingType: IAbstractBuildingType;
+    procedure AddBasicVehicleFactory(const aX, aY: integer);
   end;
 
 implementation

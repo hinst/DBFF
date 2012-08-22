@@ -16,6 +16,7 @@ uses
   BuildingUnit,
   BuildingUnitFaceA,
   MapUnit,
+  MapDataFace,
   MapScrollManager,
   BasicVehicleFactoryUnit;
 
@@ -34,6 +35,7 @@ type
     fMapUnits: TUnitList;
     fBuildingTypes: TBuildingTypes;
     fScroll: TMapScrollManager;
+    fMap: IMapData;
     procedure Initialize;
     procedure ReleaseUnits;
     procedure ReleaseBuildingTypes;
@@ -43,9 +45,12 @@ type
     property BuildingTypes: TBuildingTypes read fBuildingTypes;
       // this property should be assigned
     property Scroll: TMapScrollManager read fScroll write fScroll;
+      // this property should be assigned
+    property Map: IMapData read fMap write fMap;
     procedure LoadBasicBuildingTypes;
     function AddNewBuildingType: IAbstractBuildingType;
     procedure Draw;
+    procedure Update(const aTime: double);
     procedure AddUnit(const aUnit: TMapUnit);
     function FindBuildingType(const aClass: TBuildingTypeClass): TBuildingType;
     procedure AddBasicVehicleFactory(const aX, aY: integer);
@@ -109,8 +114,19 @@ begin
 end;
 
 procedure TUnitManager.Draw;
+var
+  u: TMapUnit;
 begin
+  for u in MapUnits do
+    u.Draw(Scroll);
+end;
 
+procedure TUnitManager.Update(const aTime: double);
+var
+  u: TMapUnit;
+begin
+  for u in MapUnits do
+    u.Update(aTime);
 end;
 
 procedure TUnitManager.AddUnit(const aUnit: TMapUnit);
@@ -141,6 +157,7 @@ begin
   u := TBasicVehicleFactory.Create(t);
   u.LeftTopCell^.X := aX;
   u.LeftTopCell^.Y := aY;
+  AddUnit(u);
 end;
 
 destructor TUnitManager.Destroy;

@@ -16,7 +16,8 @@ uses
   BuildingUnitFaceA,
   MapUnit,
   MapUnitFace,
-  MapDataFace;
+  MapDataFace,
+  MapScrollManager;
 
 type
 
@@ -40,16 +41,17 @@ type
 
   TBuilding = class(TMapUnit)
   public
-    constructor Create(const aType: TBuildingType);
-  private
+    constructor Create(const aType: TBuildingType); virtual;
+  protected
     fLeftTopCell: TCellNumber;
     fBuildingType: TBuildingType;
     function GetLeftTopCell: PCellNumber; inline;
     procedure Initialize(const aType: TBuildingType);
+    procedure SureDraw(const aScroll: TMapScrollManager); virtual; abstract;
   public
     property LeftTopCell: PCellNumber read GetLeftTopCell;
     property BuildingType: TBuildingType read fBuildingType;
-    procedure Draw; override;
+    procedure Draw(const aScroll: TMapScrollManager); override;
   end;
 
 implementation
@@ -86,9 +88,21 @@ begin
   fBuildingType := aType;
 end;
 
-procedure TBuilding.Draw;
+procedure TBuilding.Draw(const aScroll: TMapScrollManager);
+var
+  cell: TCellNumber;
+  cells: TCellNumbers;
 begin
   AssertAssigned(BuildingType, 'BuildingType');
+  if self.ClassType = TBuilding then
+    raise Exception.Create('Can not draw abstract building.');
+  cells := OccupatedCells;
+  for cell in cells do
+    if aScroll.CellVisible[cell.X, cell.Y] then
+    begin
+      SureDraw(aScroll);
+      break;
+    end;
 end;
 
 end.

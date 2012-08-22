@@ -11,11 +11,19 @@ uses
   zgl_textures,
 
   MapUnitFace,
-  MapDataFace;
+  MapDataFace,
+  MapScrollManager;
 
 type
+
+
   TMapUnit = class(IMapUnit)
-    procedure Draw; virtual; abstract;
+  protected
+    function GetOccupatedCells: TCellNumbers; virtual; abstract;
+  public
+    property OccupatedCells: TCellNumbers read GetOccupatedCells;
+    procedure Draw(const aScroll: TMapScrollManager); virtual; abstract;
+    procedure Update(const aTime: double); virtual; abstract;
   end;
 
 implementation

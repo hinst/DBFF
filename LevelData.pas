@@ -66,6 +66,7 @@ type
     procedure LoadTerrainMapFromImage(const aImage: TFPCustomImage);
     procedure LoadTerrainMapFromImageFile(const aFileName: string);
     procedure Draw;
+    procedure Update(const aTime: double);
     procedure ReceiveInput(const aTime: double);
     destructor Destroy; override;
   end;
@@ -90,6 +91,8 @@ begin
   fMap := TMapData.Create(self);
   fMapView := TMapView.Create(self);
   fUnitMan := TUnitManager.Create(self);
+  UnitMan.Scroll := MapView.Scroll;
+  UnitMan.Map := Map;
 end;
 
 function TLevelData.GetMap: IMapData;
@@ -195,6 +198,12 @@ end;
 procedure TLevelData.Draw;
 begin
   MapView.Draw;
+  UnitMan.Draw;
+end;
+
+procedure TLevelData.Update(const aTime: double);
+begin
+  UnitMan.Update(aTime);
 end;
 
 procedure TLevelData.ReceiveInput(const aTime: double);

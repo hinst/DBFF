@@ -19,13 +19,18 @@ type
     busy: boolean;
   end;
 
+  { TCellNumber }
+
   TCellNumber = object
   private
     fX, fY: integer;
   public
     property X: integer read fX write fX;
     property Y: integer read fY write fY;
+    procedure Assign(const a: TCellNumber);
   end;
+
+  TCellNumbers = array of TCellNumber;
 
   PCellNumber = ^TCellNumber;
 
@@ -37,6 +42,14 @@ type
   end;
 
 implementation
+
+{ TCellNumber }
+
+procedure TCellNumber.Assign(const a: TCellNumber);
+begin
+  X := a.X;
+  Y := a.Y;
+end;
 
 end.
 

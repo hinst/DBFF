@@ -215,7 +215,6 @@ begin
   fEngine := GlobalGameManager.Engine;
   fCache := TMapTextureCache.Create;
   Cache.Engine := Engine;
-  Cache.CleaningDistance := Cache.GetDefaultDistance(TileWidth);
   {$IFDEF LOG_TEXTURE_CACHE}
   Cache.Log := TLog.Create(GlobalLogManager, 'MTCache');
   {$ENDIF}
@@ -635,10 +634,11 @@ begin
   DetermineMasks;
 
   fFramings := TFPList.Create;
-  Log.Write('Updating map: creating surfaces...');
+  //Log.Write('Updating map: creating surfaces...');
   fFramingTexture := Engine.CreateRenderTarget(TileWidth, TileHeight);
   fCellTexture := Engine.CreateRenderTarget(TileWidth, TileHeight);
-  Log.Write('Updating map: creating surfaces - Done.');
+  //Log.Write('Updating map: creating surfaces - Done.');
+  Cache.CleaningDistance := Cache.GetDefaultDistance(TileWidth);
 end;
 
 procedure TTerrainView.DrawDebugInfo;

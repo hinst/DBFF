@@ -196,7 +196,6 @@ begin
   ReceiveDebugKeys;
   if LevelActive then
     Level.ReceiveInput(aTime);
-
   key_ClearState;
 end;
 

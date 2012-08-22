@@ -7,11 +7,13 @@ interface
 
 uses
   Classes,
-  SysUtils;
+  SysUtils,
+
+  MapScrollManager;
 
 type
   IMapUnit = interface
-    procedure Draw;
+    procedure Draw(const aScroll: TMapScrollManager);
   end;
 
 implementation
