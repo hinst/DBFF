@@ -199,6 +199,7 @@ procedure TLevelData.Draw;
 begin
   MapView.Draw;
   UnitMan.Draw;
+  MapView.TerrainView.DrawDebugInfo;
 end;
 
 procedure TLevelData.Update(const aTime: double);

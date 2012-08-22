@@ -22,6 +22,7 @@ uses
   zgl_fx,
   zgl_primitives_2d,
   zgl_sprite_2d,
+  zgl_font,
   {$ENDREGION}
 
   SynchroThread,
@@ -29,8 +30,10 @@ uses
   LogEntity,
   NiceExceptions,
 
+  Common,
   EngineManagerFace,
-  ZenGLFCLGraphics;
+  ZenGLFCLGraphics,
+  ZenGLShowMeFPS;
 
 type
 
@@ -52,7 +55,10 @@ type
     fUpdate: TUpdateProcedure;
     fOnEngineFinalize: TProcedure;
     fBatch: TSynchroThread;
+    fShowFpsActive: boolean;
+    fFpsDrawer: TFPSDrawer;
     function GetBatch: TSynchroThread;
+    procedure SetShowFpsActive(const aValue: boolean);
   public
     property Log: ILog read fLog;
     property Draw: TProcedure read fDraw write fDraw;
@@ -60,9 +66,14 @@ type
     property Update: TUpdateProcedure read fUpdate write fUpdate;
     property OnEngineFinalize: TProcedure read fOnEngineFinalize write fOnEngineFinalize;
     property Batch: TSynchroThread read fBatch;
+    property FPSDrawer: TFPSDrawer read fFpsDrawer;
+    property ShowFpsActive: boolean read fShowFpsActive write SetShowFpsActive;
+    procedure TriggerShowFpsActive;
+    procedure DrawAfter;
     class function GetConfigFilePath: string;
     function PerformBatch: boolean;
     function LoadTexture(const aFileName: string): zglPTexture;
+    function LoadFont(const aFileName: string): zglPFont;
     function DirectCopyTexture(const aTexture: zglPTexture): zglPTexture;
     procedure DirectCleanTexture(const aTexture: zglPRenderTarget);
     function CreateRenderTarget(const aWidth, aHeight: integer): zglPRenderTarget;
@@ -100,9 +111,6 @@ type
   end;
 
 implementation
-
-uses
-  Common;
 
 { TEngineManager }
 
@@ -155,6 +163,7 @@ end;
 
 procedure TEngineManager.Finalize;
 begin
+  FreeAndNil(fFpsDrawer);
   FreeAndNil(fBatch);
   FreeLog(fLog);
 end;
@@ -162,6 +171,30 @@ end;
 function TEngineManager.GetBatch: TSynchroThread;
 begin
   result := Batch;
+end;
+
+procedure TEngineManager.SetShowFpsActive(const aValue: boolean);
+begin
+  if aValue = true then
+  begin
+    if fFpsDrawer = nil then
+    begin
+      fFpsDrawer := TFPSDrawer.Create;
+      FPSDrawer.Font := LoadFont(GlobalApplicationPath + FpsFontRelativePath);
+    end;
+  end;
+  fShowFpsActive := aValue;
+end;
+
+procedure TEngineManager.TriggerShowFpsActive;
+begin
+  ShowFpsActive := not ShowFpsActive;
+end;
+
+procedure TEngineManager.DrawAfter;
+begin
+  if ShowFpsActive then
+    FPSDrawer.Draw;
 end;
 
 class function TEngineManager.GetConfigFilePath: string;
@@ -178,8 +211,20 @@ function TEngineManager.LoadTexture(const aFileName: string): zglPTexture;
 var
   job: TLoadTexture;
 begin
+  {$IFDEF DEBUG_WRITE_ON_LOADTEXTURE}
   Log.Write('Loading texture "' + aFileName + '"...');
+  {$ENDIF}
   job := TLoadTexture.Create(aFileName);
+  Batch.Execute(job);
+  result := job.Result;
+end;
+
+function TEngineManager.LoadFont(const aFileName: string): zglPFont;
+var
+  job: TLoadFont;
+begin
+  Log.Write('Loading font "' + aFileName + '"...');
+  job := TLoadFont.Create(aFileName);
   Batch.Execute(job);
   result := job.Result;
 end;

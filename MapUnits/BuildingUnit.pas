@@ -1,6 +1,7 @@
 unit BuildingUnit;
 
 {$mode objfpc}{$H+}
+//{$DEFINE DEBUG_LOG_VISIBILITY}
 
 interface
 
@@ -45,12 +46,14 @@ type
   protected
     fLeftTopCell: TCellNumber;
     fBuildingType: TBuildingType;
+    fLastTimeVisible: boolean;
     function GetLeftTopCell: PCellNumber; inline;
     procedure Initialize(const aType: TBuildingType);
     procedure SureDraw(const aScroll: TMapScrollManager); virtual; abstract;
   public
     property LeftTopCell: PCellNumber read GetLeftTopCell;
     property BuildingType: TBuildingType read fBuildingType;
+    property LastTimeVisible: boolean read fLastTimeVisible;
     procedure Draw(const aScroll: TMapScrollManager); override;
   end;
 
@@ -91,17 +94,28 @@ procedure TBuilding.Draw(const aScroll: TMapScrollManager);
 var
   cell: TCellNumber;
   cells: TCellNumbers;
+  visible: boolean;
 begin
   AssertAssigned(BuildingType, 'BuildingType');
   if self.ClassType = TBuilding then
     raise Exception.Create('Can not draw abstract building.');
   cells := OccupatedCells;
+  visible := false;
   for cell in cells do
     if aScroll.CellVisible[cell.X, cell.Y] then
     begin
-      SureDraw(aScroll);
+      visible := true;
       break;
     end;
+  if visible then
+    SureDraw(aScroll);
+  {$IFDEF DEBUG_LOG_VISIBILITY}
+  if visible and not LastTimeVisible then
+    Log.Write('Unit is now visible');
+  if not visible and LastTimeVisible then
+    Log.Write('Unit is now not visible');
+  {$ENDIF}
+  fLastTimeVisible := visible;
 end;
 
 end.

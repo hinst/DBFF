@@ -20,6 +20,14 @@ const
   StandardDataRelativePath = '..' + PathDelim + 'data' + PathDelim;
   StandardTerrainsRelativePath = StandardDataRelativePath + 'StandardTerrain.ini';
   StandardMasksRelativePath = StandardDataRelativePath + 'Masks.ini';
+  FontsRelativePath =
+    StandardDataRelativePath
+    + DirectorySeparator
+    + 'Fonts'
+    + DirectorySeparator;
+  FpsFontRelativePath =
+    FontsRelativePath
+    + 'Consolas-Regular-18pt.zfi';
 
 var
   GlobalConfigPath: string;

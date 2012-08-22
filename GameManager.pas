@@ -12,6 +12,8 @@ uses
   zgl_main,
   zgl_mouse,
   zgl_keyboard,
+  zgl_textures_png,
+  zgl_textures_tga,
 
   LogEntityFace,
   LogEntity,
@@ -163,6 +165,10 @@ procedure TGameManager.ReceiveDebugKeys;
 begin
   if key_Press(K_F1) then
     LoadTestLevel;
+  if key_Press(K_F2) then
+    Engine.TriggerShowFpsActive;
+  if key_Press(K_F3) and LevelActive then
+    Level.MapView.TerrainView.TriggerDisplayCellBusiness;
 end;
 
 procedure TGameManager.Finalize;
@@ -184,6 +190,7 @@ begin
   Engine.PerformBatch;
   if LevelActive then
     Level.Draw;
+  Engine.DrawAfter;
 end;
 
 procedure TGameManager.Update(const aTime: double);

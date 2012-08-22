@@ -14,6 +14,7 @@ uses
   zgl_textures,
   zgl_sprite_2d,
   zgl_render_target,
+  zgl_font,
 
   NiceExceptions,
   LogManager,
@@ -124,6 +125,17 @@ type
     property Result: zglPTexture read fResult;
   end;
 
+  { TLoadFont }
+
+  TLoadFont = class(ISynchroJob)
+  public
+    constructor Create(const aFileName: string);
+  public
+    FileName: string;
+    Result: zglPFont;
+    procedure Execute;
+  end;
+
   { TDisposeTexture }
 
   TDisposeTexture = class(ISynchroJob)
@@ -137,9 +149,24 @@ type
     destructor Destroy; override;
   end;
 
+  { T6Colors }
+
+  T6Colors = object
+  private
+    fRed: LongWord;
+    fGreen: LongWord;
+    class function Return(var a6C: LongWord; const aC: TFPColor): LongWord;
+  public
+    class function Red: LongWord;
+    class function Green: LongWord;
+  end;
+
 function FPColorToLongWordColor(const aColor: TFPColor): LongWord;
 
 implementation
+
+var
+  G6Colors: T6Colors;
 
 function FPColorToLongWordColor(const aColor: TFPColor): LongWord;
 begin
@@ -147,6 +174,25 @@ begin
   result += (aColor.red shr 8) * 256 * 256;
   result += (aColor.green shr 8) * 256;
   result += (aColor.blue shr 8) * 1;
+end;
+
+{ T6Colors }
+
+class function T6Colors.Return(var a6C: LongWord; const aC: TFPColor): LongWord;
+begin
+  if a6C = 0 then
+    a6C := FPColorToLongWordColor(aC);
+  result := a6C;
+end;
+
+class function T6Colors.Red: LongWord;
+begin
+  result := Return(G6Colors.fRed, colRed);
+end;
+
+class function T6Colors.Green: LongWord;
+begin
+  result := Return(G6Colors.fGreen, colGreen);
 end;
 
 { TGraphicalPoint }
@@ -202,6 +248,20 @@ procedure TLoadTexture.Execute;
 begin
   AssertFileExists(FileName);
   fResult := tex_LoadFromFile(FileName);
+end;
+
+{ TLoadFont }
+
+constructor TLoadFont.Create(const aFileName: string);
+begin
+  inherited Create;
+  FileName := aFileName;
+end;
+
+procedure TLoadFont.Execute;
+begin
+  AssertFileExists(FileName);
+  Result := font_LoadFromFile(FileName);
 end;
 
 { TDisposeTexture }

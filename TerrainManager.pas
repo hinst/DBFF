@@ -11,7 +11,6 @@ uses
   IniFiles,
 
   zgl_textures,
-  zgl_textures_png,
 
   NiceExceptions,
   StringFeatures,

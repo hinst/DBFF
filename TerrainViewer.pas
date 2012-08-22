@@ -26,6 +26,7 @@ uses
   NiceExceptions,
 
   Common,
+  ZenGLFCLGraphics,
   MapScrollManager,
   MapViewerFace,
   TextureCache,
@@ -84,6 +85,7 @@ type
     fEngine: IEngineManager;
     fCache: TMapTextureCache;
     fAllowNewCacheItem: boolean;
+    fDisplayCellBusiness: boolean;
     procedure Initialize;
     procedure AssignDefaults;
     procedure DetermineMasks;
@@ -95,6 +97,7 @@ type
     function GetTileHeight: integer;
     procedure SetTerrain(const aTerrain: ITerrainManagerE);
     procedure DrawTerrainLayerSubcolor(const aX, aY: integer; const aXD, aYD: single);
+    procedure DrawCellBusiness(const aX, aY: integer; const aXD, aYD: single);
     procedure CheckCellFraming(const aX, aY: integer; out aU, aD, aL, aR: TTerrainType);
       {$IFDEF USE_INLINE} inline; {$ENDIF}
     function ProcessFraming(const aX, aY: integer; const aXD, aYD: single): boolean;
@@ -146,6 +149,8 @@ type
     property Engine: IEngineManager read fEngine;
     property Cache: TMapTextureCache read fCache;
     property AllowNewCacheItem: boolean read fAllowNewCacheItem;
+    property DisplayCellBusiness: boolean read fDisplayCellBusiness write fDisplayCellBusiness;
+    procedure TriggerDisplayCellBusiness;
       // it is necessary to call this procedure after changing the map data
     procedure Update;
     procedure DrawDebugInfo;
@@ -324,6 +329,24 @@ begin
     exit;
   color := Terrain.GetTypeColor(typee);
   pr2d_Rect(aXD, aYD, TileWidth+1, TileHeight+1, color, 255, PR2D_FILL);
+end;
+
+procedure TTerrainView.DrawCellBusiness(const aX, aY: integer; const aXD,
+  aYD: single);
+const
+  alpha = 255 div 3;
+  circleQuality = 10;
+var
+  color: LongWord;
+  radius: single;
+begin
+  if Matrix[aX, aY].busy then
+    color := T6Colors.Red
+  else
+    color := T6Colors.Green;
+  radius := TileHeight / 3;
+  pr2d_Circle(aXD + TileWidth/2, aYD + TileHeight/2,
+    radius, color, alpha, circleQuality, PR2D_FILL);
 end;
 
 procedure TTerrainView.CheckCellFraming(const aX, aY: integer; out aU, aD, aL,
@@ -625,6 +648,11 @@ begin
   FreeLog(fLog);
 end;
 
+procedure TTerrainView.TriggerDisplayCellBusiness;
+begin
+  DisplayCellBusiness := not DisplayCellBusiness;
+end;
+
 procedure TTerrainView.Update;
 begin
   Log.Write('Now updating map...');
@@ -643,7 +671,8 @@ end;
 
 procedure TTerrainView.DrawDebugInfo;
 begin
-
+  if DisplayCellBusiness then
+    ForeachVisibleCell(@DrawCellBusiness);
 end;
 
 procedure TTerrainView.DrawTerrainLayerSubcolors;
