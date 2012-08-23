@@ -12,8 +12,10 @@ uses
   zgl_main,
   zgl_mouse,
   zgl_keyboard,
+  zgl_window,
   zgl_textures_png,
   zgl_textures_tga,
+  zgl_render_2d,
 
   LogEntityFace,
   LogEntity,
@@ -21,6 +23,7 @@ uses
   JobThread,
   SynchroThread,
 
+  Common,
   GameManagerFace,
   ZenGLFCLGraphics,
   EngineManagerFace,
@@ -29,7 +32,8 @@ uses
   LevelData,
   LevelLoaderFace,
   TerrainViewer,
-  TestLevel;
+  TestLevel,
+  UserFaceManager;
 
 type
 
@@ -43,11 +47,14 @@ type
     fJobThread: TJobThread;
     fEngine: TEngineManager;
     fLevel: TLevelData;
+    fUserFace: TUserFace;
     fLevelActive: boolean;
+    fDraw: boolean;
     function GetEngine: IEngineManager;
     function GetLevel: ILevelData;
     procedure Initialize;
     procedure ReceiveDebugKeys;
+    procedure UnsafeDraw;
     procedure Finalize;
   public
     property Log: ILog read fLog;
@@ -55,6 +62,7 @@ type
     property Engine: TEngineManager read fEngine;
     property Level: TLevelData read fLevel;
     property LevelActive: boolean read fLevelActive write fLevelActive;
+    property UserFace: TUserFace read fUserFace;
     procedure StartupEngine;
     procedure Load;
     procedure Draw;
@@ -62,14 +70,12 @@ type
     procedure ReceiveInput(const aTime: double);
     procedure UserLoadLevel(const aLevel: ILevelLoader);
     procedure LoadLevel(const aLevel: ILevelLoader);
+    procedure AfterLoadLevel;
     procedure LoadTestLevel;
     destructor Destroy; override;
   end;
 
 implementation
-
-uses
-  Common;
 
 type
 
@@ -150,6 +156,8 @@ begin
   JobThread.Start;
   LevelActive := false;
   fEngine := TEngineManager.Create(self);
+  fUserFace := TUserFace.Create;
+  fDraw := true;
 end;
 
 procedure TGameManager.StartupEngine;
@@ -171,10 +179,41 @@ begin
     Level.MapView.TerrainView.TriggerDisplayCellBusiness;
 end;
 
+procedure TGameManager.UnsafeDraw;
+//{$DEFINE DEBUG_THIS_PROCEDURE}
+begin
+  {$IFDEF DEBUG_THIS_PROCEDURE}
+  Log.Write('Now performing engine batch...');
+  {$ENDIF}
+  Engine.PerformBatch;
+  batch2d_Begin;
+  if LevelActive then
+  begin
+    {$IFDEF DEBUG_THIS_PROCEDURE}
+    Log.Write('Now drawing level...');
+    {$ENDIF}
+    Level.Draw;
+  end;
+  {$IFDEF DEBUG_THIS_PROCEDURE}
+  Log.Write('Engine.DrawAfter...');
+  {$ENDIF}
+  Engine.DrawAfter;
+  {$IFDEF DEBUG_THIS_PROCEDURE}
+  Log.Write('UserFace.Draw...');
+  {$ENDIF}
+  UserFace.Draw;
+  batch2d_End;
+  {$IFDEF DEBUG_THIS_PROCEDURE}
+  WriteLN('Drawn.');
+  {$ENDIF}
+end;
+{$UNDEF DEBUG_THIS_PROCEDURE}
+
 procedure TGameManager.Finalize;
 begin
   LevelActive := false;
   FreeAndNil(fLevel);
+  FreeAndNil(fUserFace);
   FreeAndNil(fEngine);
   FreeAndNil(fJobThread);
   FreeLog(fLog);
@@ -183,14 +222,22 @@ end;
 procedure TGameManager.Load;
 begin
   //LoadTestLevel;
+  wnd_ShowCursor(true);
 end;
 
 procedure TGameManager.Draw;
 begin
-  Engine.PerformBatch;
-  if LevelActive then
-    Level.Draw;
-  Engine.DrawAfter;
+  if not fDraw then exit;
+  try
+    UnsafeDraw;
+  except
+    on e: Exception do
+    begin
+      Log.Write(logTagError, 'An error occured while drawing...');
+      Log.Write(GetFullExceptionInfo(e));
+      fDraw := false;
+    end;
+  end;
 end;
 
 procedure TGameManager.Update(const aTime: double);
@@ -199,6 +246,7 @@ begin
   ReceiveInput(aTime);
   if LevelActive then
     Level.Update(aTime);
+  UserFace.Update(aTime);
 end;
 
 procedure TGameManager.ReceiveInput(const aTime: double);
@@ -206,7 +254,9 @@ begin
   ReceiveDebugKeys;
   if LevelActive then
     Level.ReceiveInput(aTime);
+  UserFace.ReceiveInput(aTime);
   key_ClearState;
+  mouse_ClearState;
 end;
 
 procedure TGameManager.UserLoadLevel(const aLevel: ILevelLoader);
@@ -242,6 +292,14 @@ begin
       raise;
     end;
   end;
+  // Loading is a success
+  AfterLoadLevel;
+end;
+
+procedure TGameManager.AfterLoadLevel;
+begin
+  AssertAssigned(UserFace, 'UserFace');
+  UserFace.Level := Level;
 end;
 
 procedure TGameManager.LoadTestLevel;

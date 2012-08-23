@@ -93,7 +93,6 @@ end;
 
 procedure TMapTextureCache.SetLog(const aLog: ILog);
 begin
-  WriteLN('!!!');
   FreeLog(fLog);
   fLog := aLog;
 end;

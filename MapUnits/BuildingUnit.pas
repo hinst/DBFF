@@ -44,17 +44,14 @@ type
   public
     constructor Create(const aType: TBuildingType); virtual;
   protected
-    fLeftTopCell: TCellNumber;
     fBuildingType: TBuildingType;
     fLastTimeVisible: boolean;
-    function GetLeftTopCell: PCellNumber; inline;
     procedure Initialize(const aType: TBuildingType);
     procedure SureDraw(const aScroll: TMapScrollManager); virtual; abstract;
   public
-    property LeftTopCell: PCellNumber read GetLeftTopCell;
     property BuildingType: TBuildingType read fBuildingType;
     property LastTimeVisible: boolean read fLastTimeVisible;
-    procedure Draw(const aScroll: TMapScrollManager); override;
+    procedure Draw(const aScroll: TMapScrollManager);
   end;
 
 implementation
@@ -80,11 +77,6 @@ begin
   Initialize(aType);
 end;
 
-function TBuilding.GetLeftTopCell: PCellNumber;
-begin
-  result := @fLeftTopCell;
-end;
-
 procedure TBuilding.Initialize(const aType: TBuildingType);
 begin
   fBuildingType := aType;
@@ -99,7 +91,7 @@ begin
   AssertAssigned(BuildingType, 'BuildingType');
   if self.ClassType = TBuilding then
     raise Exception.Create('Can not draw abstract building.');
-  cells := OccupatedCells;
+  cells := (self as IMapUnit).OccupatedCells;
   visible := false;
   for cell in cells do
     if aScroll.CellVisible[cell.X, cell.Y] then

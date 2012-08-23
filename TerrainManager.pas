@@ -164,6 +164,7 @@ procedure TTerrainManager.LoadTerrains(const aFileName: string);
 var
   ini: TIniFile;
 begin
+  AssertAssigned(self, 'self');
   AssertFileExists(aFileName);
   ini := TIniFile.Create(aFileName);
   LoadTerrains(ini);

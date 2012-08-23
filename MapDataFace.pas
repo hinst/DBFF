@@ -19,6 +19,8 @@ type
     busy: boolean;
   end;
 
+  PCell = ^TCell;
+
   { TCellNumber }
 
   TCellNumber = object
@@ -28,6 +30,8 @@ type
     property X: integer read fX write fX;
     property Y: integer read fY write fY;
     procedure Assign(const a: TCellNumber);
+    function IsNegative: boolean;
+    function Equals(const aX, aY: integer): boolean;
   end;
 
   TCellNumbers = array of TCellNumber;
@@ -49,6 +53,16 @@ procedure TCellNumber.Assign(const a: TCellNumber);
 begin
   X := a.X;
   Y := a.Y;
+end;
+
+function TCellNumber.IsNegative: boolean;
+begin
+  result := (X > 0) or (Y > 0);
+end;
+
+function TCellNumber.Equals(const aX, aY: integer): boolean;
+begin
+  result := (aX = X) and (aY = Y);
 end;
 
 end.

@@ -126,26 +126,28 @@ end;
 
 procedure TLevelData.MapColors(var aMap: TCells.TMatrix;
   const aImage: TFPCustomImage);
-const
-  DEBUG = false;
+//{$DEFINE DEBUG_THIS_PROCEDURE}
 var
   x, y: integer;
   color: TFPColor;
   colorNumber: LongWord;
 begin
-  if DEBUG then
-    Log.Write('Now mapping colors...');
+  {$IFDEF DEBUG_THIS_PROCEDURE}
+  Log.Write('Now mapping colors...');
+  {$ENDIF}
   for x := 0 to aImage.Width - 1 do
     for y := 0 to aImage.Height - 1 do
     begin
       color := aImage.Colors[x, y];
       colorNumber := FPColorToLongWordColor(color);
       aMap[x,y].typee := GetTerrainTypeByColor(colorNumber);
-      if DEBUG then
-        Log.Write('#' + IntToStr(x) + 'x' + IntToStr(y) + ': ' + IntToHex(colorNumber, 6)
-          + ' => ' + IntToStr(aMap[x,y].typee));
+      {$IFDEF DEBUG_THIS_PROCEDURE}
+      Log.Write('#' + IntToStr(x) + 'x' + IntToStr(y) + ': ' + IntToHex(colorNumber, 6)
+        + ' => ' + IntToStr(aMap[x,y].typee));
+      {$ENDIF}
     end;
 end;
+{$UNDEF DEBUG_THIS_PROCEDURE}
 
 procedure TLevelData.Finalize;
 begin

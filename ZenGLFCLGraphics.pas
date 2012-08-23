@@ -11,6 +11,7 @@ uses
   Classes,
   SyncObjs,
 
+  zgl_math_2d,
   zgl_textures,
   zgl_sprite_2d,
   zgl_render_target,
@@ -163,6 +164,10 @@ type
 
 function FPColorToLongWordColor(const aColor: TFPColor): LongWord;
 
+procedure UnpackPRect(const aRect: zglPRect; var x, y, w, h: single);
+
+function RectToText(const aRect: zglPRect): string;
+
 implementation
 
 var
@@ -174,6 +179,25 @@ begin
   result += (aColor.red shr 8) * 256 * 256;
   result += (aColor.green shr 8) * 256;
   result += (aColor.blue shr 8) * 1;
+end;
+
+procedure UnpackPRect(const aRect: zglPRect; var x, y, w, h: single);
+begin
+  x := aRect^.X;
+  y := aRect^.Y;
+  w := aRect^.W;
+  h := aRect^.H;
+end;
+
+function RectToText(const aRect: zglPRect): string;
+var
+  x, y, w, h: string;
+begin
+  x := FloatToStr(aRect^.X);
+  y := FloatToStr(aRect^.Y);
+  w := FloatToStr(aRect^.W);
+  h := FloatToStr(aRect^.H);
+  result := '[' + x + ' ' + y + ' ' + w + ' ' + h + ']';
 end;
 
 { T6Colors }

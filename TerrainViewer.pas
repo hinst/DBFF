@@ -26,6 +26,7 @@ uses
   NiceExceptions,
 
   Common,
+  TerrainViewerFace,
   ZenGLFCLGraphics,
   MapScrollManager,
   MapViewerFace,
@@ -89,8 +90,8 @@ type
     procedure Initialize;
     procedure AssignDefaults;
     procedure DetermineMasks;
-    function GetViewXLeft: single;
-    function GetViewYUp: single;
+    function GetViewLeft: single;
+    function GetViewTop: single;
     function GetFieldWidth: single;
     function GetFieldHeight: single;
     function GetTileWidth: integer;
@@ -127,8 +128,8 @@ type
   public
     property Log: ILog read fLog write fLog;
     property Scroll: TMapScrollManager read fScroll write fScroll;
-    property ViewXCorner: single read GetViewXLeft;
-    property ViewYCorner: single read GetViewYUp;
+    property ViewXCorner: single read GetViewLeft;
+    property ViewYCorner: single read GetViewTop;
     property FieldWidth: single read GetFieldWidth;
     property FieldHeight: single read GetFieldHeight;
     property TileWidth: integer read GetTileWidth;
@@ -282,12 +283,12 @@ begin
     end;
 end;
 
-function TTerrainView.GetViewXLeft: single;
+function TTerrainView.GetViewLeft: single;
 begin
   result := Scroll.ViewLeft;
 end;
 
-function TTerrainView.GetViewYUp: single;
+function TTerrainView.GetViewTop: single;
 begin
   result := Scroll.ViewTop;
 end;
@@ -334,17 +335,23 @@ end;
 procedure TTerrainView.DrawCellBusiness(const aX, aY: integer; const aXD,
   aYD: single);
 const
-  alpha = 255 div 3;
+  DefaultAlpha = 255 div 3;
+  HighlightAlpha = 255 div 4 * 3;
   circleQuality = 10;
 var
   color: LongWord;
   radius: single;
+  alpha: integer;
 begin
   if Matrix[aX, aY].busy then
     color := T6Colors.Red
   else
     color := T6Colors.Green;
   radius := TileHeight / 3;
+  if Scroll.CellNumberAtWindowPoint[mouse_X, mouse_Y].Equals(aX, aY) then
+    alpha := HighlightAlpha
+  else
+    alpha := DefaultAlpha;
   pr2d_Circle(aXD + TileWidth/2, aYD + TileHeight/2,
     radius, color, alpha, circleQuality, PR2D_FILL);
 end;

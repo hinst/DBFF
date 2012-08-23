@@ -8,13 +8,17 @@ uses
   Classes,
   SysUtils,
 
-  Common,
-  MapDataFace,
+  zgl_math_2d,
+  zgl_window,
+  zgl_keyboard,
+  zgl_mouse,
+
   LogEntityFace,
   LogEntity,
 
-  zgl_window,
-  zgl_keyboard;
+  Common,
+  MapDataFace,
+  TerrainViewerFace;
 
 type
 
@@ -30,6 +34,7 @@ type
     fXSpeed, fYSpeed: single;
     fTileWidth, fTileHeight: integer;
     fFieldWidth, fFieldHeight: single;
+    fDisplayCellInfo: boolean;
     function GetViewLeft: single;
     function GetViewTop: single;
     function GetViewRight: single;
@@ -39,6 +44,8 @@ type
     procedure DetermineFieldDimensions;
     procedure ScrollMap(const aTime: double);
     function GetCellVisible(const aX, aY: integer): boolean;
+    function GetCellAtWindowPoint(const aX, aY: integer): PCell;
+    function GetCellNumberAtWindowPoint(const aX, aY: integer): TCellNumber;
   public const
     DefaultXSpeed = 6; // squares per second
     DefaultYSpeed = 6;
@@ -46,6 +53,7 @@ type
     DefaultTileHeight = 64;
   public
     property Log: ILog read fLog;
+      // This property should be assigned
     property Map: IMapData read fMap write fMap;
     property ViewX: single read fViewX;
     property ViewY: single read fViewY;
@@ -55,14 +63,20 @@ type
     property TileHeight: integer read fTileHeight write fTileHeight;
     property FieldWidth: single read fFieldWidth;
     property FieldHeight: single read fFieldHeight;
+    property DisplayCellInfo: boolean read fDisplayCellInfo write fDisplayCellInfo;
     property ViewLeft: single read GetViewLeft;
     property ViewTop: single read GetViewTop;
     property ViewRight: single read GetViewRight;
     property ViewBottom: single read GetViewBottom;
     property CellVisible[const x, y: integer]: boolean read GetCellVisible;
     procedure ReceiveInput(const aTime: double);
+    procedure DrawCellInfo(const aX, aY: integer);
     procedure Update;
     procedure FocusOnMapCenter;
+    property CellAtWindowPoint[const x, y: integer]: PCell read GetCellAtWindowPoint;
+    property CellNumberAtWindowPoint[const x, y: integer]: TCellNumber
+      read GetCellNumberAtWindowPoint;
+    function GlobalToScreen(const aRect: zglPRect): zglTRect;
     destructor Destroy; override;
   end;
 
@@ -154,9 +168,61 @@ begin
   if y > ViewBottom then exit(false);
 end;
 
+function TMapScrollManager.GetCellAtWindowPoint(const aX, aY: integer): PCell;
+var
+  number: TCellNumber;
+begin
+  number := CellNumberAtWindowPoint[aX, aY];
+  if number.IsNegative then
+    result := nil
+  else
+    result := @( Map.Cells.Matrix[number.X, number.Y] );
+end;
+
+function TMapScrollManager.GetCellNumberAtWindowPoint(const aX, aY: integer): TCellNumber;
+var
+  xv, yv: single;
+  x, y: integer;
+begin
+  xv := GetViewLeft + aX;
+  x := -1;
+  while xv > 0 do
+  begin
+    xv -= TileWidth;
+    x += 1;
+  end;
+  yv := GetViewTop + aY;
+  y := -1;
+  while yv > 0 do
+  begin
+    yv -= TileHeight;
+    y += 1;
+  end;
+  if Map.Cells.CellExists[x, y] then
+  begin
+    result.X := x;
+    result.Y := y;
+  end
+  else
+  begin
+    result.X := -1;
+    result.Y := -1;
+  end;
+end;
+
 procedure TMapScrollManager.ReceiveInput(const aTime: double);
 begin
   ScrollMap(aTime);
+  if DisplayCellInfo then
+    DrawCellInfo(mouse_X, mouse_Y);
+end;
+
+procedure TMapScrollManager.DrawCellInfo(const aX, aY: integer);
+var
+  cell: PCell;
+begin
+  cell := CellAtWindowPoint[aX, aY];
+  if cell = nil then exit;
 end;
 
 procedure TMapScrollManager.Update;
@@ -168,6 +234,14 @@ procedure TMapScrollManager.FocusOnMapCenter;
 begin
   fViewX := FieldWidth / 2;
   fViewY := FieldHeight / 2;
+end;
+
+function TMapScrollManager.GlobalToScreen(const aRect: zglPRect): zglTRect;
+begin
+  result.X := aRect^.X - ViewLeft;
+  result.Y := aRect^.Y - ViewTop;
+  result.W := aRect^.W;
+  result.H := aRect^.H;
 end;
 
 destructor TMapScrollManager.Destroy;

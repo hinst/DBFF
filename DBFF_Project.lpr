@@ -34,7 +34,8 @@ uses
   EngineManagerFace, TextureCache, UnitManager, UnitManagerFace, MapUnit,
   MapUnitFace, BuildingUnit, BuildingUnitFaceA, DefaultLevel,
   BasicVehicleFactoryUnit, GameManagerFace, MapViewerFace, MapViewer, 
-TerrainManagerFaceE, MapScrollManager, UnitViewer, ZenGLShowMeFPS;
+TerrainManagerFaceE, MapScrollManager, UnitViewer, ZenGLShowMeFPS, 
+TerrainViewerFace, UserFaceManager;
 
 type
 

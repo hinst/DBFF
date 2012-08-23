@@ -9,19 +9,25 @@ uses
   SysUtils,
   fgl,
 
-  NiceExceptions,
+  zgl_math_2d,
 
+  NiceExceptions,
+  LogEntityFace,
+  LogEntity,
+
+  ZenGLFCLGraphics,
   Common,
   UnitManagerFace,
   BuildingUnit,
   BuildingUnitFaceA,
   MapUnit,
+  MapUnitFace,
   MapDataFace,
   MapScrollManager,
   BasicVehicleFactoryUnit;
 
 type
-  TUnitList = specialize TFPGList<TMapUnit>;
+  TIMapUnits = specialize TFPGList<IMapUnit>;
 
   TBuildingTypes = specialize TFPGList<TBuildingType>;
 
@@ -32,26 +38,31 @@ type
   public
     constructor Create(const aOwner: TComponent); reintroduce;
   private
-    fMapUnits: TUnitList;
+    fLog: ILog;
+    fMapUnits: TIMapUnits;
     fBuildingTypes: TBuildingTypes;
     fScroll: TMapScrollManager;
     fMap: IMapData;
+    function GetUnitAtWindowPoint(const aX, aY: integer): IMapUnit;
     procedure Initialize;
     procedure ReleaseUnits;
     procedure ReleaseBuildingTypes;
+    procedure MarkBusyCells(const aUnit: IMapUnit);
     procedure Finalize;
   public
-    property MapUnits: TUnitList read fMapUnits;
+    property Log: ILog read fLog;
+    property MapUnits: TIMapUnits read fMapUnits;
     property BuildingTypes: TBuildingTypes read fBuildingTypes;
       // this property should be assigned
     property Scroll: TMapScrollManager read fScroll write fScroll;
       // this property should be assigned
     property Map: IMapData read fMap write fMap;
+    property UnitAtWindowPoint[const x, y: integer]: IMapUnit read GetUnitAtWindowPoint;
     procedure LoadBasicBuildingTypes;
     function AddNewBuildingType: IAbstractBuildingType;
     procedure Draw;
     procedure Update(const aTime: double);
-    procedure AddUnit(const aUnit: TMapUnit);
+    procedure PlaceOnMap(const aUnit: IMapUnit);
     function FindBuildingType(const aClass: TBuildingTypeClass): TBuildingType;
     procedure AddBasicVehicleFactory(const aX, aY: integer);
     destructor Destroy; override;
@@ -67,18 +78,48 @@ begin
   Initialize;
 end;
 
+function TUnitManager.GetUnitAtWindowPoint(const aX, aY: integer): IMapUnit;
+var
+  u: IMapUnit;
+  selected: boolean;
+  x, y: single;
+  r: zglPRect;
+begin
+  result := nil;
+  x := Scroll.ViewLeft + aX;
+  y := Scroll.ViewTop + aY;
+  Log.Write('GetUnitAtWindowPoint: ' + FloatToStr(x) + ' ' + FloatToStr(y));
+  for u in MapUnits do
+  begin
+    r := u.GraphicalRect;
+    Log.Write(RectToText(r));
+    selected := true
+      and (r^.X < x) and (x < r^.X + r^.W)
+      and (r^.Y < y) and (y < r^.Y + r^.H);
+    if selected then
+    begin
+      result := u;
+      break;
+    end;
+  end;
+end;
+
 procedure TUnitManager.Initialize;
 begin
+  fLog := TLog.Create(GlobalLogManager, 'UnitMan');
   fBuildingTypes := TBuildingTypes.Create;
-  fMapUnits := TUnitList.Create;
+  fMapUnits := TIMapUnits.Create;
 end;
 
 procedure TUnitManager.ReleaseUnits;
 var
-  unitItem: TMapUnit;
+  unitItem: IMapUnit;
 begin
   for unitItem in MapUnits do
-    FreeAndnil(unitItem);
+  begin
+    unitItem.Free;
+    unitItem := nil;
+  end;
   MapUnits.Clear;
 end;
 
@@ -91,12 +132,28 @@ begin
   BuildingTypes.Clear;
 end;
 
+procedure TUnitManager.MarkBusyCells(const aUnit: IMapUnit);
+var
+  cellNumber: TCellNumber;
+  cells: TCellNumbers;
+  cell: PCell;
+begin
+  cells := aUnit.OccupatedCells;
+  for cellNumber in cells do
+  begin
+    cell := Map.Cells.AccessCell(cellNumber.X, cellNumber.Y);
+    if cell = nil then continue;
+    cell^.busy := true;
+  end;
+end;
+
 procedure TUnitManager.Finalize;
 begin
   ReleaseUnits;
   FreeAndNil(fMapUnits);
   ReleaseBuildingTypes;
   FreeAndNil(fBuildingTypes);
+  FreeLog(fLog);
 end;
 
 procedure TUnitManager.LoadBasicBuildingTypes;
@@ -115,7 +172,7 @@ end;
 
 procedure TUnitManager.Draw;
 var
-  u: TMapUnit;
+  u: IMapUnit;
 begin
   for u in MapUnits do
     u.Draw(Scroll);
@@ -123,15 +180,16 @@ end;
 
 procedure TUnitManager.Update(const aTime: double);
 var
-  u: TMapUnit;
+  u: IMapUnit;
 begin
   for u in MapUnits do
     u.Update(aTime);
 end;
 
-procedure TUnitManager.AddUnit(const aUnit: TMapUnit);
+procedure TUnitManager.PlaceOnMap(const aUnit: IMapUnit);
 begin
   MapUnits.Add(aUnit);
+  MarkBusyCells(aUnit);
 end;
 
 function TUnitManager.FindBuildingType(const aClass: TBuildingTypeClass): TBuildingType;
@@ -157,7 +215,8 @@ begin
   u := TBasicVehicleFactory.Create(t);
   u.LeftTopCell^.X := aX;
   u.LeftTopCell^.Y := aY;
-  AddUnit(u);
+  u.UpdateGraphicalRect(Scroll);
+  PlaceOnMap(u);
 end;
 
 destructor TUnitManager.Destroy;

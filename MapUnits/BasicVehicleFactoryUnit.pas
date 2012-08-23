@@ -16,6 +16,7 @@ uses
   Common,
   MapDataFace,
   MapScrollManager,
+  MapUnitFace,
   BuildingUnit,
   EngineManagerFace;
 
@@ -35,12 +36,15 @@ type
     destructor Destroy; override;
   end;
 
-  TBasicVehicleFactory = class(TBuilding)
+  TBasicVehicleFactory = class(TBuilding, IMapUnit)
   public
     constructor Create(const aType: TBuildingType); override;
   protected
     fHatAngle: single;
     function GetMyType: TBasicVehicleFactoryType;
+    function GetOccupatedCells: TCellNumbers;
+    function GetUnitWidth: integer; override;
+    function GetUnitHeight: integer; override;
     procedure Initialize;
     procedure SureDraw(const aScroll: TMapScrollManager); override;
   public const
@@ -49,8 +53,7 @@ type
   public
     property HatAngle: single read fHatAngle;
     property MyType: TBasicVehicleFactoryType read GetMyType;
-    function GetOccupatedCells: TCellNumbers; override;
-    procedure Update(const aTime: double); override;
+    procedure Update(const aTime: double);
   end;
 
 implementation
@@ -64,6 +67,33 @@ end;
 function TBasicVehicleFactory.GetMyType: TBasicVehicleFactoryType;
 begin
   result := BuildingType as TBasicVehicleFactoryType;
+end;
+
+function TBasicVehicleFactory.GetOccupatedCells: TCellNumbers;
+begin
+  SetLength(result, 6);
+  result[0].Assign(fLeftTopCell);
+  result[1].X := fLeftTopCell.X + 1;
+  result[1].Y := fLeftTopCell.Y;
+  result[2].X := fLeftTopCell.X + 2;
+  result[2].Y := fLeftTopCell.Y;
+
+  result[3].X := fLeftTopCell.X;
+  result[3].Y := fLeftTopCell.Y + 1;
+  result[4].X := fLeftTopCell.X + 1;
+  result[4].Y := fLeftTopCell.Y + 1;
+  result[5].X := fLeftTopCell.X + 2;
+  result[5].Y := fLeftTopCell.Y + 1;
+end;
+
+function TBasicVehicleFactory.GetUnitWidth: integer;
+begin
+  result := 3;
+end;
+
+function TBasicVehicleFactory.GetUnitHeight: integer;
+begin
+  result := 2;
 end;
 
 procedure TBasicVehicleFactory.Initialize;
@@ -99,23 +129,6 @@ begin
       HatAngle
     );
   end;
-end;
-
-function TBasicVehicleFactory.GetOccupatedCells: TCellNumbers;
-begin
-  SetLength(result, 6);
-  result[0].Assign(fLeftTopCell);
-  result[1].X := fLeftTopCell.X + 1;
-  result[1].Y := fLeftTopCell.Y;
-  result[2].X := fLeftTopCell.X + 2;
-  result[2].Y := fLeftTopCell.Y;
-
-  result[3].X := fLeftTopCell.X;
-  result[3].Y := fLeftTopCell.Y + 1;
-  result[4].X := fLeftTopCell.X + 1;
-  result[4].Y := fLeftTopCell.Y + 1;
-  result[5].X := fLeftTopCell.X + 2;
-  result[5].Y := fLeftTopCell.Y + 1;
 end;
 
 procedure TBasicVehicleFactory.Update(const aTime: double);

@@ -43,7 +43,7 @@
         <PackageName Value="UltimateLibrary"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="32">
+    <Units Count="34">
       <Unit0>
         <Filename Value="DBFF_Project.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -203,6 +203,16 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="ZenGLShowMeFPS"/>
       </Unit31>
+      <Unit32>
+        <Filename Value="TerrainViewerFace.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TerrainViewerFace"/>
+      </Unit32>
+      <Unit33>
+        <Filename Value="UserFaceManager.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UserFaceManager"/>
+      </Unit33>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
