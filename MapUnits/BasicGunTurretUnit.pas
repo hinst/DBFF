@@ -156,7 +156,7 @@ begin
     {$IFDEF DEBUG_THIS_PROCEDURE}
     Log.Write('Desired angle changed (idle): ' + FloatToStr(DesiredTowerAngle));
     {$ENDIF}
-    fIdleChangeAngleTimeLeft := IdleChangeAngleTime;
+    fIdleChangeAngleTimeLeft := random(IdleChangeAngleTime) + IdleChangeAngleTime;
   end;
 end;
 {$UNDEF DEBUG_THIS_PROCEDURE}

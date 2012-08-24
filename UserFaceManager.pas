@@ -98,9 +98,11 @@ end;
 procedure TUserFace.DrawChosenUnitRect(const aRect: zglTRect);
 var
   x, y, w, h: single;
+  color: LongWord;
 begin
   UnpackPRect(@aRect, x, y, w, h);
-  pr2d_Rect(x, y, w, h, SlUnitsGlow);
+  color := SlUnitsGlow and T6Colors.Red;
+  pr2d_Rect3(x, y, w, h, color);
 end;
 
 procedure TUserFace.DrawChosenUnitFrame(const aUnit: IMapUnit);

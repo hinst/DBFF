@@ -14,6 +14,7 @@ uses
   zgl_math_2d,
   zgl_textures,
   zgl_sprite_2d,
+  zgl_primitives_2d,
   zgl_render_target,
   zgl_font,
 
@@ -156,13 +157,17 @@ type
   private
     fRed: LongWord;
     fGreen: LongWord;
+    fMagenta: LongWord;
     class function Return(var a6C: LongWord; const aC: TFPColor): LongWord;
   public
     class function Red: LongWord;
     class function Green: LongWord;
+    class function Magenta: LongWord;
   end;
 
 function FPColorToLongWordColor(const aColor: TFPColor): LongWord;
+
+procedure pr2d_Rect3(const aX, aY, aW, aH: single; const aColor: LongWord);
 
 procedure UnpackPRect(const aRect: zglPRect; var x, y, w, h: single);
 
@@ -179,6 +184,13 @@ begin
   result += (aColor.red shr 8) * 256 * 256;
   result += (aColor.green shr 8) * 256;
   result += (aColor.blue shr 8) * 1;
+end;
+
+procedure pr2d_Rect3(const aX, aY, aW, aH: single; const aColor: LongWord);
+begin
+  pr2d_Rect(aX, aY, aW, aH, aColor);
+  pr2d_Rect(aX - 1, aY - 1, aW + 2, aH + 2, aColor);
+  pr2d_Rect(aX + 1, aY + 1, aW - 2, aH - 2, aColor);
 end;
 
 procedure UnpackPRect(const aRect: zglPRect; var x, y, w, h: single);
@@ -217,6 +229,11 @@ end;
 class function T6Colors.Green: LongWord;
 begin
   result := Return(G6Colors.fGreen, colGreen);
+end;
+
+class function T6Colors.Magenta: LongWord;
+begin
+  result := Return(G6Colors.fMagenta, colMagenta);
 end;
 
 { TGraphicalPoint }

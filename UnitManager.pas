@@ -86,7 +86,7 @@ begin
 end;
 
 function TUnitManager.GetUnitAtWindowPoint(const aX, aY: integer): IMapUnit;
-{$DEFINE DEBUG_THIS_PROCEDURE}
+//{$DEFINE DEBUG_THIS_PROCEDURE}
 var
   u: IMapUnit;
   selected: boolean;
