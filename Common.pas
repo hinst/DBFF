@@ -17,17 +17,20 @@ const
   VendorName = 'EpicDevS'; // Vendor name should be a valid file name
   TextLogFileName = 'log.txt';
   EngineConfigFileName = 'EngineConfig.ini';
-  StandardDataRelativePath = '..' + PathDelim + 'data' + PathDelim;
+  StandardDataRelativePath = '..' + PathDelim + 'data' + DirectorySeparator;
   StandardTerrainsRelativePath = StandardDataRelativePath + 'StandardTerrain.ini';
   StandardMasksRelativePath = StandardDataRelativePath + 'Masks.ini';
   FontsRelativePath =
     StandardDataRelativePath
-    + DirectorySeparator
     + 'Fonts'
     + DirectorySeparator;
   FpsFontRelativePath =
     FontsRelativePath
     + 'Consolas-Regular-18pt.zfi';
+  StandardUnitsRelativePath =
+    StandardDataRelativePath
+    + 'Units'
+    + DirectorySeparator;
 
 var
   GlobalConfigPath: string;

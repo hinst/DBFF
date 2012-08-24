@@ -15,6 +15,7 @@ uses
 
   Common,
   BuildingUnitFaceA,
+  EngineManagerFace,
   MapUnit,
   MapUnitFace,
   MapDataFace,
@@ -27,9 +28,13 @@ type
   TBuildingType = class(IAbstractBuildingType)
   protected
     fTexture: zglPTexture;
+    function GetStandardUnitsPath: string;
+    function GetEngine: IEngineManager;
     procedure Finalize;
   public
     property Texture: zglPTexture read fTexture;
+    property StandardUnitsPath: string read GetStandardUnitsPath;
+    property Engine: IEngineManager read GetEngine;
     destructor Destroy; override;
   end;
 
@@ -54,13 +59,25 @@ type
     procedure Draw(const aScroll: TMapScrollManager);
   end;
 
+  TBuildingClass = class of TBuilding;
+
 implementation
 
 { TBuildingType }
 
+function TBuildingType.GetStandardUnitsPath: string;
+begin
+  result := GlobalApplicationPath + StandardUnitsRelativePath;
+end;
+
+function TBuildingType.GetEngine: IEngineManager;
+begin
+  result := GlobalGameManager.Engine;
+end;
+
 procedure TBuildingType.Finalize;
 begin
-  GlobalGameManager.Engine.DisposeTexture(fTexture);
+  Engine.DisposeTexture(fTexture);
 end;
 
 destructor TBuildingType.Destroy;

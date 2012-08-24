@@ -24,7 +24,11 @@ uses
   MapUnitFace,
   MapDataFace,
   MapScrollManager,
-  BasicVehicleFactoryUnit;
+  {$REGION Map units}
+  BasicVehicleFactoryUnit,
+  BasicGunTurretUnit
+  {$ENDREGION}
+  ;
 
 type
   TIMapUnits = specialize TFPGList<IMapUnit>;
@@ -62,9 +66,12 @@ type
     function AddNewBuildingType: IAbstractBuildingType;
     procedure Draw;
     procedure Update(const aTime: double);
-    procedure PlaceOnMap(const aUnit: IMapUnit);
+    procedure AddUnit(const aUnit: IMapUnit);
+    procedure AddBuilding(const aClass: TBuildingClass; const aType: TBuildingTypeClass;
+      const aX, aY: integer);
     function FindBuildingType(const aClass: TBuildingTypeClass): TBuildingType;
     procedure AddBasicVehicleFactory(const aX, aY: integer);
+    procedure AddBasicGunTurret(const aX, aY: integer);
     destructor Destroy; override;
   end;
 
@@ -79,6 +86,7 @@ begin
 end;
 
 function TUnitManager.GetUnitAtWindowPoint(const aX, aY: integer): IMapUnit;
+{$DEFINE DEBUG_THIS_PROCEDURE}
 var
   u: IMapUnit;
   selected: boolean;
@@ -88,11 +96,15 @@ begin
   result := nil;
   x := Scroll.ViewLeft + aX;
   y := Scroll.ViewTop + aY;
+  {$IFDEF DEBUG_THIS_PROCEDURE}
   Log.Write('GetUnitAtWindowPoint: ' + FloatToStr(x) + ' ' + FloatToStr(y));
+  {$ENDIF}
   for u in MapUnits do
   begin
     r := u.GraphicalRect;
+    {$IFDEF DEBUG_THIS_PROCEDURE}
     Log.Write(RectToText(r));
+    {$ENDIF}
     selected := true
       and (r^.X < x) and (x < r^.X + r^.W)
       and (r^.Y < y) and (y < r^.Y + r^.H);
@@ -159,10 +171,15 @@ end;
 procedure TUnitManager.LoadBasicBuildingTypes;
 var
   basicVehicleFactory: TBasicVehicleFactoryType;
+  basicGunTurret: TBasicGunTurretType;
 begin
   basicVehicleFactory := TBasicVehicleFactoryType.Create;
-  basicVehicleFactory.Load(GlobalGameManager.Engine);
+  basicVehicleFactory.Load;
   BuildingTypes.Add(basicVehicleFactory);
+
+  basicGunTurret := TBasicGunTurretType.Create;
+  basicGunTurret.Load;
+  BuildingTypes.Add(basicGunTurret);
 end;
 
 function TUnitManager.AddNewBuildingType: IAbstractBuildingType;
@@ -186,10 +203,26 @@ begin
     u.Update(aTime);
 end;
 
-procedure TUnitManager.PlaceOnMap(const aUnit: IMapUnit);
+procedure TUnitManager.AddUnit(const aUnit: IMapUnit);
 begin
   MapUnits.Add(aUnit);
   MarkBusyCells(aUnit);
+end;
+
+procedure TUnitManager.AddBuilding(const aClass: TBuildingClass;
+  const aType: TBuildingTypeClass; const aX, aY: integer);
+var
+  t: TBuildingType;
+  u: TBuilding;
+begin
+  t := FindBuildingType(aType);
+  AssertAssigned(t, TBuildingTypeClass.ClassName);
+  u := aClass.Create(t);
+  u.LeftTopCell^.X := aX;
+  u.LeftTopCell^.Y := aY;
+  u.UpdateGraphicalRect(Scroll);
+  Assert(u is IMapUnit);
+  AddUnit(u as IMapUnit);
 end;
 
 function TUnitManager.FindBuildingType(const aClass: TBuildingTypeClass): TBuildingType;
@@ -206,17 +239,13 @@ begin
 end;
 
 procedure TUnitManager.AddBasicVehicleFactory(const aX, aY: integer);
-var
-  t: TBuildingType;
-  u: TBasicVehicleFactory;
 begin
-  t := FindBuildingType(TBasicVehicleFactoryType);
-  AssertAssigned(t, TBasicVehicleFactoryType.ClassName);
-  u := TBasicVehicleFactory.Create(t);
-  u.LeftTopCell^.X := aX;
-  u.LeftTopCell^.Y := aY;
-  u.UpdateGraphicalRect(Scroll);
-  PlaceOnMap(u);
+  AddBuilding(TBasicVehicleFactory, TBasicVehicleFactoryType, aX, aY);
+end;
+
+procedure TUnitManager.AddBasicGunTurret(const aX, aY: integer);
+begin
+  AddBuilding(TBasicGunTurret, TBasicGunTurretType, aX, aY);
 end;
 
 destructor TUnitManager.Destroy;

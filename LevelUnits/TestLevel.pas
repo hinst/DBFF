@@ -74,6 +74,11 @@ begin
   Log.Write('Loading test level: Creating basic vehicle factory...');
   aLevel.UnitManager.AddBasicVehicleFactory(7, 0);
   aLevel.UnitManager.AddBasicVehicleFactory(3, 4);
+  Log.Write('Loading test level: Creating basic gun turret...');
+  aLevel.UnitManager.AddBasicGunTurret(6, 3);
+  aLevel.UnitManager.AddBasicGunTurret(3, 6);
+  aLevel.UnitManager.AddBasicGunTurret(3, 7);
+  aLevel.UnitManager.AddBasicGunTurret(6, 0);
   Log.Write('Loading test level - Done.');
 end;
 

@@ -43,7 +43,7 @@
         <PackageName Value="UltimateLibrary"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="34">
+    <Units Count="35">
       <Unit0>
         <Filename Value="DBFF_Project.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -213,6 +213,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="UserFaceManager"/>
       </Unit33>
+      <Unit34>
+        <Filename Value="MapUnits\BasicGunTurretUnit.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="BasicGunTurretUnit"/>
+      </Unit34>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

@@ -143,7 +143,7 @@ begin
 end;
 
 procedure TMapTextureCache.Clean(const aX, aY: integer);
-  {$DEFINE DEBUG_THIS}
+//{$DEFINE DEBUG_THIS}
 var
   i: integer;
   item: PMapTextureCacheItem;
@@ -160,16 +160,18 @@ begin
     distance := Abs(item^.x - Ax) + Abs(item^.y - aY);
     if distance > CleaningDistance then
     begin
+      {$IFDEF DEBUG_THIS}
       Log.Write('Now cleaning: ' + IntToStr(item^.x) + ':' + IntToStr(item^.y)
         + '(' + IntToStr(distance) + ' > ' + IntToStr(CleaningDistance) + ')');
+      {$ENDIF}
       if Assigned(item^.texture) then
         Engine.DisposeTexture(item^.texture);
       Dispose(item);
       Cache[i] := nil;
     end;
   end;
-  {$UNDEF DEBUG_THIS}
 end;
+{$UNDEF DEBUG_THIS}
 
 procedure TMapTextureCache.CleanAll(const aDisposeTextures: boolean);
 var

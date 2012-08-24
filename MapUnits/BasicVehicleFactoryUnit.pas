@@ -14,9 +14,9 @@ uses
   NiceExceptions,
 
   Common,
+  MapUnitFace,
   MapDataFace,
   MapScrollManager,
-  MapUnitFace,
   BuildingUnit,
   EngineManagerFace;
 
@@ -26,13 +26,15 @@ type
 
   TBasicVehicleFactoryType = class(TBuildingType)
   private
-    fHatTexture: zglPTexture;
-    function GetTextureFileName: string;
-    function GetHatTextureFileName: string;
+    fTopTexture: zglPTexture;
+    function GetTextureFilePath: string;
+    function GetTopTextureFilePath: string;
     procedure Finalize;
   public
-    property HatTexture: zglPTexture read fHatTexture;
-    procedure Load(const aEngine: IEngineManager);
+    property HatTexture: zglPTexture read fTopTexture;
+    property TextureFilePath: string read GetTextureFilePath;
+    property TopTextureFilePath: string read GetTopTextureFilePath;
+    procedure Load;
     destructor Destroy; override;
   end;
 
@@ -48,7 +50,7 @@ type
     procedure Initialize;
     procedure SureDraw(const aScroll: TMapScrollManager); override;
   public const
-      // one rotation per two seconds is 360 / 200
+      // two rotations per two seconds is 360 / 2000
     HatSpeed = 360 / 2000;
   public
     property HatAngle: single read fHatAngle;
@@ -102,6 +104,7 @@ begin
 end;
 
 procedure TBasicVehicleFactory.SureDraw(const aScroll: TMapScrollManager);
+
   function DrawX: single;
   begin
     result := aScroll.TileWidth * fLeftTopCell.X - aScroll.ViewLeft;
@@ -138,27 +141,25 @@ end;
 
 { TBasicVehicleFactoryType }
 
-function TBasicVehicleFactoryType.GetTextureFileName: string;
+function TBasicVehicleFactoryType.GetTextureFilePath: string;
 begin
-  result := GlobalApplicationPath + StandardDataRelativePath
-    + 'Units' + DirectorySeparator + 'Building_sample3.png';
+  result := StandardUnitsPath + 'Building_sample3.png';
 end;
 
-function TBasicVehicleFactoryType.GetHatTextureFileName: string;
+function TBasicVehicleFactoryType.GetTopTextureFilePath: string;
 begin
-  result := GlobalApplicationPath + StandardDataRelativePath
-    + 'Units' + DirectorySeparator + 'BuildingHat1.png';
+  result := StandardUnitsPath + 'BuildingHat1.png';
 end;
 
 procedure TBasicVehicleFactoryType.Finalize;
 begin
-  GlobalGameManager.Engine.DisposeTexture(fHatTexture);
+  Engine.DisposeTexture(fTopTexture);
 end;
 
-procedure TBasicVehicleFactoryType.Load(const aEngine: IEngineManager);
+procedure TBasicVehicleFactoryType.Load;
 begin
-  fTexture := aEngine.LoadTexture(GetTextureFileName);
-  fHatTexture := aEngine.LoadTexture(GetHatTextureFileName);
+  fTexture := Engine.LoadTexture(TextureFilePath);
+  fTopTexture := Engine.LoadTexture(TopTextureFilePath);
 end;
 
 destructor TBasicVehicleFactoryType.Destroy;
