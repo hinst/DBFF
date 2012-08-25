@@ -11,6 +11,9 @@ uses
   zgl_textures,
   zgl_sprite_2d,
 
+  Angle360,
+
+  ZenGLFCLGraphics,
   Common,
   MapUnitFace,
   MapDataFace,
@@ -39,8 +42,8 @@ type
   public
     constructor Create(const aType: TBuildingType); override;
   protected
-    fTowerAngle: single;
-    fDesiredTowerAngle: single;
+    fTowerAngle: TAngle360;
+    fDesiredTowerAngle: TAngle360;
     fIdleChangeAngleTimeLeft: single;
     function GetMyType: TBasicGunTurretType;
     function GetOccupatedCells: TCellNumbers;
@@ -54,8 +57,8 @@ type
     TowerSpeed = 360 / 2000;
     IdleChangeAngleTime = 5000;
   public
-    property TowerAngle: single read fTowerAngle;
-    property DesiredTowerAngle: single read fDesiredTowerAngle;
+    property TowerAngle: TAngle360 read fTowerAngle;
+    property DesiredTowerAngle: TAngle360 read fDesiredTowerAngle;
     property IdleChangeAngleTimeLeft: single read fIdleChangeAngleTimeLeft;
     property MyType: TBasicGunTurretType read GetMyType;
     procedure Update(const aTime: double);
@@ -129,21 +132,15 @@ begin
 end;
 
 procedure TBasicGunTurret.MoveToDesiredAngle(const aTime: double);
+var
+  d1, d2: shortint;
 begin
   if TowerAngle = DesiredTowerAngle then exit;
-  if TowerAngle < DesiredTowerAngle then
-  begin
-    fTowerAngle += TowerSpeed * aTime;
-    if TowerAngle >= DesiredTowerAngle then
-      fTowerAngle := DesiredTowerAngle;
-  end
-  else
-  if TowerAngle > DesiredTowerAngle then
-  begin
-    fTowerAngle -= TowerSpeed * aTime;
-    if TowerAngle <= DesiredTowerAngle then
-      fTowerAngle := DesiredTowerAngle;
-  end;
+  d1 := MostCloseAngleDirection(TowerAngle, DesiredTowerAngle);
+  fTowerAngle.Inc( TowerSpeed * aTime * d1 );
+  d2 := MostCloseAngleDirection(TowerAngle, DesiredTowerAngle);
+  if d1 <> d2 then
+    fTowerAngle := DesiredTowerAngle;
 end;
 
 procedure TBasicGunTurret.IdleChangeAngle(const aTime: double);

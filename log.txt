@@ -1,35 +1,37 @@
 ==============================
 === ZenGL 0.3 (2012.07.22) ===
 ==============================
-[00000000ms] Begin
-[00000001ms] Current mode: 1280 x 1024
-[00000196ms] wglChoosePixelFormatARB: zDepth = 24; stencil = 0; fsaa = 0
-[00000215ms] GL_VERSION: 4.2.0
-[00000215ms] GL_RENDERER: GeForce GT 430/PCIe/SSE2
-[00000215ms] GL_MAX_TEXTURE_SIZE: 16384
-[00000216ms] GL_EXT_TEXTURE_COMPRESSION_S3TC: TRUE
-[00000216ms] GL_SGIS_GENERATE_MIPMAP: TRUE
-[00000216ms] GL_MAX_TEXTURE_UNITS_ARB: 4
-[00000216ms] GL_EXT_TEXTURE_FILTER_ANISOTROPIC: TRUE
-[00000216ms] GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT: 16
-[00000216ms] GL_EXT_BLEND_FUNC_SEPARATE: TRUE
-[00000216ms] GL_MAX_RENDERBUFFER_SIZE: 16384
-[00000216ms] GL_EXT_FRAMEBUFFER_OBJECT: TRUE
-[00000216ms] WGL_PBUFFER: TRUE
-[00000216ms] Support WaitVSync: TRUE
-[00000216ms] Ogg: Initialized
-[00000216ms] Theora: Initialized
-[00000298ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Texture_Rock.png"
-[00000299ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Texture_Desert.png"
-[00000300ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Texture_Water.png"
-[00000301ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Masks\003.1.png"
-[00000309ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Masks\003.1R.png"
-[00000316ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Units\Building_sample3.png"
-[00000317ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Units\BuildingHat1.png"
-[00000318ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Units\GTurretFnd.png"
-[00000318ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Units\GTurretTop.png"
-[00034701ms] Average FPS: 1226
-[00034701ms] Timers to free: 1
-[00034701ms] Render Targets to free: 3
-[00034712ms] Textures to free: 85
-[00034725ms] End
+[00000001ms] Begin
+[00000002ms] Current mode: 1280 x 1024
+[00000199ms] wglChoosePixelFormatARB: zDepth = 24; stencil = 0; fsaa = 0
+[00000219ms] GL_VERSION: 4.2.0
+[00000219ms] GL_RENDERER: GeForce GT 430/PCIe/SSE2
+[00000219ms] GL_MAX_TEXTURE_SIZE: 16384
+[00000219ms] GL_EXT_TEXTURE_COMPRESSION_S3TC: TRUE
+[00000219ms] GL_SGIS_GENERATE_MIPMAP: TRUE
+[00000219ms] GL_MAX_TEXTURE_UNITS_ARB: 4
+[00000219ms] GL_EXT_TEXTURE_FILTER_ANISOTROPIC: TRUE
+[00000219ms] GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT: 16
+[00000219ms] GL_EXT_BLEND_FUNC_SEPARATE: TRUE
+[00000219ms] GL_MAX_RENDERBUFFER_SIZE: 16384
+[00000219ms] GL_EXT_FRAMEBUFFER_OBJECT: TRUE
+[00000219ms] WGL_PBUFFER: TRUE
+[00000219ms] Support WaitVSync: TRUE
+[00000219ms] Ogg: Initialized
+[00000219ms] Theora: Initialized
+[00000897ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Texture_Rock.png"
+[00000899ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Texture_Desert.png"
+[00000900ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Texture_Water.png"
+[00000901ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Masks\003.1.png"
+[00000909ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Masks\003.1R.png"
+[00000915ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Units\Building_sample3.png"
+[00000916ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Units\BuildingHat1.png"
+[00000917ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Units\GTurretFnd.png"
+[00000918ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Units\GTurretTop.png"
+[00026842ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Fonts\Consolas-Regular-18pt-page0.tga"
+[00070305ms] Average FPS: 1271
+[00070305ms] Timers to free: 1
+[00070305ms] Fonts to free: 1
+[00070306ms] Render Targets to free: 3
+[00070317ms] Textures to free: 85
+[00070331ms] End
