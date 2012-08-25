@@ -15,7 +15,6 @@ uses
   LogEntityFace,
   LogEntity,
 
-  ZenGLFCLGraphics,
   Common,
   UnitManagerFace,
   BuildingUnit,
@@ -26,7 +25,8 @@ uses
   MapScrollManager,
   {$REGION Map units}
   BasicVehicleFactoryUnit,
-  BasicGunTurretUnit
+  BasicGunTurretUnit,
+  BasicSingleTurretUnit
   {$ENDREGION}
   ;
 
@@ -72,6 +72,7 @@ type
     function FindBuildingType(const aClass: TBuildingTypeClass): TBuildingType;
     procedure AddBasicVehicleFactory(const aX, aY: integer);
     procedure AddBasicGunTurret(const aX, aY: integer);
+    procedure AddBasicSingleTurret(const aX, aY: integer);
     destructor Destroy; override;
   end;
 
@@ -172,6 +173,7 @@ procedure TUnitManager.LoadBasicBuildingTypes;
 var
   basicVehicleFactory: TBasicVehicleFactoryType;
   basicGunTurret: TBasicGunTurretType;
+  basicSingleTurret: TBasicSingleTurretType;
 begin
   basicVehicleFactory := TBasicVehicleFactoryType.Create;
   basicVehicleFactory.Load;
@@ -180,6 +182,10 @@ begin
   basicGunTurret := TBasicGunTurretType.Create;
   basicGunTurret.Load;
   BuildingTypes.Add(basicGunTurret);
+
+  basicSingleTurret := TBasicSingleTurretType.Create;
+  basicSingleTurret.Load;
+  BuildingTypes.Add(basicSingleTurret);
 end;
 
 function TUnitManager.AddNewBuildingType: IAbstractBuildingType;
@@ -246,6 +252,11 @@ end;
 procedure TUnitManager.AddBasicGunTurret(const aX, aY: integer);
 begin
   AddBuilding(TBasicGunTurret, TBasicGunTurretType, aX, aY);
+end;
+
+procedure TUnitManager.AddBasicSingleTurret(const aX, aY: integer);
+begin
+  AddBuilding(TBasicSingleTurret, TBasicSingleTurretType, aX, aY);
 end;
 
 destructor TUnitManager.Destroy;

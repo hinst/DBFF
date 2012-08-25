@@ -43,7 +43,7 @@
         <PackageName Value="UltimateLibrary"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="35">
+    <Units Count="37">
       <Unit0>
         <Filename Value="DBFF_Project.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -218,6 +218,16 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="BasicGunTurretUnit"/>
       </Unit34>
+      <Unit35>
+        <Filename Value="MapUnits\BasicSingleTurretUnit.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="BasicSingleTurretUnit"/>
+      </Unit35>
+      <Unit36>
+        <Filename Value="MapUnits\AbstractTurretUnit.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="AbstractTurretUnit"/>
+      </Unit36>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

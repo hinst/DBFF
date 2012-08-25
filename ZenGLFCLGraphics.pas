@@ -19,7 +19,6 @@ uses
   zgl_font,
 
   NiceExceptions,
-  LogManager,
   LogEntityFace,
   SynchroThread,
 

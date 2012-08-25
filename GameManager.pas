@@ -9,7 +9,6 @@ uses
   Classes,
   SysUtils,
 
-  zgl_main,
   zgl_mouse,
   zgl_keyboard,
   zgl_window,

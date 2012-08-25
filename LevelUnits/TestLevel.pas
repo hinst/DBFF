@@ -79,6 +79,9 @@ begin
   aLevel.UnitManager.AddBasicGunTurret(3, 6);
   aLevel.UnitManager.AddBasicGunTurret(3, 7);
   aLevel.UnitManager.AddBasicGunTurret(6, 0);
+  aLevel.UnitManager.AddBasicSingleTurret(6, 1);
+  aLevel.UnitManager.AddBasicSingleTurret(8, 2);
+  aLevel.UnitManager.AddBasicSingleTurret(9, 2);
   Log.Write('Loading test level - Done.');
 end;
 

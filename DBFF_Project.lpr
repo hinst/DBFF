@@ -30,12 +30,13 @@ uses
   {$REGION Custom units}
   Common, EngineManager, GameManager, MapDataContainer, TerrainManager,
   MapDataFace, TerrainManagerFace, TerrainViewer, LevelData, TestLevel,
-  LevelDataFace, LevelLoaderFace, ZenGLFCLGraphics, 
-  EngineManagerFace, TextureCache, UnitManager, UnitManagerFace, MapUnit,
-  MapUnitFace, BuildingUnit, BuildingUnitFaceA, DefaultLevel,
-  BasicVehicleFactoryUnit, GameManagerFace, MapViewerFace, MapViewer, 
-TerrainManagerFaceE, MapScrollManager, UnitViewer, ZenGLShowMeFPS, 
-TerrainViewerFace, UserFaceManager, BasicGunTurretUnit;
+  LevelDataFace, LevelLoaderFace, ZenGLFCLGraphics, EngineManagerFace,
+  TextureCache, UnitManager, UnitManagerFace, MapUnit, MapUnitFace,
+  BuildingUnit, BuildingUnitFaceA, DefaultLevel, BasicVehicleFactoryUnit,
+  GameManagerFace, MapViewerFace, MapViewer, TerrainManagerFaceE,
+  MapScrollManager, UnitViewer, ZenGLShowMeFPS, TerrainViewerFace,
+  UserFaceManager, BasicGunTurretUnit, BasicSingleTurretUnit, 
+AbstractTurretUnit;
 
 type
 
