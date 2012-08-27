@@ -79,6 +79,7 @@ begin
   aLevel.UnitManager.AddBasicGunTurret(3, 6);
   aLevel.UnitManager.AddBasicGunTurret(3, 7);
   aLevel.UnitManager.AddBasicGunTurret(6, 0);
+  Log.Write('Loading test level: Creating basic single turret...');
   aLevel.UnitManager.AddBasicSingleTurret(6, 1);
   aLevel.UnitManager.AddBasicSingleTurret(8, 2);
   aLevel.UnitManager.AddBasicSingleTurret(9, 2);

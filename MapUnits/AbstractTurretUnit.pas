@@ -15,6 +15,7 @@ uses
   ZenGLFCLGraphics,
   Angle360,
   MapUnitFace,
+  MapUnit,
   MapDataFace,
   MapScrollManager,
   BuildingUnit;
@@ -27,20 +28,19 @@ type
   TAbstractTurretType = class(TBuildingType)
   protected
     fTowerTexture: zglPTexture;
-    function GetTextureFilePath: string; virtual; abstract;
     function GetTopTextureFilePath: string; virtual; abstract;
     procedure Finalize;
   public
     property TextureFilePath: string read GetTextureFilePath;
     property TopTextureFilePath: string read GetTopTextureFilePath;
     property TowerTexture: zglPTexture read fTowerTexture;
-    procedure Load;
+    procedure Load; override;
     destructor Destroy; override;
   end;
 
   TAbstractTurret = class(TBuilding, IMapUnit)
   public
-    constructor Create(const aType: TBuildingType); override;
+    constructor Create(const aType: TMapUnitType); override;
   protected
     fTowerAngle: TAngle360;
     fDesiredTowerAngle: TAngle360;
@@ -75,7 +75,7 @@ end;
 
 procedure TAbstractTurretType.Load;
 begin
-  fTexture := Engine.LoadTexture(TextureFilePath);
+  inherited Load;
   fTowerTexture := Engine.LoadTexture(TopTextureFilePath);
 end;
 
@@ -88,7 +88,7 @@ end;
 
 {TAbstractTurret}
 
-constructor TAbstractTurret.Create(const aType: TBuildingType);
+constructor TAbstractTurret.Create(const aType: TMapUnitType);
 begin
   inherited Create(aType);
   Initialize;
@@ -96,7 +96,7 @@ end;
 
 function TAbstractTurret.GetMyType: TAbstractTurretType;
 begin
-  result := BuildingType as TAbstractTurretType;
+  result := UnitType as TAbstractTurretType;
 end;
 
 function TAbstractTurret.GetOccupatedCells: TCellNumbers;
@@ -117,35 +117,25 @@ end;
 
 procedure TAbstractTurret.Initialize;
 begin
-  fTowerAngle := random(360);
-  fDesiredTowerAngle := random(360);
+  TowerAngle.Random;
+  DesiredTowerAngle.Random;
   fIdleChangeAngleTimeLeft := IdleChangeAngleTime;
 end;
 
 procedure TAbstractTurret.SureDraw(const aScroll: TMapScrollManager);
 
-  function DrawX: single;
-  begin
-    result := aScroll.TileWidth * fLeftTopCell.X - aScroll.ViewLeft;
-  end;
-
-  function DrawY: single;
-  begin
-    result := aScroll.TileHeight * fLeftTopCell.Y - aScroll.ViewTop;
-  end;
-
 begin
   with aScroll do
   begin
     ssprite2d_Draw(MyType.Texture,
-      DrawX,
-      DrawY,
+      aScroll.ScreenX(LeftTopCell^),
+      aScroll.ScreenY(LeftTopCell^),
       TileWidth,
       TileHeight,
       0);
     ssprite2d_Draw(MyType.TowerTexture,
-      DrawX,
-      DrawY,
+      aScroll.ScreenX(LeftTopCell^),
+      aScroll.ScreenY(LeftTopCell^),
       TileWidth,
       TileHeight,
       TowerAngle
@@ -154,15 +144,8 @@ begin
 end;
 
 procedure TAbstractTurret.MoveToDesiredAngle(const aTime: double);
-var
-  d1, d2: shortint;
 begin
-  if TowerAngle = DesiredTowerAngle then exit;
-  d1 := MostCloseAngleDirection(TowerAngle, DesiredTowerAngle);
-  fTowerAngle.Inc( TowerSpeed * aTime * d1 );
-  d2 := MostCloseAngleDirection(TowerAngle, DesiredTowerAngle);
-  if d1 <> d2 then
-    fTowerAngle := DesiredTowerAngle;
+  TowerAngle.MoveToDesiredAngle(DesiredTowerAngle, aTime*TowerSpeed);
 end;
 
 procedure TAbstractTurret.IdleChangeAngle(const aTime: double);

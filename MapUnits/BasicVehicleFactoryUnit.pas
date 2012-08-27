@@ -15,6 +15,7 @@ uses
 
   Common,
   MapUnitFace,
+  MapUnit,
   MapDataFace,
   MapScrollManager,
   BuildingUnit,
@@ -25,14 +26,13 @@ type
   { TBasicVehicleFactoryType }
 
   TBasicVehicleFactoryType = class(TBuildingType)
-  private
+  protected
     fTopTexture: zglPTexture;
-    function GetTextureFilePath: string;
+    function GetTextureFilePath: string; override;
     function GetTopTextureFilePath: string;
     procedure Finalize;
   public
     property HatTexture: zglPTexture read fTopTexture;
-    property TextureFilePath: string read GetTextureFilePath;
     property TopTextureFilePath: string read GetTopTextureFilePath;
     procedure Load;
     destructor Destroy; override;
@@ -40,7 +40,7 @@ type
 
   TBasicVehicleFactory = class(TBuilding, IMapUnit)
   public
-    constructor Create(const aType: TBuildingType); override;
+    constructor Create(const aType: TMapUnitType); override;
   protected
     fHatAngle: single;
     function GetMyType: TBasicVehicleFactoryType;
@@ -60,7 +60,7 @@ type
 
 implementation
 
-constructor TBasicVehicleFactory.Create(const aType: TBuildingType);
+constructor TBasicVehicleFactory.Create(const aType: TMapUnitType);
 begin
   inherited Create(aType);
   Initialize;
@@ -68,7 +68,7 @@ end;
 
 function TBasicVehicleFactory.GetMyType: TBasicVehicleFactoryType;
 begin
-  result := BuildingType as TBasicVehicleFactoryType;
+  result := UnitType as TBasicVehicleFactoryType;
 end;
 
 function TBasicVehicleFactory.GetOccupatedCells: TCellNumbers;
@@ -158,7 +158,7 @@ end;
 
 procedure TBasicVehicleFactoryType.Load;
 begin
-  fTexture := Engine.LoadTexture(TextureFilePath);
+  inherited Load;
   fTopTexture := Engine.LoadTexture(TopTextureFilePath);
 end;
 

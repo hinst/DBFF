@@ -164,8 +164,7 @@ begin
       Log.Write('Now cleaning: ' + IntToStr(item^.x) + ':' + IntToStr(item^.y)
         + '(' + IntToStr(distance) + ' > ' + IntToStr(CleaningDistance) + ')');
       {$ENDIF}
-      if Assigned(item^.texture) then
-        Engine.DisposeTexture(item^.texture);
+      Engine.DisposeTexture(item^.texture);
       Dispose(item);
       Cache[i] := nil;
     end;

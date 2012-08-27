@@ -8,10 +8,6 @@ interface
 uses
   Classes, SysUtils;
 
-type
-  IAbstractBuildingType = interface
-  end;
-
 implementation
 
 end.

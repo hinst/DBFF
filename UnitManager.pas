@@ -23,10 +23,12 @@ uses
   MapUnitFace,
   MapDataFace,
   MapScrollManager,
+  VehicleUnit,
   {$REGION Map units}
   BasicVehicleFactoryUnit,
   BasicGunTurretUnit,
-  BasicSingleTurretUnit
+  BasicSingleTurretUnit,
+  BasicTankUnit
   {$ENDREGION}
   ;
 
@@ -34,6 +36,8 @@ type
   TIMapUnits = specialize TFPGList<IMapUnit>;
 
   TBuildingTypes = specialize TFPGList<TBuildingType>;
+
+  TVehicleTypes = specialize TFPGList<TVehicleType>;
 
   { TUnitManager
     Manages and draws units.
@@ -45,34 +49,43 @@ type
     fLog: ILog;
     fMapUnits: TIMapUnits;
     fBuildingTypes: TBuildingTypes;
+    fVehicleTypes: TVehicleTypes;
     fScroll: TMapScrollManager;
     fMap: IMapData;
     function GetUnitAtWindowPoint(const aX, aY: integer): IMapUnit;
     procedure Initialize;
     procedure ReleaseUnits;
     procedure ReleaseBuildingTypes;
+    procedure ReleaseVehicleTypes;
     procedure MarkBusyCells(const aUnit: IMapUnit);
     procedure Finalize;
   public
     property Log: ILog read fLog;
     property MapUnits: TIMapUnits read fMapUnits;
     property BuildingTypes: TBuildingTypes read fBuildingTypes;
+    property VehicleTypes: TVehicleTypes read fVehicleTypes;
       // this property should be assigned
     property Scroll: TMapScrollManager read fScroll write fScroll;
       // this property should be assigned
     property Map: IMapData read fMap write fMap;
     property UnitAtWindowPoint[const x, y: integer]: IMapUnit read GetUnitAtWindowPoint;
+    procedure LoadBuildingType(const aBuildingTypeClass: TBuildingTypeClass);
     procedure LoadBasicBuildingTypes;
-    function AddNewBuildingType: IAbstractBuildingType;
+    procedure LoadVehicleType(const aVehicleTypeClass: TVehicleTypeClass);
+    procedure LoadBasicVehicleTypes;
     procedure Draw;
     procedure Update(const aTime: double);
-    procedure AddUnit(const aUnit: IMapUnit);
+    procedure AddUnit(const aUnit: TMapUnit);
     procedure AddBuilding(const aClass: TBuildingClass; const aType: TBuildingTypeClass;
       const aX, aY: integer);
+    procedure AddVehicle(const aClass: TVehicleClass; const aType: TVehicleTypeClass;
+      const aX, aY: integer);
     function FindBuildingType(const aClass: TBuildingTypeClass): TBuildingType;
+    function FindVehicleType(const aClass: TVehicleTypeClass): TVehicleType;
     procedure AddBasicVehicleFactory(const aX, aY: integer);
     procedure AddBasicGunTurret(const aX, aY: integer);
     procedure AddBasicSingleTurret(const aX, aY: integer);
+    procedure AddBasicTank(const aX, aY: integer);
     destructor Destroy; override;
   end;
 
@@ -121,6 +134,7 @@ procedure TUnitManager.Initialize;
 begin
   fLog := TLog.Create(GlobalLogManager, 'UnitMan');
   fBuildingTypes := TBuildingTypes.Create;
+  fVehicleTypes := TVehicleTypes.Create;
   fMapUnits := TIMapUnits.Create;
 end;
 
@@ -145,6 +159,15 @@ begin
   BuildingTypes.Clear;
 end;
 
+procedure TUnitManager.ReleaseVehicleTypes;
+var
+  vehicleType: TVehicleType;
+begin
+  for vehicleType in VehicleTypes do
+    FreeAndNil(vehicleType);
+  VehicleTypes.Clear;
+end;
+
 procedure TUnitManager.MarkBusyCells(const aUnit: IMapUnit);
 var
   cellNumber: TCellNumber;
@@ -164,33 +187,41 @@ procedure TUnitManager.Finalize;
 begin
   ReleaseUnits;
   FreeAndNil(fMapUnits);
+  ReleaseVehicleTypes;
+  FreeAndNil(fVehicleTypes);
   ReleaseBuildingTypes;
   FreeAndNil(fBuildingTypes);
   FreeLog(fLog);
 end;
 
-procedure TUnitManager.LoadBasicBuildingTypes;
+procedure TUnitManager.LoadBuildingType(const aBuildingTypeClass: TBuildingTypeClass);
 var
-  basicVehicleFactory: TBasicVehicleFactoryType;
-  basicGunTurret: TBasicGunTurretType;
-  basicSingleTurret: TBasicSingleTurretType;
+  aBuildingType: TBuildingType;
 begin
-  basicVehicleFactory := TBasicVehicleFactoryType.Create;
-  basicVehicleFactory.Load;
-  BuildingTypes.Add(basicVehicleFactory);
-
-  basicGunTurret := TBasicGunTurretType.Create;
-  basicGunTurret.Load;
-  BuildingTypes.Add(basicGunTurret);
-
-  basicSingleTurret := TBasicSingleTurretType.Create;
-  basicSingleTurret.Load;
-  BuildingTypes.Add(basicSingleTurret);
+  aBuildingType := aBuildingTypeClass.Create;
+  aBuildingType.Load;
+  BuildingTypes.Add(aBuildingType);
 end;
 
-function TUnitManager.AddNewBuildingType: IAbstractBuildingType;
+procedure TUnitManager.LoadBasicBuildingTypes;
 begin
-  result := TBuildingType.Create;
+  LoadBuildingType(TBasicVehicleFactoryType);
+  LoadBuildingType(TBasicGunTurretType);
+  LoadBuildingType(TBasicSingleTurretType);
+end;
+
+procedure TUnitManager.LoadVehicleType(const aVehicleTypeClass: TVehicleTypeClass);
+var
+  t: TVehicleType;
+begin
+  t := TVehicleTypeClass.Create;
+  t.Load;
+  VehicleTypes.Add(t);
+end;
+
+procedure TUnitManager.LoadBasicVehicleTypes;
+begin
+  LoadVehicleType(TBasicTankType);
 end;
 
 procedure TUnitManager.Draw;
@@ -209,10 +240,11 @@ begin
     u.Update(aTime);
 end;
 
-procedure TUnitManager.AddUnit(const aUnit: IMapUnit);
+procedure TUnitManager.AddUnit(const aUnit: TMapUnit);
 begin
-  MapUnits.Add(aUnit);
-  MarkBusyCells(aUnit);
+  Assert(aUnit is IMapUnit);
+  MapUnits.Add(aUnit as IMapUnit);
+  MarkBusyCells(aUnit as IMapUnit);
 end;
 
 procedure TUnitManager.AddBuilding(const aClass: TBuildingClass;
@@ -222,13 +254,25 @@ var
   u: TBuilding;
 begin
   t := FindBuildingType(aType);
-  AssertAssigned(t, TBuildingTypeClass.ClassName);
+  AssertAssigned(t, aType.ClassName);
   u := aClass.Create(t);
-  u.LeftTopCell^.X := aX;
-  u.LeftTopCell^.Y := aY;
+  u.LeftTopCell^.SetXY(aX, aY);
   u.UpdateGraphicalRect(Scroll);
-  Assert(u is IMapUnit);
-  AddUnit(u as IMapUnit);
+  AddUnit(u);
+end;
+
+procedure TUnitManager.AddVehicle(const aClass: TVehicleClass;
+  const aType: TVehicleTypeClass; const aX, aY: integer);
+var
+  t: TVehicleType;
+  u: TVehicle;
+begin
+  t := FindVehicleType(aType);
+  AssertAssigned(t, aType.ClassName);
+  u := aClass.Create(t);
+  u.LeftTopCell^.SetXY(aX, aY);
+  u.UpdateGraphicalRect(Scroll);
+  AddUnit(u);
 end;
 
 function TUnitManager.FindBuildingType(const aClass: TBuildingTypeClass): TBuildingType;
@@ -240,6 +284,20 @@ begin
     if unitType.ClassType = aClass then
     begin
       result := unitType;
+      break;
+    end;
+end;
+
+function TUnitManager.FindVehicleType(const aClass: TVehicleTypeClass
+  ): TVehicleType;
+var
+  t: TVehicleType;
+begin
+  result := nil;
+  for t in VehicleTypes do
+    if t.ClassType = aClass then
+    begin
+      result := t;
       break;
     end;
 end;
@@ -257,6 +315,11 @@ end;
 procedure TUnitManager.AddBasicSingleTurret(const aX, aY: integer);
 begin
   AddBuilding(TBasicSingleTurret, TBasicSingleTurretType, aX, aY);
+end;
+
+procedure TUnitManager.AddBasicTank(const aX, aY: integer);
+begin
+  AddVehicle(TBasicTank, TBasicTankType, aX, aY);
 end;
 
 destructor TUnitManager.Destroy;

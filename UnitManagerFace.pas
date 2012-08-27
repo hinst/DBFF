@@ -13,11 +13,16 @@ type
   { IUnitManager }
 
   IUnitManager = interface
+    {$REGION Buildings}
     procedure LoadBasicBuildingTypes;
-    function AddNewBuildingType: IAbstractBuildingType;
     procedure AddBasicVehicleFactory(const aX, aY: integer);
     procedure AddBasicGunTurret(const aX, aY: integer);
     procedure AddBasicSingleTurret(const aX, aY: integer);
+    {$ENDREGION}
+    {$REGION Vehicles}
+    procedure LoadBasicVehicleTypes;
+    procedure AddBasicTank(const aX, aY: integer);
+    {$ENDREGION}
   end;
 
 implementation

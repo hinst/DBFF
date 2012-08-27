@@ -32,6 +32,7 @@ type
     procedure Assign(const a: TCellNumber);
     function IsNegative: boolean;
     function Equals(const aX, aY: integer): boolean;
+    procedure SetXY(const aX, aY: integer);
   end;
 
   TCellNumbers = array of TCellNumber;
@@ -63,6 +64,12 @@ end;
 function TCellNumber.Equals(const aX, aY: integer): boolean;
 begin
   result := (aX = X) and (aY = Y);
+end;
+
+procedure TCellNumber.SetXY(const aX, aY: integer);
+begin
+  X := aX;
+  Y := aY;
 end;
 
 end.

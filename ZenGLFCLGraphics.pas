@@ -168,11 +168,9 @@ function FPColorToLongWordColor(const aColor: TFPColor): LongWord;
 
 procedure pr2d_Rect3(const aX, aY, aW, aH: single; const aColor: LongWord);
 
-procedure UnpackPRect(const aRect: zglPRect; var x, y, w, h: single);
+procedure UnpackPRect(const aRect: zglPRect; out x, y, w, h: single);
 
 function RectToText(const aRect: zglPRect): string;
-
-function MostCloseAngleDirection(const aCurrent, aDesired: single): shortint;
 
 implementation
 
@@ -194,7 +192,7 @@ begin
   pr2d_Rect(aX + 1, aY + 1, aW - 2, aH - 2, aColor);
 end;
 
-procedure UnpackPRect(const aRect: zglPRect; var x, y, w, h: single);
+procedure UnpackPRect(const aRect: zglPRect; out x, y, w, h: single);
 begin
   x := aRect^.X;
   y := aRect^.Y;
@@ -211,26 +209,6 @@ begin
   w := FloatToStr(aRect^.W);
   h := FloatToStr(aRect^.H);
   result := '[' + x + ' ' + y + ' ' + w + ' ' + h + ']';
-end;
-
-function MostCloseAngleDirection(const aCurrent, aDesired: single): shortint;
-var
-  positiveDistance, negativeDistance: single;
-begin
-  if aCurrent <= aDesired then
-  begin
-    positiveDistance := aDesired - aCurrent;
-    negativeDistance := 360 - aDesired + aCurrent;
-  end
-  else
-  begin
-    positiveDistance := 360 - aCurrent + aDesired;
-    negativeDistance := aCurrent - aDesired;
-  end;
-  if positiveDistance < negativeDistance then
-    result := +1
-  else
-    result := -1;
 end;
 
 { T6Colors }

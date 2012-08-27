@@ -15,6 +15,8 @@ type
   { TBasicSingleTurretType }
 
   TBasicSingleTurretType = class(TAbstractTurretType)
+  public
+    constructor Create; override;
   protected
     function GetTextureFilePath: string; override;
     function GetTopTextureFilePath: string; override;
@@ -27,6 +29,11 @@ type
 implementation
 
 { TBasicSingleTurretType }
+
+constructor TBasicSingleTurretType.Create;
+begin
+  inherited Create;
+end;
 
 function TBasicSingleTurretType.GetTextureFilePath: string;
 begin

@@ -36,7 +36,7 @@ uses
   GameManagerFace, MapViewerFace, MapViewer, TerrainManagerFaceE,
   MapScrollManager, UnitViewer, ZenGLShowMeFPS, TerrainViewerFace,
   UserFaceManager, BasicGunTurretUnit, BasicSingleTurretUnit, 
-AbstractTurretUnit;
+AbstractTurretUnit, VehicleUnit, AbstractTankUnit, BasicTankUnit;
 
 type
 

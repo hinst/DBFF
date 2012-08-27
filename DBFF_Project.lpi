@@ -43,7 +43,7 @@
         <PackageName Value="UltimateLibrary"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="37">
+    <Units Count="40">
       <Unit0>
         <Filename Value="DBFF_Project.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -139,12 +139,12 @@
         <UnitName Value="UnitManagerFace"/>
       </Unit18>
       <Unit19>
-        <Filename Value="MapUnit.pas"/>
+        <Filename Value="MapUnits\MapUnit.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="MapUnit"/>
       </Unit19>
       <Unit20>
-        <Filename Value="MapUnitFace.pas"/>
+        <Filename Value="MapUnits\MapUnitFace.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="MapUnitFace"/>
       </Unit20>
@@ -228,6 +228,21 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="AbstractTurretUnit"/>
       </Unit36>
+      <Unit37>
+        <Filename Value="MapUnits\VehicleUnit.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="VehicleUnit"/>
+      </Unit37>
+      <Unit38>
+        <Filename Value="MapUnits\AbstractTankUnit.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="AbstractTankUnit"/>
+      </Unit38>
+      <Unit39>
+        <Filename Value="MapUnits\BasicTankUnit.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="BasicTankUnit"/>
+      </Unit39>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -241,6 +256,11 @@
       <OtherUnitFiles Value="MapUnits;LevelUnits"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
+    <Parsing>
+      <SyntaxOptions>
+        <IncludeAssertionCode Value="True"/>
+      </SyntaxOptions>
+    </Parsing>
     <Linking>
       <Debugging>
         <UseHeaptrc Value="True"/>

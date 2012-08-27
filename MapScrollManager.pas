@@ -77,6 +77,8 @@ type
     property CellNumberAtWindowPoint[const x, y: integer]: TCellNumber
       read GetCellNumberAtWindowPoint;
     function GlobalToScreen(const aRect: zglPRect): zglTRect;
+    function ScreenX(const aCell: TCellNumber): single;
+    function ScreenY(const aCell: TCellNumber): single;
     destructor Destroy; override;
   end;
 
@@ -242,6 +244,16 @@ begin
   result.Y := aRect^.Y - ViewTop;
   result.W := aRect^.W;
   result.H := aRect^.H;
+end;
+
+function TMapScrollManager.ScreenX(const aCell: TCellNumber): single;
+begin
+  result := TileWidth * aCell.X - ViewLeft;
+end;
+
+function TMapScrollManager.ScreenY(const aCell: TCellNumber): single;
+begin
+  result := TileHeight * aCell.Y - ViewTop;
 end;
 
 destructor TMapScrollManager.Destroy;

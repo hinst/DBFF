@@ -9,8 +9,9 @@ uses
   Classes,
   SysUtils,
 
-  NiceInterfaces,
   zgl_math_2d,
+
+  NiceInterfaces,
 
   MapDataFace,
   MapScrollManager;

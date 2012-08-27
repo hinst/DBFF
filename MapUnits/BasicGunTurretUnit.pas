@@ -18,6 +18,8 @@ type
   { TBasicGunTurretType }
 
   TBasicGunTurretType = class(TAbstractTurretType)
+  public
+    constructor Create; override;
   protected
     function GetTextureFilePath: string; override;
     function GetTopTextureFilePath: string; override;
@@ -29,6 +31,11 @@ type
 implementation
 
 { TBasicGunTurretType }
+
+constructor TBasicGunTurretType.Create;
+begin
+  inherited Create;
+end;
 
 function TBasicGunTurretType.GetTextureFilePath: string;
 begin
