@@ -230,6 +230,8 @@ var
 begin
   for u in MapUnits do
     u.Draw(Scroll);
+  for u in MapUnits do
+    u.DrawTopLayer(Scroll);
 end;
 
 procedure TUnitManager.Update(const aTime: double);

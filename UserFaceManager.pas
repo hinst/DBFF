@@ -20,6 +20,8 @@ uses
   Common,
   UnitManager,
   MapUnitFace,
+  UnitFactoryFace,
+  UnitProduction,
   MapScrollManager,
   ZenGLFCLGraphics,
   LevelData;
@@ -142,6 +144,8 @@ procedure TUserFace.ProcessLevelInput(const aTime: double);
 begin
   if ChooseClick then
     Select;
+  if key_Press(K_F4) then
+    UserConstructBasicTank;
 end;
 
 function TUserFace.ChooseClick: boolean;
@@ -213,18 +217,30 @@ procedure TUserFace.UserConstructBasicTank;
 
 var
   u: IMapUnit;
+  factory: IUnitFactory;
+  productionItem: TUnitProductionItem;
+  productionsInitiated: integer;
 
 begin
   LogWrite('UserConstructBasicTank called');
+  productionsInitiated := 0;
   if SelectedUnits.Count = 0 then
   begin
-    LogWrite('Selected is nothing');
+    LogWrite('Can not initiate production: Selected is nothing');
     exit;
   end;
   for u in SelectedUnits do
   begin
-
+    if not (u.Reverse is IUnitFactory) then continue;
+    factory := u.Reverse as IUnitFactory;
+    if not factory.IsVehicleFactory then continue;
+    productionItem := TUnitProductionItem.Create;
+    productionItem.Progress := 0;
+    productionItem.TimeCost := 3000;
+    factory.Production.Que.Add(productionItem);
+    inc(productionsInitiated);
   end;
+  LogWrite('  ' + IntToStr(productionsInitiated) + ' productions initiated');
 end;
 {$UNDEF DEBUG_THIS}
 

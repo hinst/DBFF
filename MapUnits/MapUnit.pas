@@ -1,6 +1,7 @@
 unit MapUnit;
 
 {$mode objfpc}{$H+}
+//{$DEFINE DEBUG_LOG_VISIBILITY}
 
 interface
 
@@ -62,7 +63,6 @@ type
     function GetUnitWidth: integer; virtual; abstract;
     function GetUnitHeight: integer; virtual; abstract;
     procedure Initialize(const aType: TMapUnitType);
-    procedure SureDraw(const aScroll: TMapScrollManager); virtual; abstract;
     procedure Finalize;
   public
     property Log: ILog read fLog;
@@ -73,7 +73,9 @@ type
     property UnitWidth: integer read GetUnitWidth;
     property UnitHeight: integer read GetUnitHeight;
     procedure UpdateGraphicalRect(const aScroll: TMapScrollManager);
+    function IsVisible(const aScroll: TMapScrollManager): boolean;
     procedure Draw(const aScroll: TMapScrollManager);
+    procedure DrawTopLayer(const aScroll: TMapScrollManager);
     destructor Destroy; override;
   end;
 
@@ -155,7 +157,7 @@ begin
   GraphicalRect^.H := UnitHeight * aScroll.TileHeight;
 end;
 
-procedure TMapUnit.Draw(const aScroll: TMapScrollManager);
+function TMapUnit.IsVisible(const aScroll: TMapScrollManager): boolean;
 var
   cell: TCellNumber;
   cells: TCellNumbers;
@@ -169,8 +171,6 @@ begin
       visible := true;
       break;
     end;
-  if visible then
-    SureDraw(aScroll);
   {$IFDEF DEBUG_LOG_VISIBILITY}
   if visible and not LastTimeVisible then
     Log.Write('Unit is now visible');
@@ -178,8 +178,16 @@ begin
     Log.Write('Unit is now not visible');
   {$ENDIF}
   fLastTimeVisible := visible;
+  result := visible;
 end;
 
+procedure TMapUnit.Draw(const aScroll: TMapScrollManager);
+begin
+end;
+
+procedure TMapUnit.DrawTopLayer(const aScroll: TMapScrollManager);
+begin
+end;
 
 destructor TMapUnit.Destroy;
 begin

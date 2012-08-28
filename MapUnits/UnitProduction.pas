@@ -71,7 +71,12 @@ begin
 end;
 
 procedure TUnitProduction.Finalize;
+var
+  item: TUnitProductionItem;
 begin
+  for item in Que do
+    item.Free;
+  fQue.Clear;
   FreeAndNil(fQue);
 end;
 

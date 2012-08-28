@@ -15,6 +15,7 @@ uses
 
   Common,
   MapUnitFace,
+  UnitFactoryFace,
   MapUnit,
   MapDataFace,
   MapScrollManager,
@@ -39,7 +40,7 @@ type
     destructor Destroy; override;
   end;
 
-  TBasicVehicleFactory = class(TBuilding, IMapUnit)
+  TBasicVehicleFactory = class(TBuilding, IMapUnit, IUnitFactory)
   public
     constructor Create(const aType: TMapUnitType); override;
   protected
@@ -49,8 +50,9 @@ type
     function GetOccupatedCells: TCellNumbers;
     function GetUnitWidth: integer; override;
     function GetUnitHeight: integer; override;
+    function GetProduction: TUnitProduction;
+    function IsVehicleFactory: boolean;
     procedure Initialize;
-    procedure SureDraw(const aScroll: TMapScrollManager); override;
     procedure Finalize;
   public const
       // one rotation per two seconds is 360 / 2000
@@ -59,6 +61,8 @@ type
     property HatAngle: single read fHatAngle;
     property Production: TUnitProduction read fProduction;
     property MyType: TBasicVehicleFactoryType read GetMyType;
+    procedure Draw(const aScroll: TMapScrollManager);
+    procedure DrawTopLayer(const aScroll: TMapScrollManager);
     procedure Update(const aTime: double);
     destructor Destroy; override;
   end;
@@ -103,14 +107,30 @@ begin
   result := 2;
 end;
 
+function TBasicVehicleFactory.GetProduction: TUnitProduction;
+begin
+  result := fProduction;
+end;
+
+function TBasicVehicleFactory.IsVehicleFactory: boolean;
+begin
+  result := true;
+end;
+
 procedure TBasicVehicleFactory.Initialize;
 begin
   fHatAngle := random(360);
   fProduction := TUnitProduction.Create(self);
 end;
 
-procedure TBasicVehicleFactory.SureDraw(const aScroll: TMapScrollManager);
+procedure TBasicVehicleFactory.Finalize;
 begin
+  FreeAndNil(fProduction);
+end;
+
+procedure TBasicVehicleFactory.Draw(const aScroll: TMapScrollManager);
+begin
+  if not IsVisible(aScroll) then exit;
   with aScroll do
   begin
     ssprite2d_Draw(
@@ -129,12 +149,11 @@ begin
       HatAngle
     );
   end;
-  Production.Draw(aScroll);
 end;
 
-procedure TBasicVehicleFactory.Finalize;
+procedure TBasicVehicleFactory.DrawTopLayer(const aScroll: TMapScrollManager);
 begin
-  FreeAndNil(fProduction);
+  Production.Draw(aScroll);
 end;
 
 procedure TBasicVehicleFactory.Update(const aTime: double);

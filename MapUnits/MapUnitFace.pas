@@ -35,6 +35,7 @@ type
     property GraphicalRect: zglPRect read GetGraphicalRect;
 
     procedure Draw(const aScroll: TMapScrollManager);
+    procedure DrawTopLayer(const aScroll: TMapScrollManager);
     procedure Update(const aTime: double);
     procedure UpdateGraphicalRect(const aScroll: TMapScrollManager);
   end;

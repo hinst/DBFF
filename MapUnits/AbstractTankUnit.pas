@@ -56,13 +56,13 @@ type
     function GetUnitWidth: integer; override;
     function GetUnitHeight: integer; override;
     procedure Initialize;
-    procedure SureDraw(const aScroll: TMapScrollManager); override;
   public
     property BodyAngle: TAngle360 read fBodyAngle;
     property DesiredBodyAngle: TAngle360 read fDesiredBodyAngle;
     property TowerAngle: TAngle360 read fTowerAngle;
     property DesiredTowerAngle: TAngle360 read fDesiredTowerAngle;
     property MyType: TAbstractTankType read GetMyType;
+    procedure Draw(const aScroll: TMapScrollManager);
     procedure Update(const aTime: double);
   end;
 
@@ -132,8 +132,9 @@ begin
   DesiredBodyAngle.Random;
 end;
 
-procedure TAbstractTank.SureDraw(const aScroll: TMapScrollManager);
+procedure TAbstractTank.Draw(const aScroll: TMapScrollManager);
 begin
+  if not IsVisible(aScroll) then exit;
   with aScroll do
   begin
     {$REGION DRAW_BASE}

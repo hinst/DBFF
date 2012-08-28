@@ -50,7 +50,6 @@ type
     function GetUnitWidth: integer; override;
     function GetUnitHeight: integer; override;
     procedure Initialize;
-    procedure SureDraw(const aScroll: TMapScrollManager); override;
     procedure MoveToDesiredAngle(const aTime: double);
     procedure IdleChangeAngle(const aTime: double);
   public const
@@ -61,6 +60,7 @@ type
     property DesiredTowerAngle: TAngle360 read fDesiredTowerAngle;
     property IdleChangeAngleTimeLeft: single read fIdleChangeAngleTimeLeft;
     property MyType: TAbstractTurretType read GetMyType;
+    procedure Draw(const aScroll: TMapScrollManager);
     procedure Update(const aTime: double);
   end;
 
@@ -122,27 +122,6 @@ begin
   fIdleChangeAngleTimeLeft := IdleChangeAngleTime;
 end;
 
-procedure TAbstractTurret.SureDraw(const aScroll: TMapScrollManager);
-
-begin
-  with aScroll do
-  begin
-    ssprite2d_Draw(MyType.Texture,
-      aScroll.ScreenX(LeftTopCell^),
-      aScroll.ScreenY(LeftTopCell^),
-      TileWidth,
-      TileHeight,
-      0);
-    ssprite2d_Draw(MyType.TowerTexture,
-      aScroll.ScreenX(LeftTopCell^),
-      aScroll.ScreenY(LeftTopCell^),
-      TileWidth,
-      TileHeight,
-      TowerAngle
-    );
-  end;
-end;
-
 procedure TAbstractTurret.MoveToDesiredAngle(const aTime: double);
 begin
   TowerAngle.MoveToDesiredAngle(DesiredTowerAngle, aTime*TowerSpeed);
@@ -162,6 +141,27 @@ begin
   end;
 end;
 {$UNDEF DEBUG_THIS_PROCEDURE}
+
+procedure TAbstractTurret.Draw(const aScroll: TMapScrollManager);
+begin
+  if not IsVisible(aScroll) then exit;
+  with aScroll do
+  begin
+    ssprite2d_Draw(MyType.Texture,
+      aScroll.ScreenX(LeftTopCell^),
+      aScroll.ScreenY(LeftTopCell^),
+      TileWidth,
+      TileHeight,
+      0);
+    ssprite2d_Draw(MyType.TowerTexture,
+      aScroll.ScreenX(LeftTopCell^),
+      aScroll.ScreenY(LeftTopCell^),
+      TileWidth,
+      TileHeight,
+      TowerAngle
+    );
+  end;
+end;
 
 procedure TAbstractTurret.Update(const aTime: double);
 begin
