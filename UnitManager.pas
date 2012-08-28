@@ -214,7 +214,7 @@ procedure TUnitManager.LoadVehicleType(const aVehicleTypeClass: TVehicleTypeClas
 var
   t: TVehicleType;
 begin
-  t := TVehicleTypeClass.Create;
+  t := aVehicleTypeClass.Create;
   t.Load;
   VehicleTypes.Add(t);
 end;

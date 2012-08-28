@@ -19,6 +19,7 @@ uses
   MapDataFace,
   MapScrollManager,
   BuildingUnit,
+  UnitProduction,
   EngineManagerFace;
 
 type
@@ -34,7 +35,7 @@ type
   public
     property HatTexture: zglPTexture read fTopTexture;
     property TopTextureFilePath: string read GetTopTextureFilePath;
-    procedure Load;
+    procedure Load; override;
     destructor Destroy; override;
   end;
 
@@ -43,19 +44,23 @@ type
     constructor Create(const aType: TMapUnitType); override;
   protected
     fHatAngle: single;
+    fProduction: TUnitProduction;
     function GetMyType: TBasicVehicleFactoryType;
     function GetOccupatedCells: TCellNumbers;
     function GetUnitWidth: integer; override;
     function GetUnitHeight: integer; override;
     procedure Initialize;
     procedure SureDraw(const aScroll: TMapScrollManager); override;
+    procedure Finalize;
   public const
-      // two rotations per two seconds is 360 / 2000
+      // one rotation per two seconds is 360 / 2000
     HatSpeed = 360 / 2000;
   public
     property HatAngle: single read fHatAngle;
+    property Production: TUnitProduction read fProduction;
     property MyType: TBasicVehicleFactoryType read GetMyType;
     procedure Update(const aTime: double);
+    destructor Destroy; override;
   end;
 
 implementation
@@ -101,42 +106,47 @@ end;
 procedure TBasicVehicleFactory.Initialize;
 begin
   fHatAngle := random(360);
+  fProduction := TUnitProduction.Create(self);
 end;
 
 procedure TBasicVehicleFactory.SureDraw(const aScroll: TMapScrollManager);
-
-  function DrawX: single;
-  begin
-    result := aScroll.TileWidth * fLeftTopCell.X - aScroll.ViewLeft;
-  end;
-
-  function DrawY: single;
-  begin
-    result := aScroll.TileHeight * fLeftTopCell.Y - aScroll.ViewTop;
-  end;
-
 begin
   with aScroll do
   begin
-    ssprite2d_Draw(MyType.Texture,
-      DrawX,
-      DrawY,
+    ssprite2d_Draw(
+      MyType.Texture,
+      aScroll.ScreenX(LeftTopCell^),
+      aScroll.ScreenY(LeftTopCell^),
       TileWidth * 3,
       TileHeight * 2,
       0);
-    ssprite2d_Draw(MyType.HatTexture,
-      DrawX + TileWidth,
-      DrawY + TileHeight / 2,
+    ssprite2d_Draw(
+      MyType.HatTexture,
+      aScroll.ScreenX(LeftTopCell^) + TileWidth,
+      aScroll.ScreenY(LeftTopCell^) + TileHeight / 2,
       TileWidth,
       TileHeight,
       HatAngle
     );
   end;
+  Production.Draw(aScroll);
+end;
+
+procedure TBasicVehicleFactory.Finalize;
+begin
+  FreeAndNil(fProduction);
 end;
 
 procedure TBasicVehicleFactory.Update(const aTime: double);
 begin
   fHatAngle += HatSpeed * aTime;
+  Production.Update(aTime);
+end;
+
+destructor TBasicVehicleFactory.Destroy;
+begin
+  Finalize;
+  inherited Destroy;
 end;
 
 { TBasicVehicleFactoryType }

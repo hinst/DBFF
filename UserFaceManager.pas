@@ -61,6 +61,7 @@ type
     procedure Draw;
     procedure Update(const aTime: double);
     procedure ReceiveInput(const aTime: double);
+    procedure UserConstructBasicTank;
     destructor Destroy; override;
   end;
 
@@ -200,6 +201,32 @@ begin
   if Level <> nil then
     ProcessLevelInput(aTime);
 end;
+
+procedure TUserFace.UserConstructBasicTank;
+{$DEFINE DEBUG_THIS}
+  procedure LogWrite(const aText: string);
+  begin
+    {$IFDEF DEBUG_THIS}
+    Log.Write(aText);
+    {$ENDIF}
+  end;
+
+var
+  u: IMapUnit;
+
+begin
+  LogWrite('UserConstructBasicTank called');
+  if SelectedUnits.Count = 0 then
+  begin
+    LogWrite('Selected is nothing');
+    exit;
+  end;
+  for u in SelectedUnits do
+  begin
+
+  end;
+end;
+{$UNDEF DEBUG_THIS}
 
 destructor TUserFace.Destroy;
 begin

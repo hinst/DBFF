@@ -43,7 +43,7 @@
         <PackageName Value="UltimateLibrary"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="40">
+    <Units Count="41">
       <Unit0>
         <Filename Value="DBFF_Project.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -243,6 +243,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="BasicTankUnit"/>
       </Unit39>
+      <Unit40>
+        <Filename Value="MapUnits\UnitProduction.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UnitProduction"/>
+      </Unit40>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

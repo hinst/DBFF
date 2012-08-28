@@ -53,6 +53,8 @@ type
     fDesiredTowerAngle: TAngle360;
     function GetMyType: TAbstractTankType;
     function GetOccupatedCells: TCellNumbers;
+    function GetUnitWidth: integer; override;
+    function GetUnitHeight: integer; override;
     procedure Initialize;
     procedure SureDraw(const aScroll: TMapScrollManager); override;
   public
@@ -112,10 +114,22 @@ begin
   result[0].Assign(LeftTopCell^);
 end;
 
+function TAbstractTank.GetUnitWidth: integer;
+begin
+  result := 1;
+end;
+
+function TAbstractTank.GetUnitHeight: integer;
+begin
+  result := 1;
+end;
+
 procedure TAbstractTank.Initialize;
 begin
   TowerAngle.Random;
   DesiredTowerAngle.Random;
+  BodyAngle.Random;
+  DesiredBodyAngle.Random;
 end;
 
 procedure TAbstractTank.SureDraw(const aScroll: TMapScrollManager);

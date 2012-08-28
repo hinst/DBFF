@@ -71,6 +71,8 @@ begin
   LoadTerrainMap;
   Log.Write('Loading test level: loading basic building types...');
   aLevel.UnitManager.LoadBasicBuildingTypes;
+  Log.Write('Loading test level: loading basic vehicle types');
+  aLevel.UnitManager.LoadBasicVehicleTypes;
   Log.Write('Loading test level: Creating basic vehicle factory...');
   aLevel.UnitManager.AddBasicVehicleFactory(7, 0);
   aLevel.UnitManager.AddBasicVehicleFactory(3, 4);
@@ -83,6 +85,8 @@ begin
   aLevel.UnitManager.AddBasicSingleTurret(6, 1);
   aLevel.UnitManager.AddBasicSingleTurret(8, 2);
   aLevel.UnitManager.AddBasicSingleTurret(9, 2);
+  Log.Write('Loading test level: Creating basic tanks...');
+  aLevel.UnitManager.AddBasicTank(1, 1);
   Log.Write('Loading test level - Done.');
 end;
 
