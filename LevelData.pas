@@ -113,15 +113,16 @@ end;
 function TLevelData.GetTerrainTypeByColor(const aColor: LongWord): TTerrainType;
 var
   i: integer;
-  terrains: TTerrains;
 begin
-  terrains := TerrainManager.Terrains; // direct access
-  if Length(Terrains) = 0 then
-    raise EUnassigned.Create('Terrains');
-  for i := 0 to Length(TerrainManager.Terrains) - 1 do
-    if TerrainManager.Terrains[i].Color = aColor then
-      exit(TerrainManager.Terrains[i].id);
-  exit(-1);
+  result := -1;
+  if TerrainManager.TerrainsCount = 0 then
+    Log.Write('No terrains');
+  for i := 0 to TerrainManager.TerrainsCount - 1 do
+    if TerrainManager.Terrains[i]^.Color = aColor then
+    begin
+      result := TerrainManager.Terrains[i]^.id;
+      break;
+    end;
 end;
 
 procedure TLevelData.MapColors(var aMap: TCells.TMatrix;

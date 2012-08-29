@@ -7,12 +7,12 @@ interface
 uses
   Classes,
   SysUtils,
-  Common,
 
   zgl_textures,
 
   ZenGLFCLGraphics,
 
+  Common,
   MapDataFace,
   TerrainManagerFace;
 
@@ -34,13 +34,15 @@ type
     destructor Done;
   end;
 
+  PTerrain = ^TTerrain;
+
   TTerrains = array of TTerrain;
 
   ITerrainManagerE = interface(ITerrainManager) ['ITerrainManagerE']
     function GetMasks: TMultiTexture;
     property Masks: TMultiTexture read GetMasks;
-    function GetTerrains: TTerrains;
-    property Terrains: TTerrains read GetTerrains;
+    function GetTerrain(const aIndex: integer): PTerrain;
+    property Terrains[const aIndex: integer]: PTerrain read GetTerrain;
   end;
 
 implementation

@@ -18,7 +18,7 @@ uses
   UnitFactoryFace,
   MapUnit,
   MapDataFace,
-  MapScrollManager,
+  MapScrollManagerFace,
   BuildingUnit,
   UnitProduction,
   EngineManagerFace;
@@ -61,8 +61,8 @@ type
     property HatAngle: single read fHatAngle;
     property Production: TUnitProduction read fProduction;
     property MyType: TBasicVehicleFactoryType read GetMyType;
-    procedure Draw(const aScroll: TMapScrollManager);
-    procedure DrawTopLayer(const aScroll: TMapScrollManager);
+    procedure Draw(const aScroll: IMapScrollManager); override;
+    procedure DrawTopLayer(const aScroll: IMapScrollManager); override;
     procedure Update(const aTime: double);
     destructor Destroy; override;
   end;
@@ -128,7 +128,7 @@ begin
   FreeAndNil(fProduction);
 end;
 
-procedure TBasicVehicleFactory.Draw(const aScroll: TMapScrollManager);
+procedure TBasicVehicleFactory.Draw(const aScroll: IMapScrollManager);
 begin
   if not IsVisible(aScroll) then exit;
   with aScroll do
@@ -151,7 +151,7 @@ begin
   end;
 end;
 
-procedure TBasicVehicleFactory.DrawTopLayer(const aScroll: TMapScrollManager);
+procedure TBasicVehicleFactory.DrawTopLayer(const aScroll: IMapScrollManager);
 begin
   Production.Draw(aScroll);
 end;

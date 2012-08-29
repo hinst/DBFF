@@ -6,13 +6,15 @@ unit UnitManagerFace;
 interface
 
 uses
+  NiceInterfaces,
+
   BuildingUnitFaceA;
 
 type
 
   { IUnitManager }
 
-  IUnitManager = interface
+  IUnitManager = interface(IReversible) ['IUnitManager']
     {$REGION Buildings}
     procedure LoadBasicBuildingTypes;
     procedure AddBasicVehicleFactory(const aX, aY: integer);

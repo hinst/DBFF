@@ -20,7 +20,7 @@ uses
   EngineManagerFace,
   MapUnitFace,
   MapDataFace,
-  MapScrollManager,
+  MapScrollManagerFace,
   TerrainManagerFaceE;
 
 type
@@ -61,7 +61,7 @@ type
     fLastTimeVisible: boolean;
     function GetLeftTopCell: PCellNumber;
     function GetGraphicalRect: zglPRect;
-    function GetTerrainPossible(const aTerrain: TTerrain): boolean; virtual;
+    function GetTerrainPossible(const aTerrain: PTerrain): boolean; virtual;
     function Reverse: TObject;
     function GetUnitWidth: integer; virtual; abstract;
     function GetUnitHeight: integer; virtual; abstract;
@@ -75,10 +75,10 @@ type
     property LastTimeVisible: boolean read fLastTimeVisible;
     property UnitWidth: integer read GetUnitWidth;
     property UnitHeight: integer read GetUnitHeight;
-    procedure UpdateGraphicalRect(const aScroll: TMapScrollManager);
-    function IsVisible(const aScroll: TMapScrollManager): boolean;
-    procedure Draw(const aScroll: TMapScrollManager);
-    procedure DrawTopLayer(const aScroll: TMapScrollManager);
+    procedure UpdateGraphicalRect(const aScroll: IMapScrollManager);
+    function IsVisible(const aScroll: IMapScrollManager): boolean;
+    procedure Draw(const aScroll: IMapScrollManager); virtual;
+    procedure DrawTopLayer(const aScroll: IMapScrollManager); virtual;
     destructor Destroy; override;
   end;
 
@@ -136,7 +136,7 @@ begin
   result := @fGraphicalRect;
 end;
 
-function TMapUnit.GetTerrainPossible(const aTerrain: TTerrain): boolean;
+function TMapUnit.GetTerrainPossible(const aTerrain: PTerrain): boolean;
 begin
   result := false;
 end;
@@ -157,7 +157,7 @@ begin
   FreeLog(fLog);
 end;
 
-procedure TMapUnit.UpdateGraphicalRect(const aScroll: TMapScrollManager);
+procedure TMapUnit.UpdateGraphicalRect(const aScroll: IMapScrollManager);
 begin
   GraphicalRect^.X := LeftTopCell^.X * aScroll.TileWidth;
   GraphicalRect^.Y := LeftTopCell^.Y * aScroll.TileHeight;
@@ -165,7 +165,7 @@ begin
   GraphicalRect^.H := UnitHeight * aScroll.TileHeight;
 end;
 
-function TMapUnit.IsVisible(const aScroll: TMapScrollManager): boolean;
+function TMapUnit.IsVisible(const aScroll: IMapScrollManager): boolean;
 var
   cell: TCellNumber;
   cells: TCellNumbers;
@@ -189,11 +189,11 @@ begin
   result := visible;
 end;
 
-procedure TMapUnit.Draw(const aScroll: TMapScrollManager);
+procedure TMapUnit.Draw(const aScroll: IMapScrollManager);
 begin
 end;
 
-procedure TMapUnit.DrawTopLayer(const aScroll: TMapScrollManager);
+procedure TMapUnit.DrawTopLayer(const aScroll: IMapScrollManager);
 begin
 end;
 

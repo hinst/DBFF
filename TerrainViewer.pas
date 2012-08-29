@@ -429,12 +429,12 @@ procedure TTerrainView.DrawTerrainLayer(const aX, aY: integer; const aXD, aYD: s
 var
   typee: TTerrainType;
   texture: zglPTexture;
-  t: TTerrain;
+  t: PTerrain;
   isAnyFraming: boolean;
 begin
   typee := Matrix[aX, aY].typee;
   t := Terrain.Terrains[typee];
-  texture := t.Texture;
+  texture := t^.Texture;
   if texture = nil then
     exit;
   isAnyFraming := ProcessFraming(aX, aY, aXD, aYD);
@@ -474,7 +474,7 @@ procedure TTerrainView.DrawWithoutFraming(const aF: PDrawFraming);
 var
   texture: zglPTexture;
 begin
-  texture := Terrain.Terrains[aF^.typee].Texture;
+  texture := Terrain.Terrains[aF^.typee]^.Texture;
   ssprite2d_Draw(texture, aF^.xD, aF^.yD, TileWidth, TileHeight, 0);
 end;
 
@@ -534,13 +534,13 @@ const
   end;
 
 var
-  t: TTerrain;
+  t: PTerrain;
   bottomTexture: zglPTexture;
   cmi: PCellMaskInfo;
 
 begin
   t := Terrain.Terrains[aF^.typee];
-  DrawBottomCellTexture(t.Texture);
+  DrawBottomCellTexture(t^.Texture);
   if aF^.cmi^.Up <> -1 then
   begin
     OverlapDebugMessage('Up', aF^.cmi^.UpT, aF^.cmi^.Up);
@@ -584,7 +584,7 @@ begin
   rtarget_Set(FramingTexture);
   Engine.DirectCleanTexture(FramingTexture);
   asprite2d_Draw(MaskTexture, 0, 0, TileWidth, TileHeight, aAngle, aMaskIndex);
-  texture := Terrain.Terrains[aTerrainType].Texture;
+  texture := Terrain.Terrains[aTerrainType]^.Texture;
   fx_SetBlendMode(FX_BLEND_MULT, false);
   ssprite2d_Draw(texture, 0, 0, TileWidth, TileHeight, 0);
   fx_SetBlendMode(FX_BLEND_NORMAL);

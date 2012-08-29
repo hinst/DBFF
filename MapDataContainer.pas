@@ -26,6 +26,7 @@ type
   public
     property Cells: TCells read fCells;
     property NearbyCells[const aCells: TCellNumbers]: TCellNumbers read GetNearbyCells;
+    procedure RemoveNonExistingCells(var aInput: TCellNumberList);
     destructor Destroy; override;
   end;
 
@@ -52,8 +53,13 @@ end;
 function TMapData.GetNearbyCells(const aCells: TCellNumbers): TCellNumbers;
 var
   list: TCellNumberList;
+  i: integer;
 begin
   list := FindBoundaryCells(aCells);
+  RemoveNonExistingCells(list);
+  SetLength(result, list.Size);
+  for i := 0 to list.Size - 1 do
+    result[i] := list[i];
   list.Free;
 end;
 
@@ -61,6 +67,23 @@ procedure TMapData.Finalize;
 begin
   if Assigned(Cells) then
     FreeAndNil(fCells);
+end;
+
+procedure TMapData.RemoveNonExistingCells(var aInput: TCellNumberList);
+var
+  result: TCellNumberList;
+  i: integer;
+  cell: TCellNumber;
+begin
+  result := TCellNumberList.Create;
+  for i := 0 to aInput.Size - 1 do
+  begin
+    cell := aInput[i];
+    if Cells.CellExists[cell.X, cell.Y] then
+      result.PushBack(cell);
+  end;
+  aInput.Free;
+  aInput := result;
 end;
 
 destructor TMapData.Destroy;

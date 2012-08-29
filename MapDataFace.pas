@@ -33,6 +33,7 @@ type
     property Y: integer read fY write fY;
     procedure Assign(const a: TCellNumber);
     function IsNegative: boolean;
+    class function Negative: TCellNumber;
     function Equals(const aX, aY: integer): boolean;
     function Equals(const aCell: TCellNumber): boolean;
     procedure SetXY(const aX, aY: integer);
@@ -40,6 +41,7 @@ type
     function Down: TCellNumber;
     function Left: TCellNumber;
     function Right: TCellNumber;
+    function ToText: string;
   end;
 
   TCellNumbers = array of TCellNumber;
@@ -53,6 +55,8 @@ type
   IMapData = interface
     function GetCells: TCells;
     property Cells: TCells read GetCells;
+    function GetNearbyCells(const aCells: TCellNumbers): TCellNumbers;
+    property NearbyCells[const aCells: TCellNumbers]: TCellNumbers read GetNearbyCells;
   end;
 
   TCellNumbersOperation = (cnTop, cnBottom, cnLeft, cnRight);
@@ -65,6 +69,14 @@ operator in (const aCell: TCellNumber; const aCells: TCellNumbers): boolean;
 
 function FindBoundaryCells(const aCells: TCellNumbers): TCellNumberList;
 
+function Contains(const aCells: TCellNumbers; const aCell: TCellNumber): boolean;
+
+operator := (const aCell: TCellNumber): string;
+
+operator + (const aText: string; const aCell: TCellNumber): string;
+
+function ToText(const aCells: TCellNumbers): string;
+
 implementation
 
 operator = (const aCell, bCell: TCellNumber): boolean;
@@ -73,13 +85,8 @@ begin
 end;
 
 operator in(const aCell: TCellNumber; const aCells: TCellNumbers): boolean;
-var
-  cell: TCellNumber;
 begin
-  result := false;
-  for cell in aCells do
-    if cell = aCell then
-      result := true;
+  result := Contains(aCells, aCell);
 end;
 
 function FindBoundaryCells(const aCells: TCellNumbers): TCellNumberList;
@@ -102,6 +109,36 @@ begin
   result := list;
 end;
 
+function Contains(const aCells: TCellNumbers; const aCell: TCellNumber
+  ): boolean;
+var
+  cell: TCellNumber;
+begin
+  result := false;
+  for cell in aCells do
+    if cell.Equals(aCell) then
+      result := true;
+end;
+
+operator := (const aCell: TCellNumber): string;
+begin
+  result := aCell.ToText;
+end;
+
+operator + (const aText: string; const aCell: TCellNumber): string;
+begin
+  result := aText + string(aCell);
+end;
+
+function ToText(const aCells: TCellNumbers): string;
+var
+  cell: TCellNumber;
+begin
+  result := ' ';
+  for cell in aCells do
+    result += cell.ToText + ' ';
+end;
+
 { TCellNumber }
 
 procedure TCellNumber.Assign(const a: TCellNumber);
@@ -112,7 +149,12 @@ end;
 
 function TCellNumber.IsNegative: boolean;
 begin
-  result := (X > 0) or (Y > 0);
+  result := (X < 0) or (Y < 0);
+end;
+
+class function TCellNumber.Negative: TCellNumber;
+begin
+  result.SetXY(-1, -1);
 end;
 
 function TCellNumber.Equals(const aX, aY: integer): boolean;
@@ -149,6 +191,14 @@ end;
 function TCellNumber.Right: TCellNumber;
 begin
   result.SetXY(X + 1, Y);
+end;
+
+function TCellNumber.ToText: string;
+begin
+  if IsNegative then
+    result := '(N, E)'
+  else
+    result := '(' + IntToStr(X) + ', ' + IntToStr(Y) + ')';
 end;
 
 end.

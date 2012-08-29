@@ -44,7 +44,8 @@ type
     procedure LoadTerrainsFromList(const aFile: TIniFile; const aList: TStrings);
     procedure LoadTerrain(var aTerrain: TTerrain; const aFile: TIniFile);
     procedure LoadTerrainTexture(var aTerrain: TTerrain; const aFile: TIniFile);
-    function GetTerrains: TTerrains;
+    function GetTerrain(const aIndex: integer): PTerrain;
+    function GetTerrainsCount: integer;
     procedure ReleaseTerrains;
     procedure LoadMasks(const aFile: TIniFile);
     function GetMasks: TMultiTexture;
@@ -56,7 +57,8 @@ type
     CommonSection = 'common';
   public
     property Log: ILog read fLog;
-    property Terrains: TTerrains read fTerrains;
+    property Terrains[const aIndex: integer]: PTerrain read GetTerrain;
+    property TerrainsCount: integer read GetTerrainsCount;
     property Masks: TMultiTexture read fMasks;
     property Engine: IEngineManager read fEngine;
     procedure LoadTerrains(const aFileName: string);
@@ -93,9 +95,9 @@ begin
   SetLength(fTerrains, aList.Count);
   for i := 0 to aList.Count - 1 do
   begin
-    Terrains[i].Init;
-    Terrains[i].Name := aList[i];
-    Terrains[i].id := i;
+    Terrains[i]^.Init;
+    Terrains[i]^.Name := aList[i];
+    Terrains[i]^.id := i;
     LoadTerrain(fTerrains[i], aFile);
   end;
 end;
@@ -149,8 +151,8 @@ procedure TTerrainManager.ReleaseTerrains;
 var
   i: integer;
 begin
-  for i := 0 to Length(Terrains) - 1 do
-    Terrains[i].Done;
+  for i := 0 to TerrainsCount - 1 do
+    fTerrains[i].Done;
   SetLength(fTerrains, 0);
 end;
 
@@ -244,24 +246,31 @@ begin
   end;
 end;
 
-function TTerrainManager.GetTerrains: TTerrains;
+function TTerrainManager.GetTerrain(const aIndex: integer): PTerrain;
 begin
-  result := fTerrains;
+  result := nil;
+  AssertIndexInBounds(0, aIndex, TerrainsCount - 1, 'Terrain type out of bounds');
+  result := @ ( fTerrains[aIndex] );
+end;
+
+function TTerrainManager.GetTerrainsCount: integer;
+begin
+  result := Length(fTerrains);
 end;
 
 function TTerrainManager.GetTerrainsInfoAsText: string;
 var
   i: integer;
 begin
-  result := 'Terrain types: ' + IntToStr(Length(Terrains)) + ' items total';
-  for i := 0 to Length(Terrains) - 1 do
-    result += LineEnding + Terrains[i].ToText;
+  result := 'Terrain types: ' + IntToStr(Length(fTerrains)) + ' items total';
+  for i := 0 to TerrainsCount - 1 do
+    result += LineEnding + Terrains[i]^.ToText;
 end;
 
 function TTerrainManager.GetTypeColor(const aType: TTerrainType): LongWord;
 begin
-  AssertIndexInBounds(0, aType, Length(Terrains) - 1, 'No such terrain type');
-  result := Terrains[aType].Color;
+  AssertIndexInBounds(0, aType, TerrainsCount - 1, 'No such terrain type');
+  result := Terrains[aType]^.Color;
 end;
 
 function TTerrainManager.Reverse: TObject;

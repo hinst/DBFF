@@ -23,7 +23,6 @@ type
   end;
 
   TBasicSingleTurret = class(TAbstractTurret)
-
   end;
 
 implementation

@@ -16,7 +16,7 @@ uses
   MapUnitFace,
   MapUnit,
   MapDataFace,
-  MapScrollManager,
+  MapScrollManagerFace,
   VehicleUnit,
   TerrainManagerFaceE
   ;
@@ -56,7 +56,7 @@ type
     function GetOccupatedCells: TCellNumbers;
     function GetUnitWidth: integer; override;
     function GetUnitHeight: integer; override;
-    function GetTerrainPossible(const aTerrain: TTerrain): boolean; override;
+    function GetTerrainPossible(const aTerrain: PTerrain): boolean; override;
     procedure Initialize;
   public
     property BodyAngle: TAngle360 read fBodyAngle;
@@ -64,7 +64,7 @@ type
     property TowerAngle: TAngle360 read fTowerAngle;
     property DesiredTowerAngle: TAngle360 read fDesiredTowerAngle;
     property MyType: TAbstractTankType read GetMyType;
-    procedure Draw(const aScroll: TMapScrollManager);
+    procedure Draw(const aScroll: IMapScrollManager); override;
     procedure Update(const aTime: double);
   end;
 
@@ -126,9 +126,9 @@ begin
   result := 1;
 end;
 
-function TAbstractTank.GetTerrainPossible(const aTerrain: TTerrain): boolean;
+function TAbstractTank.GetTerrainPossible(const aTerrain: PTerrain): boolean;
 begin
-  result := aTerrain.Vehicleable;
+  result := aTerrain^.Vehicleable;
 end;
 
 procedure TAbstractTank.Initialize;
@@ -139,7 +139,7 @@ begin
   DesiredBodyAngle.Random;
 end;
 
-procedure TAbstractTank.Draw(const aScroll: TMapScrollManager);
+procedure TAbstractTank.Draw(const aScroll: IMapScrollManager);
 begin
   if not IsVisible(aScroll) then exit;
   with aScroll do

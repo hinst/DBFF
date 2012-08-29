@@ -1,6 +1,7 @@
 unit UnitManager;
 
 {$mode objfpc}{$H+}
+{$DEFINE HYPER_INLINE}
 
 interface
 
@@ -17,12 +18,13 @@ uses
 
   Common,
   UnitManagerFace,
+  UnitManagerExtendedFace,
   BuildingUnit,
   BuildingUnitFaceA,
   MapUnit,
   MapUnitFace,
   MapDataFace,
-  MapScrollManager,
+  MapScrollManagerFace,
   VehicleUnit,
   {$REGION Map units}
   BasicVehicleFactoryUnit,
@@ -42,7 +44,7 @@ type
   { TUnitManager
     Manages and draws units.
   }
-  TUnitManager = class(TComponent, IUnitManager)
+  TUnitManager = class(TComponent, IUnitManager, IUnitManagerExtended)
   public
     constructor Create(const aOwner: TComponent); reintroduce;
   private
@@ -50,14 +52,16 @@ type
     fMapUnits: TIMapUnits;
     fBuildingTypes: TBuildingTypes;
     fVehicleTypes: TVehicleTypes;
-    fScroll: TMapScrollManager;
+    fScroll: IMapScrollManager;
     fMap: IMapData;
     function GetUnitAtWindowPoint(const aX, aY: integer): IMapUnit;
     procedure Initialize;
+    function Reverse: TObject;
     procedure ReleaseUnits;
     procedure ReleaseBuildingTypes;
     procedure ReleaseVehicleTypes;
     procedure MarkBusyCells(const aUnit: IMapUnit);
+      {$IFDEF HYPER_INLINE} inline; {$ENDIF}
     procedure Finalize;
   public
     property Log: ILog read fLog;
@@ -65,7 +69,7 @@ type
     property BuildingTypes: TBuildingTypes read fBuildingTypes;
     property VehicleTypes: TVehicleTypes read fVehicleTypes;
       // this property should be assigned
-    property Scroll: TMapScrollManager read fScroll write fScroll;
+    property Scroll: IMapScrollManager read fScroll write fScroll;
       // this property should be assigned
     property Map: IMapData read fMap write fMap;
     property UnitAtWindowPoint[const x, y: integer]: IMapUnit read GetUnitAtWindowPoint;
@@ -75,13 +79,16 @@ type
     procedure LoadBasicVehicleTypes;
     procedure Draw;
     procedure Update(const aTime: double);
-    procedure AddUnit(const aUnit: TMapUnit);
     procedure AddBuilding(const aClass: TBuildingClass; const aType: TBuildingTypeClass;
       const aX, aY: integer);
-    procedure AddVehicle(const aClass: TVehicleClass; const aType: TVehicleTypeClass;
+    function CreateVehicle(const aClass: TVehicleClass; const aType: TVehicleTypeClass): TVehicle;
+      {$IFDEF HYPER_INLINE} inline; {$ENDIF}
+    procedure AddUnit(const aUnit: IMapUnit; const aX, aY: integer);
+    procedure CreateAddVehicle(const aClass: TVehicleClass; const aType: TVehicleTypeClass;
       const aX, aY: integer);
     function FindBuildingType(const aClass: TBuildingTypeClass): TBuildingType;
     function FindVehicleType(const aClass: TVehicleTypeClass): TVehicleType;
+      {$IFDEF HYPER_INLINE} inline; {$ENDIF}
     procedure AddBasicVehicleFactory(const aX, aY: integer);
     procedure AddBasicGunTurret(const aX, aY: integer);
     procedure AddBasicSingleTurret(const aX, aY: integer);
@@ -136,6 +143,11 @@ begin
   fBuildingTypes := TBuildingTypes.Create;
   fVehicleTypes := TVehicleTypes.Create;
   fMapUnits := TIMapUnits.Create;
+end;
+
+function TUnitManager.Reverse: TObject;
+begin
+  result := self;
 end;
 
 procedure TUnitManager.ReleaseUnits;
@@ -242,13 +254,6 @@ begin
     u.Update(aTime);
 end;
 
-procedure TUnitManager.AddUnit(const aUnit: TMapUnit);
-begin
-  Assert(aUnit is IMapUnit);
-  MapUnits.Add(aUnit as IMapUnit);
-  MarkBusyCells(aUnit as IMapUnit);
-end;
-
 procedure TUnitManager.AddBuilding(const aClass: TBuildingClass;
   const aType: TBuildingTypeClass; const aX, aY: integer);
 var
@@ -258,23 +263,36 @@ begin
   t := FindBuildingType(aType);
   AssertAssigned(t, aType.ClassName);
   u := aClass.Create(t);
-  u.LeftTopCell^.SetXY(aX, aY);
-  u.UpdateGraphicalRect(Scroll);
-  AddUnit(u);
+  AddUnit(u as IMapUnit, aX, aY);
 end;
 
-procedure TUnitManager.AddVehicle(const aClass: TVehicleClass;
-  const aType: TVehicleTypeClass; const aX, aY: integer);
+function TUnitManager.CreateVehicle(const aClass: TVehicleClass;
+  const aType: TVehicleTypeClass): TVehicle;
 var
   t: TVehicleType;
-  u: TVehicle;
 begin
   t := FindVehicleType(aType);
   AssertAssigned(t, aType.ClassName);
-  u := aClass.Create(t);
-  u.LeftTopCell^.SetXY(aX, aY);
-  u.UpdateGraphicalRect(Scroll);
-  AddUnit(u);
+  result := aClass.Create(t);
+end;
+
+procedure TUnitManager.AddUnit(const aUnit: IMapUnit; const aX,
+  aY: integer);
+begin
+  AssertArgumentAssigned(aUnit, 'aUnit');
+  aUnit.LeftTopCell^.SetXY(aX, aY);
+  aUnit.UpdateGraphicalRect(Scroll);
+  MapUnits.Add(aUnit);
+  MarkBusyCells(aUnit);
+end;
+
+procedure TUnitManager.CreateAddVehicle(const aClass: TVehicleClass;
+  const aType: TVehicleTypeClass; const aX, aY: integer);
+var
+  u: TVehicle;
+begin
+  u := CreateVehicle(aClass, aType);
+  AddUnit(u as IMapUnit, aX, aY);
 end;
 
 function TUnitManager.FindBuildingType(const aClass: TBuildingTypeClass): TBuildingType;
@@ -321,7 +339,7 @@ end;
 
 procedure TUnitManager.AddBasicTank(const aX, aY: integer);
 begin
-  AddVehicle(TBasicTank, TBasicTankType, aX, aY);
+  CreateAddVehicle(TBasicTank, TBasicTankType, aX, aY);
 end;
 
 destructor TUnitManager.Destroy;

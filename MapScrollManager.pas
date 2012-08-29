@@ -17,6 +17,7 @@ uses
   LogEntity,
 
   Common,
+  MapScrollManagerFace,
   MapDataFace,
   TerrainViewerFace;
 
@@ -24,7 +25,7 @@ type
 
   { TMapScrollManager }
 
-  TMapScrollManager = class
+  TMapScrollManager = class(IMapScrollManager)
   public
     constructor Create;
   private
@@ -35,6 +36,8 @@ type
     fTileWidth, fTileHeight: integer;
     fFieldWidth, fFieldHeight: single;
     fDisplayCellInfo: boolean;
+    function GetTileWidth: single;
+    function GetTileHeight: single;
     function GetViewLeft: single;
     function GetViewTop: single;
     function GetViewRight: single;
@@ -90,6 +93,16 @@ constructor TMapScrollManager.Create;
 begin
   inherited Create;
   Initialize(nil);
+end;
+
+function TMapScrollManager.GetTileWidth: single;
+begin
+  result := fTileWidth;
+end;
+
+function TMapScrollManager.GetTileHeight: single;
+begin
+  result := fTileHeight;
 end;
 
 function TMapScrollManager.GetViewLeft: single;

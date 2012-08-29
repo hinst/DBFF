@@ -17,7 +17,7 @@ uses
   MapUnitFace,
   MapUnit,
   MapDataFace,
-  MapScrollManager,
+  MapScrollManagerFace,
   BuildingUnit;
 
 
@@ -60,7 +60,7 @@ type
     property DesiredTowerAngle: TAngle360 read fDesiredTowerAngle;
     property IdleChangeAngleTimeLeft: single read fIdleChangeAngleTimeLeft;
     property MyType: TAbstractTurretType read GetMyType;
-    procedure Draw(const aScroll: TMapScrollManager);
+    procedure Draw(const aScroll: IMapScrollManager); override;
     procedure Update(const aTime: double);
   end;
 
@@ -142,7 +142,7 @@ begin
 end;
 {$UNDEF DEBUG_THIS_PROCEDURE}
 
-procedure TAbstractTurret.Draw(const aScroll: TMapScrollManager);
+procedure TAbstractTurret.Draw(const aScroll: IMapScrollManager);
 begin
   if not IsVisible(aScroll) then exit;
   with aScroll do

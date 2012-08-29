@@ -35,9 +35,10 @@ uses
   BuildingUnit, BuildingUnitFaceA, DefaultLevel, BasicVehicleFactoryUnit,
   GameManagerFace, MapViewerFace, MapViewer, TerrainManagerFaceE,
   MapScrollManager, UnitViewer, ZenGLShowMeFPS, TerrainViewerFace,
-  UserFaceManager, BasicGunTurretUnit, BasicSingleTurretUnit, 
-AbstractTurretUnit, VehicleUnit, AbstractTankUnit, BasicTankUnit, 
-UnitProduction, UnitFactoryFace;
+  UserFaceManager, BasicGunTurretUnit, BasicSingleTurretUnit,
+  AbstractTurretUnit, VehicleUnit, AbstractTankUnit, BasicTankUnit,
+  UnitProduction, UnitFactoryFace, MapScrollManagerFace,
+  UnitManagerExtendedFace, PathFinder;
 
 type
 

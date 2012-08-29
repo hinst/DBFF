@@ -18,12 +18,14 @@ uses
   LogEntityFace,
 
   Common,
+  UnitManagerFace,
   UnitManager,
   MapUnitFace,
   UnitFactoryFace,
   UnitProduction,
   MapScrollManager,
   ZenGLFCLGraphics,
+  BasicTankUnit,
   LevelData;
 
 type
@@ -36,10 +38,12 @@ type
   private
     fLog: ILog;
     fLevel: TLevelData;
+    fUnitMan: TUnitManager;
     fSelectedUnits: TIMapUnits;
     fSlUnitsGlow: LongWord;
     fSlUnitsGlowSpeed: integer;
     fUpdate100: double;
+    function GetUnitMan: TUnitManager; inline;
     function GetScroll: TMapScrollManager; inline;
     procedure Initialize;
     procedure AssignDefaults;
@@ -56,7 +60,7 @@ type
     property Log: ILog read fLog;
     // This property should be assigned
     property Level: TLevelData read fLevel write fLevel;
-    // This property should be assigned
+    property UnitMan: TUnitManager read GetUnitMan;
     property Scroll: TMapScrollManager read GetScroll;
     property SelectedUnits: TIMapUnits read fSelectedUnits;
     property SlUnitsGlow: LongWord read fSlUnitsGlow;
@@ -75,6 +79,13 @@ constructor TUserFace.Create;
 begin
   inherited Create;
   Initialize;
+end;
+
+function TUserFace.GetUnitMan: TUnitManager;
+begin
+  result := nil;
+  if Level = nil then exit;
+  result := Level.UnitMan;
 end;
 
 function TUserFace.GetScroll: TMapScrollManager;
@@ -237,6 +248,7 @@ begin
     productionItem := TUnitProductionItem.Create;
     productionItem.Progress := 0;
     productionItem.TimeCost := 3000;
+    productionItem.MapUnit := UnitMan.CreateVehicle(TBasicTank, TBasicTankType) as IMapUnit;
     factory.Production.Que.Add(productionItem);
     inc(productionsInitiated);
   end;
