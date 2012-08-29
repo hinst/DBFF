@@ -3,39 +3,39 @@
 ==============================
 [00000000ms] Begin
 [00000001ms] Current mode: 1280 x 1024
-[00000218ms] wglChoosePixelFormatARB: zDepth = 24; stencil = 0; fsaa = 0
-[00000240ms] GL_VERSION: 4.2.0
-[00000240ms] GL_RENDERER: GeForce GT 430/PCIe/SSE2
-[00000240ms] GL_MAX_TEXTURE_SIZE: 16384
-[00000240ms] GL_EXT_TEXTURE_COMPRESSION_S3TC: TRUE
-[00000240ms] GL_SGIS_GENERATE_MIPMAP: TRUE
-[00000240ms] GL_MAX_TEXTURE_UNITS_ARB: 4
-[00000240ms] GL_EXT_TEXTURE_FILTER_ANISOTROPIC: TRUE
-[00000240ms] GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT: 16
-[00000240ms] GL_EXT_BLEND_FUNC_SEPARATE: TRUE
-[00000240ms] GL_MAX_RENDERBUFFER_SIZE: 16384
-[00000240ms] GL_EXT_FRAMEBUFFER_OBJECT: TRUE
-[00000240ms] WGL_PBUFFER: TRUE
-[00000240ms] Support WaitVSync: TRUE
-[00000240ms] Ogg: Initialized
-[00000241ms] Theora: Initialized
-[00001525ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Texture_Rock.png"
-[00001541ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Texture_Desert.png"
-[00001590ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Texture_Water.png"
-[00001607ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Masks\003.1.png"
-[00001675ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Masks\003.1R.png"
-[00001808ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Units\Building_sample3.png"
-[00001858ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Units\BuildingHat1.png"
-[00001874ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Units\GTurretFnd.png"
-[00001923ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Units\GTurretTop.png"
-[00001941ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Units\GTurretFnd.png"
-[00002027ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Units\RTurretTop.png"
-[00003268ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Units\BasicTankBase.png"
-[00004087ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Units\GTurretTop.png"
-[00015005ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Fonts\Consolas-Regular-18pt-page0.tga"
-[00026926ms] Average FPS: 51
-[00026926ms] Timers to free: 1
-[00026926ms] Fonts to free: 1
-[00026927ms] Render Targets to free: 3
-[00026955ms] Textures to free: 95
-[00027106ms] End
+[00000387ms] wglChoosePixelFormatARB: zDepth = 24; stencil = 0; fsaa = 0
+[00000409ms] GL_VERSION: 4.2.0
+[00000409ms] GL_RENDERER: GeForce GT 430/PCIe/SSE2
+[00000410ms] GL_MAX_TEXTURE_SIZE: 16384
+[00000410ms] GL_EXT_TEXTURE_COMPRESSION_S3TC: TRUE
+[00000410ms] GL_SGIS_GENERATE_MIPMAP: TRUE
+[00000410ms] GL_MAX_TEXTURE_UNITS_ARB: 4
+[00000410ms] GL_EXT_TEXTURE_FILTER_ANISOTROPIC: TRUE
+[00000410ms] GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT: 16
+[00000410ms] GL_EXT_BLEND_FUNC_SEPARATE: TRUE
+[00000410ms] GL_MAX_RENDERBUFFER_SIZE: 16384
+[00000410ms] GL_EXT_FRAMEBUFFER_OBJECT: TRUE
+[00000410ms] WGL_PBUFFER: TRUE
+[00000410ms] Support WaitVSync: TRUE
+[00000410ms] Ogg: Initialized
+[00000410ms] Theora: Initialized
+[00002098ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Texture_Rock.png"
+[00002100ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Texture_Desert.png"
+[00002101ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Texture_Water.png"
+[00002102ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Masks\003.1.png"
+[00002109ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Masks\003.1R.png"
+[00002116ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Units\Building_sample3.png"
+[00002117ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Units\BuildingHat1.png"
+[00002118ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Units\GTurretFnd.png"
+[00002119ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Units\GTurretTop.png"
+[00002120ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Units\GTurretFnd.png"
+[00002120ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Units\RTurretTop.png"
+[00002122ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Units\BasicTankBase.png"
+[00002122ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Units\GTurretTop.png"
+[00002486ms] Texture loaded: "C:\Users\hinst\Docs\Pro\DBFF\bin\..\data\Fonts\Consolas-Regular-18pt-page0.tga"
+[00883881ms] Average FPS: 1273
+[00883881ms] Timers to free: 1
+[00883881ms] Fonts to free: 1
+[00883883ms] Render Targets to free: 3
+[00883885ms] Textures to free: 89
+[00883916ms] End

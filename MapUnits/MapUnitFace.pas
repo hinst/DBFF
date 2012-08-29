@@ -14,7 +14,8 @@ uses
   NiceInterfaces,
 
   MapDataFace,
-  MapScrollManager;
+  MapScrollManager,
+  TerrainManagerFaceE;
 
 type
 
@@ -33,6 +34,8 @@ type
     property LeftTopCell: PCellNumber read GetLeftTopCell;
     function GetGraphicalRect: zglPRect;
     property GraphicalRect: zglPRect read GetGraphicalRect;
+    function GetTerrainPossible(const aTerrain: TTerrain): boolean;
+    property TerrainPossible[const aTerrain: TTerrain]: boolean read GetTerrainPossible;
 
     procedure Draw(const aScroll: TMapScrollManager);
     procedure DrawTopLayer(const aScroll: TMapScrollManager);

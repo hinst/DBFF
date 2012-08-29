@@ -11,10 +11,13 @@ uses
 
   zgl_primitives_2d,
 
-  JobThread,
+  NiceExceptions,
 
+  Common,
   MapUnitFace,
-  MapScrollManager;
+  MapDataFace,
+  MapScrollManager,
+  TerrainManagerFaceE;
 
 type
 
@@ -40,6 +43,7 @@ type
   protected
     fFactory: IMapUnit;
     fQue: TUnitProductionList;
+    function GetTerrain: ITerrainManagerE;
     procedure Initialize(const aFactory: IMapUnit);
     procedure Finalize;
   public const
@@ -51,6 +55,7 @@ type
     procedure Update(const aTime: double);
     procedure Draw(const aScroll: TMapScrollManager);
     procedure Complete(const aItem: TUnitProductionItem);
+    function FindFreeCell: TCellNumber;
     destructor Destroy; override;
   end;
 
@@ -62,6 +67,16 @@ constructor TUnitProduction.Create(const aFactory: IMapUnit);
 begin
   inherited Create;
   Initialize(aFactory);
+end;
+
+function TUnitProduction.GetTerrain: ITerrainManagerE;
+var
+  terrainMan: TObject;
+begin
+  terrainMan := GlobalGameManager.Level.Terrain.Reverse;
+  AssertAssigned(terrainMan, 'terrainMan');
+  Assert(terrainMan is ITerrainManagerE, 'terrainMan is ITerrainManagerE');
+  result := terrainMan as ITerrainManagerE;
 end;
 
 procedure TUnitProduction.Initialize(const aFactory: IMapUnit);
@@ -116,6 +131,26 @@ end;
 procedure TUnitProduction.Complete(const aItem: TUnitProductionItem);
 begin
 
+end;
+
+function TUnitProduction.FindFreeCell: TCellNumber;
+var
+  cells: TCellNumbers;
+  iCell: TCellNumber;
+  cell: TCell;
+  map: IMapData;
+  tman: ITerrainManagerE;
+  possible: boolean;
+begin
+  cells := factory.OccupatedCells;
+  map := GlobalGameManager.Level.Map;
+  tman := GetTerrain;
+  possible := false;
+  for iCell in cells do
+  begin
+    cell := map.Cells.Matrix[iCell.X, iCell.Y];
+    possible := Que.First.MapUnit.TerrainPossible[tman.Terrains[cell.typee]];
+  end;
 end;
 
 destructor TUnitProduction.Destroy;

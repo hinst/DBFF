@@ -5,7 +5,8 @@ unit MapDataContainer;
 interface
 
 uses
-  Classes, SysUtils,
+  Classes,
+  SysUtils,
 
   MapDataFace;
 
@@ -20,9 +21,11 @@ type
     fCells: TCells;
     procedure Initialize;
     function GetCells: TCells;
+    function GetNearbyCells(const aCells: TCellNumbers): TCellNumbers;
     procedure Finalize;
   public
     property Cells: TCells read fCells;
+    property NearbyCells[const aCells: TCellNumbers]: TCellNumbers read GetNearbyCells;
     destructor Destroy; override;
   end;
 
@@ -44,6 +47,14 @@ end;
 function TMapData.GetCells: TCells;
 begin
   result := Cells;
+end;
+
+function TMapData.GetNearbyCells(const aCells: TCellNumbers): TCellNumbers;
+var
+  list: TCellNumberList;
+begin
+  list := FindBoundaryCells(aCells);
+  list.Free;
 end;
 
 procedure TMapData.Finalize;

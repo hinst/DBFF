@@ -17,7 +17,8 @@ uses
   MapUnit,
   MapDataFace,
   MapScrollManager,
-  VehicleUnit
+  VehicleUnit,
+  TerrainManagerFaceE
   ;
 
 type
@@ -55,6 +56,7 @@ type
     function GetOccupatedCells: TCellNumbers;
     function GetUnitWidth: integer; override;
     function GetUnitHeight: integer; override;
+    function GetTerrainPossible(const aTerrain: TTerrain): boolean; override;
     procedure Initialize;
   public
     property BodyAngle: TAngle360 read fBodyAngle;
@@ -122,6 +124,11 @@ end;
 function TAbstractTank.GetUnitHeight: integer;
 begin
   result := 1;
+end;
+
+function TAbstractTank.GetTerrainPossible(const aTerrain: TTerrain): boolean;
+begin
+  result := aTerrain.Vehicleable;
 end;
 
 procedure TAbstractTank.Initialize;

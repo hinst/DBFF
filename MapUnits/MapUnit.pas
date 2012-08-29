@@ -12,6 +12,7 @@ uses
   zgl_math_2d,
   zgl_textures,
 
+  NiceExceptions,
   LogEntityFace,
   LogEntity,
 
@@ -19,7 +20,8 @@ uses
   EngineManagerFace,
   MapUnitFace,
   MapDataFace,
-  MapScrollManager;
+  MapScrollManager,
+  TerrainManagerFaceE;
 
 type
 
@@ -59,6 +61,7 @@ type
     fLastTimeVisible: boolean;
     function GetLeftTopCell: PCellNumber;
     function GetGraphicalRect: zglPRect;
+    function GetTerrainPossible(const aTerrain: TTerrain): boolean; virtual;
     function Reverse: TObject;
     function GetUnitWidth: integer; virtual; abstract;
     function GetUnitHeight: integer; virtual; abstract;
@@ -131,6 +134,11 @@ end;
 function TMapUnit.GetGraphicalRect: zglPRect;
 begin
   result := @fGraphicalRect;
+end;
+
+function TMapUnit.GetTerrainPossible(const aTerrain: TTerrain): boolean;
+begin
+  result := false;
 end;
 
 function TMapUnit.Reverse: TObject;

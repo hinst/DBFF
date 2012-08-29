@@ -29,13 +29,14 @@ type
     Name: string;
     Color: LongWord;
     Texture: zglPTexture;
+    Vehicleable: boolean;
     function ToText: string;
     destructor Done;
   end;
 
   TTerrains = array of TTerrain;
 
-  ITerrainManagerE = interface(ITerrainManager)
+  ITerrainManagerE = interface(ITerrainManager) ['ITerrainManagerE']
     function GetMasks: TMultiTexture;
     property Masks: TMultiTexture read GetMasks;
     function GetTerrains: TTerrains;
@@ -59,7 +60,8 @@ end;
 
 function TTerrain.ToText: string;
 begin
-  result := IntToStr(id) + ': ' + Name + '; RC=' + IntToHex(Color, 6);
+  result := IntToStr(id) + ': ' + Name + '; RC=' + IntToHex(Color, 6)
+    + '; VH=' + BoolToStr(Vehicleable, true);
 end;
 
 destructor TTerrain.Done;

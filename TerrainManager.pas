@@ -2,6 +2,7 @@ unit TerrainManager;
 
 {$mode objfpc}{$H+}
 {$INTERFACES CORBA}
+{$DEFINE LOG_WARN_ON_NO_TEXTURE}
 
 interface
 
@@ -50,8 +51,8 @@ type
     procedure Finalize;
   public const
     ColorIdent = 'replacingColor';
+    VehicleableIdent = 'Vehicleable';
     TextureFilePathIdent = 'textureFile';
-    WarnOnNoTexture = true;
     CommonSection = 'common';
   public
     property Log: ILog read fLog;
@@ -204,28 +205,36 @@ procedure TTerrainManager.LoadTerrain(var aTerrain: TTerrain;
   const aFile: TIniFile);
 begin
   aTerrain.Color := StrHexToLongWord(aFile.ReadString(aTerrain.Name, ColorIdent, '000000'));
+  aTerrain.Vehicleable := aFile.ReadBool(aTerrain.Name, VehicleableIdent, false);
   LoadTerrainTexture(aTerrain, aFile);
 end;
 
 procedure TTerrainManager.LoadTerrainTexture(var aTerrain: TTerrain;
   const aFile: TIniFile);
-const
-  DEBUG = true;
+{$DEFINE DEBUG_THIS}
+
+  procedure DebugWrite(const aText: string);
+  begin
+    {$IFDEF DEBUG_THIS}
+    Log.Write(aText);
+    {$ENDIF}
+  end;
+
 var
   textureFilePath: string;
 begin
   textureFilePath := aFile.ReadString(aTerrain.Name, TextureFilePathIdent, '');
   if textureFilePath = '' then
   begin
-    if WarnOnNoTexture then
-      Log.Write('No texture for "' + aTerrain.Name + '" specified');
+    {$IFDEF LOG_WARN_ON_NO_TEXTURE}
+    Log.Write('No texture for "' + aTerrain.Name + '" specified');
+    {$ENDIF}
     aTerrain.Texture := nil;
   end
   else
   begin
-    if DEBUG then
-      Log.Write('Now loading texture for "' + aTerrain.Name + '" from:'
-        + LineEnding + '"' + textureFilePath + '"');
+    DebugWrite('Now loading texture for "' + aTerrain.Name + '" from:'
+      + LineEnding + '"' + textureFilePath + '"');
     textureFilePath := GlobalApplicationPath + textureFilePath;
     if FileExists(textureFilePath) then
       aTerrain.Texture := Engine.LoadTexture(textureFilePath)
