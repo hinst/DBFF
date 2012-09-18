@@ -17,7 +17,6 @@ uses
   StringFeatures,
   LogEntity,
   LogEntityFace,
-  SynchroThread,
   EngineManagerFace,
 
   ZenGLFCLGraphics,
@@ -25,7 +24,7 @@ uses
   Common,
   TerrainManagerFace,
   TerrainManagerFaceE,
-  MapDataFace;
+  MapDataCells;
 
 type
 
@@ -167,7 +166,6 @@ procedure TTerrainManager.LoadTerrains(const aFileName: string);
 var
   ini: TIniFile;
 begin
-  AssertAssigned(self, 'self');
   AssertFileExists(aFileName);
   ini := TIniFile.Create(aFileName);
   LoadTerrains(ini);

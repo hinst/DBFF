@@ -13,6 +13,7 @@ uses
   ZenGLFCLGraphics,
 
   Common,
+  MapDataCells,
   MapDataFace,
   TerrainManagerFace;
 

@@ -1,5 +1,4 @@
 #Write ZenGL libraries specified
--Fu..\ZenGL\zengl-src-0.3.0\src
 -Fu..\ZenGL\zengl-src-0.3.0\lib\jpeg\$FPCTARGET
 -Fu..\ZenGL\zengl-src-0.3.0\lib\msvcrt\$FPCCPU
 -Fu..\ZenGL\zengl-src-0.3.0\lib\ogg\$FPCTARGET

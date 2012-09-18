@@ -8,6 +8,7 @@ uses
   Classes,
   SysUtils,
 
+  MapDataCells,
   MapDataFace;
 
 type
@@ -21,18 +22,17 @@ type
     fCells: TCells;
     procedure Initialize;
     function GetCells: TCells;
-    function GetNearbyCells(const aCells: TCellNumbers): TCellNumbers;
+    function GetContiguousCells(const aCells: TCellNumberArray): TCellNumberVector;
+    function GetSurroundingCells(const aCell: TCellNumber): TCellNumberVector;
+    function GetSurroundingCells(const aCells: TCellNumberArray): TCellNumberVector;
     procedure Finalize;
   public
     property Cells: TCells read fCells;
-    property NearbyCells[const aCells: TCellNumbers]: TCellNumbers read GetNearbyCells;
-    procedure RemoveNonExistingCells(var aInput: TCellNumberList);
+    procedure RemoveNonExistingCells(var aInput: TCellNumberVector);
     destructor Destroy; override;
   end;
 
 implementation
-
-{ TMapData }
 
 constructor TMapData.Create(const aOwner: TComponent);
 begin
@@ -50,17 +50,22 @@ begin
   result := Cells;
 end;
 
-function TMapData.GetNearbyCells(const aCells: TCellNumbers): TCellNumbers;
-var
-  list: TCellNumberList;
-  i: integer;
+function TMapData.GetContiguousCells(const aCells: TCellNumberArray): TCellNumberVector;
 begin
-  list := FindBoundaryCells(aCells);
-  RemoveNonExistingCells(list);
-  SetLength(result, list.Size);
-  for i := 0 to list.Size - 1 do
-    result[i] := list[i];
-  list.Free;
+  result := FindContiguousCells(aCells);
+  RemoveNonExistingCells(result);
+end;
+
+function TMapData.GetSurroundingCells(const aCell: TCellNumber): TCellNumberVector;
+begin
+  result := CreateSurroundingCells(aCell);
+  RemoveNonExistingCells(result);
+end;
+
+function TMapData.GetSurroundingCells(const aCells: TCellNumberArray): TCellNumberVector;
+begin
+  result := FindSurroundingCells(aCells);
+  RemoveNonExistingCells(result);
 end;
 
 procedure TMapData.Finalize;
@@ -69,21 +74,23 @@ begin
     FreeAndNil(fCells);
 end;
 
-procedure TMapData.RemoveNonExistingCells(var aInput: TCellNumberList);
+procedure TMapData.RemoveNonExistingCells(var aInput: TCellNumberVector);
 var
-  result: TCellNumberList;
+  result: TCellNumberVector;
   i: integer;
   cell: TCellNumber;
 begin
-  result := TCellNumberList.Create;
-  for i := 0 to aInput.Size - 1 do
+  result := TCellNumberVector.Create;
+  for i := 0 to aInput.Count - 1 do
   begin
     cell := aInput[i];
     if Cells.CellExists[cell.X, cell.Y] then
-      result.PushBack(cell);
+      result.Add(cell);
   end;
+  {$REGION Replace variable argument with a new list}
   aInput.Free;
   aInput := result;
+  {$ENDREGION}
 end;
 
 destructor TMapData.Destroy;

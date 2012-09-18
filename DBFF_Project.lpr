@@ -27,7 +27,6 @@ uses
   {$ENDREGION}
   NiceExceptions,
 
-  {$REGION Custom units}
   Common, EngineManager, GameManager, MapDataContainer, TerrainManager,
   MapDataFace, TerrainManagerFace, TerrainViewer, LevelData, TestLevel,
   LevelDataFace, LevelLoaderFace, ZenGLFCLGraphics, EngineManagerFace,
@@ -38,7 +37,7 @@ uses
   UserFaceManager, BasicGunTurretUnit, BasicSingleTurretUnit,
   AbstractTurretUnit, VehicleUnit, AbstractTankUnit, BasicTankUnit,
   UnitProduction, UnitFactoryFace, MapScrollManagerFace,
-  UnitManagerExtendedFace, PathFinder;
+  UnitManagerExtendedFace, PathFinder, MapDataCells;
 
 type
 

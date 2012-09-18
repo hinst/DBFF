@@ -25,10 +25,11 @@ uses
   zgl_font,
   {$ENDREGION}
 
+  NiceTypes,
+  NiceExceptions,
   SynchroThread,
   LogEntityFace,
   LogEntity,
-  NiceExceptions,
 
   Common,
   EngineManagerFace,
@@ -149,9 +150,9 @@ begin
   );
   // I dout if every of these procedures should be strictly required
   // Maybe it is better just not to register the handler if it is not assigned
-  AssertArgumentAssigned(Assigned(Load), 'Load');
-  AssertArgumentAssigned(Assigned(Draw), 'Draw');
-  AssertArgumentAssigned(Assigned(Update),'Update');
+  AssertAssigned(Load, 'Load', TVariableType.Propertie);
+  AssertAssigned(Draw, 'Draw', TVariableType.Propertie);
+  AssertAssigned(Update,'Update', TVariableType.Propertie);
   zgl_Reg(SYS_LOAD, Load);
   zgl_Reg(SYS_DRAW, Draw);
   zgl_Reg(SYS_UPDATE, Update);
@@ -287,7 +288,7 @@ end;
 
 procedure TEngineConfig.Read(const aFile: TIniFile);
 begin
-  AssertArgumentAssigned(aFile, 'aFile');
+  AssertAssigned(aFile, 'aFile', TVariableType.Argument);
 
   ScreenWidth := aFile.ReadInteger(Section, ScreenWidthIdent, -1);
   if ScreenWidth = -1 then
@@ -316,7 +317,7 @@ end;
 
 procedure TEngineConfig.Write(const aFile: TIniFile);
 begin
-  AssertArgumentAssigned(aFile, 'aFile');
+  AssertAssigned(aFile, 'aFile', TVariableType.Argument);
   aFile.WriteInteger(Section, ScreenWidthIdent, ScreenWidth);
   aFile.WriteInteger(Section, ScreenHeightIdent, ScreenHeight);
   aFile.WriteBool(Section, FullScreenIdent, FullScreen);

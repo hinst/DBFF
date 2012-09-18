@@ -16,6 +16,7 @@ uses
   Angle360,
   MapUnitFace,
   MapUnit,
+  MapDataCells,
   MapDataFace,
   MapScrollManagerFace,
   BuildingUnit;
@@ -46,7 +47,7 @@ type
     fDesiredTowerAngle: TAngle360;
     fIdleChangeAngleTimeLeft: single;
     function GetMyType: TAbstractTurretType;
-    function GetOccupatedCells: TCellNumbers;
+    function GetOccupatedCells: TCellNumberArray;
     function GetUnitWidth: integer; override;
     function GetUnitHeight: integer; override;
     procedure Initialize;
@@ -99,7 +100,7 @@ begin
   result := UnitType as TAbstractTurretType;
 end;
 
-function TAbstractTurret.GetOccupatedCells: TCellNumbers;
+function TAbstractTurret.GetOccupatedCells: TCellNumberArray;
 begin
   SetLength(result, 1);
   result[0].Assign(fLeftTopCell);

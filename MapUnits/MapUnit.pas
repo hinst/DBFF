@@ -1,7 +1,6 @@
 unit MapUnit;
 
-{$mode objfpc}{$H+}
-//{$DEFINE DEBUG_LOG_VISIBILITY}
+{ $DEFINE DEBUG_LOG_VISIBILITY}
 
 interface
 
@@ -19,6 +18,7 @@ uses
   Common,
   EngineManagerFace,
   MapUnitFace,
+  MapDataCells,
   MapDataFace,
   MapScrollManagerFace,
   TerrainManagerFaceE;
@@ -168,7 +168,7 @@ end;
 function TMapUnit.IsVisible(const aScroll: IMapScrollManager): boolean;
 var
   cell: TCellNumber;
-  cells: TCellNumbers;
+  cells: TCellNumberArray;
   visible: boolean;
 begin
   cells := (self as IMapUnit).OccupatedCells;

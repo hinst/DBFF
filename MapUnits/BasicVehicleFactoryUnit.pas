@@ -17,6 +17,7 @@ uses
   MapUnitFace,
   UnitFactoryFace,
   MapUnit,
+  MapDataCells,
   MapDataFace,
   MapScrollManagerFace,
   BuildingUnit,
@@ -47,7 +48,7 @@ type
     fHatAngle: single;
     fProduction: TUnitProduction;
     function GetMyType: TBasicVehicleFactoryType;
-    function GetOccupatedCells: TCellNumbers;
+    function GetOccupatedCells: TCellNumberArray;
     function GetUnitWidth: integer; override;
     function GetUnitHeight: integer; override;
     function GetProduction: TUnitProduction;
@@ -80,7 +81,7 @@ begin
   result := UnitType as TBasicVehicleFactoryType;
 end;
 
-function TBasicVehicleFactory.GetOccupatedCells: TCellNumbers;
+function TBasicVehicleFactory.GetOccupatedCells: TCellNumberArray;
 begin
   SetLength(result, 6);
   result[0].Assign(fLeftTopCell);

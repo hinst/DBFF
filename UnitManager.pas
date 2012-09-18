@@ -1,8 +1,5 @@
 unit UnitManager;
 
-{$mode objfpc}{$H+}
-{$DEFINE HYPER_INLINE}
-
 interface
 
 uses
@@ -12,6 +9,7 @@ uses
 
   zgl_math_2d,
 
+  NiceTypes,
   NiceExceptions,
   LogEntityFace,
   LogEntity,
@@ -23,6 +21,7 @@ uses
   BuildingUnitFaceA,
   MapUnit,
   MapUnitFace,
+  MapDataCells,
   MapDataFace,
   MapScrollManagerFace,
   VehicleUnit,
@@ -82,13 +81,11 @@ type
     procedure AddBuilding(const aClass: TBuildingClass; const aType: TBuildingTypeClass;
       const aX, aY: integer);
     function CreateVehicle(const aClass: TVehicleClass; const aType: TVehicleTypeClass): TVehicle;
-      {$IFDEF HYPER_INLINE} inline; {$ENDIF}
     procedure AddUnit(const aUnit: IMapUnit; const aX, aY: integer);
     procedure CreateAddVehicle(const aClass: TVehicleClass; const aType: TVehicleTypeClass;
       const aX, aY: integer);
     function FindBuildingType(const aClass: TBuildingTypeClass): TBuildingType;
     function FindVehicleType(const aClass: TVehicleTypeClass): TVehicleType;
-      {$IFDEF HYPER_INLINE} inline; {$ENDIF}
     procedure AddBasicVehicleFactory(const aX, aY: integer);
     procedure AddBasicGunTurret(const aX, aY: integer);
     procedure AddBasicSingleTurret(const aX, aY: integer);
@@ -183,7 +180,7 @@ end;
 procedure TUnitManager.MarkBusyCells(const aUnit: IMapUnit);
 var
   cellNumber: TCellNumber;
-  cells: TCellNumbers;
+  cells: TCellNumberArray;
   cell: PCell;
 begin
   cells := aUnit.OccupatedCells;
@@ -261,7 +258,7 @@ var
   u: TBuilding;
 begin
   t := FindBuildingType(aType);
-  AssertAssigned(t, aType.ClassName);
+  AssertAssigned(t, aType.ClassName, TVariableType.Local);
   u := aClass.Create(t);
   AddUnit(u as IMapUnit, aX, aY);
 end;
@@ -272,14 +269,13 @@ var
   t: TVehicleType;
 begin
   t := FindVehicleType(aType);
-  AssertAssigned(t, aType.ClassName);
+  AssertAssigned(t, aType.ClassName, TVariableType.Local);
   result := aClass.Create(t);
 end;
 
-procedure TUnitManager.AddUnit(const aUnit: IMapUnit; const aX,
-  aY: integer);
+procedure TUnitManager.AddUnit(const aUnit: IMapUnit; const aX, aY: integer);
 begin
-  AssertArgumentAssigned(aUnit, 'aUnit');
+  AssertAssigned(aUnit, 'aUnit', TVariableType.Argument);
   aUnit.LeftTopCell^.SetXY(aX, aY);
   aUnit.UpdateGraphicalRect(Scroll);
   MapUnits.Add(aUnit);

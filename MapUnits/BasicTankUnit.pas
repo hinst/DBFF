@@ -55,7 +55,7 @@ end;
 
 procedure TBasicTankType.AssignDefaults;
 begin
-  fBodySpeed := 360 / 4000;
+  fBodyRotationSpeed := 360 / 4000;
   fTowerSpeed := 360 / 2000;
 end;
 

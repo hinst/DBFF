@@ -18,8 +18,6 @@ type
 
   TVehicleTypeClass = class of TVehicleType;
 
-  { TVehicle }
-
   TVehicle = class(TMapUnit)
   end;
 

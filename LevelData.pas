@@ -16,14 +16,16 @@ uses
   {$ENDREGION}
 
   {$REGION UltimateLibrary units}
+  NiceTypes,
+  NiceExceptions,
   LogEntityFace,
   LogEntity,
-  NiceExceptions,
   {$ENDREGION}
 
   {$REGION Custom units}
   ZenGLFCLGraphics,
   LevelDataFace,
+  MapDataCells,
   MapDataFace,
   MapDataContainer,
   TerrainManagerFace,
@@ -162,8 +164,8 @@ procedure TLevelData.LoadTerrainMapFromImage(const aImage: TFPCustomImage);
 var
   matrix: TCells.TMatrix;
 begin
-  AssertAssigned(Map, 'Map');
-  AssertAssigned(Map.Cells, 'Map.Cells');
+  AssertsAssigned(Map, 'Map', TVariableType.Field)
+    .Assigned(Map.Cells, 'Map.Cells');
   Map.Cells.Reallocate(aImage.Width, aImage.Height);
   matrix := Map.Cells.Matrix; // direct access
   MapColors(matrix, aImage);

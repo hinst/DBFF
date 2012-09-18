@@ -11,6 +11,7 @@ uses
 
   NiceInterfaces,
 
+  MapDataCells,
   MapDataFace;
 
 type

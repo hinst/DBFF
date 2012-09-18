@@ -1,6 +1,5 @@
 unit GameManager;
 
-{$mode objfpc}{$H+}
 {$INTERFACES CORBA}
 
 interface
@@ -16,11 +15,11 @@ uses
   zgl_textures_tga,
   zgl_render_2d,
 
+  NiceTypes,
+  NiceExceptions,
   LogEntityFace,
   LogEntity,
-  NiceExceptions,
   JobThread,
-  SynchroThread,
 
   Common,
   GameManagerFace,
@@ -78,8 +77,6 @@ implementation
 
 type
 
-  { TLoadLevelJob }
-
   TLoadLevelJob = class(TInterfacedObject, IThreadJob)
   public
     GameManager: TGameManager;
@@ -90,19 +87,19 @@ type
 procedure GlobalLoad;
 begin
   GlobalEngineRunning := true;
-  AssertArgumentAssigned(GlobalGameManager, 'GlobalGameManager');
+  AssertAssigned(GlobalGameManager, 'GlobalGameManager', TVariableType.Global);
   GlobalGameManager.Load;
 end;
 
 procedure GlobalDraw;
 begin
-  AssertArgumentAssigned(GlobalGameManager, 'GlobalGameManager');
+  AssertAssigned(GlobalGameManager, 'GlobalGameManager', TVariableType.Global);
   GlobalGameManager.Draw;
 end;
 
 procedure GlobalUpdate(DT: Double);
 begin
-  AssertArgumentAssigned(GlobalGameManager, 'GlobalGameManager');
+  AssertAssigned(GlobalGameManager, 'GlobalGameManager', TVariableType.Global);
   GlobalGameManager.Update(DT);
 end;
 
@@ -115,6 +112,7 @@ end;
 
 procedure TLoadLevelJob.Execute(const aThread: TJobThread);
 begin
+  aThread.NotUsedHere;
   try
     try
       GameManager.LoadLevel(Loader);
@@ -272,7 +270,7 @@ procedure TGameManager.LoadLevel(const aLevel: ILevelLoader);
 var
   levelLog: ILog;
 begin
-  AssertArgumentAssigned(Assigned(aLevel), 'aLevel');
+  AssertAssigned(Assigned(aLevel), 'aLevel', TVariableType.Argument);
   if Assigned(Level) then
   begin
     Log.Write('Releasing existing level data...');
@@ -297,7 +295,7 @@ end;
 
 procedure TGameManager.AfterLoadLevel;
 begin
-  AssertAssigned(UserFace, 'UserFace');
+  AssertAssigned(UserFace, 'UserFace', TVariableType.Propertie);
   UserFace.Level := Level;
 end;
 

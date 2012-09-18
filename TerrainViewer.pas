@@ -20,10 +20,11 @@ uses
   zgl_fx,
   zgl_render_target,
 
+  NiceTypes,
+  NiceExceptions,
   LogEntity,
   LogEntityFace,
   Generic2DArray,
-  NiceExceptions,
 
   Common,
   TerrainViewerFace,
@@ -31,6 +32,7 @@ uses
   MapScrollManager,
   MapViewerFace,
   TextureCache,
+  MapDataCells,
   MapDataFace,
   EngineManagerFace,
   TerrainManagerFaceE;
@@ -246,7 +248,7 @@ begin
   if Length(Masks) <> 0 then
     ReleaseMasks;
   SetLength(fMasks, MapWidth, MapHeight);
-  AssertArgumentAssigned(Assigned(Matrix), 'Matrix');
+  AssertAssigned(Assigned(Matrix), 'Matrix', TVariableType.Propertie);
   for x := 0 to MapWidth - 1 do
     for y := 0 to MapHeight - 1 do
     begin
@@ -451,7 +453,7 @@ begin
   if DEBUG then
     Log.Write('DrawFramingCached - method start...');
   if DEBUG then
-    AssertAssigned(Cache, 'Cache');
+    AssertAssigned(Cache, 'Cache', TVariableType.Propertie);
   cacheItem := Cache.Access[aF^.x, aF^.y];
   if cacheItem = nil then
   begin
@@ -569,18 +571,13 @@ end;
 
 procedure TTerrainView.OverlapByFrame(const aTerrainType: TTerrainType;
   const aMaskIndex: integer; const aAngle: single);
-const
-  DEBUG = false;
 var
   texture: zglPTexture;
   mask: zglPTexture;
 begin
-  if DEBUG then
-  begin
-    AssertAssigned(FramingTexture, 'FramingTexture');
-    AssertAssigned(MaskTexture, 'MaskTexture');
-    AssertAssigned(Terrain, 'Terrain');
-  end;
+  AssertsAssigned(FramingTexture, 'FramingTexture', TVariableType.Field)
+    .Assigned(MaskTexture, 'MaskTexture')
+    .Assigned(Terrain, 'Terrain');
   rtarget_Set(FramingTexture);
   Engine.DirectCleanTexture(FramingTexture);
   asprite2d_Draw(MaskTexture, 0, 0, TileWidth, TileHeight, aAngle, aMaskIndex);

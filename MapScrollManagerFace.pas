@@ -9,6 +9,7 @@ uses
   Classes,
   SysUtils,
 
+  MapDataCells,
   MapDataFace;
 
 type

@@ -18,6 +18,7 @@ uses
 
   Common,
   MapScrollManagerFace,
+  MapDataCells,
   MapDataFace,
   TerrainViewerFace;
 

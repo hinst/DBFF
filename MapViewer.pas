@@ -8,6 +8,7 @@ uses
   Classes,
   SysUtils,
 
+  NiceTypes,
   NiceExceptions,
 
   TerrainViewer,
@@ -74,7 +75,7 @@ end;
 
 procedure TMapView.AssertAssignedTerrainView;
 begin
-  AssertAssigned(TerrainView, 'TerrainView');
+  AssertAssigned(TerrainView, 'TerrainView', TVariableType.Propertie);
 end;
 
 procedure TMapView.Finalize;

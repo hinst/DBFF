@@ -12,6 +12,7 @@ uses
 
   zgl_primitives_2d,
 
+  NiceTypes,
   NiceExceptions,
   LogEntityFace,
   LogEntity,
@@ -19,6 +20,7 @@ uses
   Common,
   UnitManagerExtendedFace,
   MapUnitFace,
+  MapDataCells,
   MapDataFace,
   MapScrollManagerFace,
   TerrainManagerFaceE;
@@ -83,7 +85,7 @@ var
   terrainMan: TObject;
 begin
   terrainMan := GlobalGameManager.Level.Terrain.Reverse;
-  AssertAssigned(terrainMan, 'terrainMan');
+  AssertAssigned(terrainMan, 'terrainMan', TVariableType.Local);
   Assert(terrainMan is ITerrainManagerE, 'terrainMan is ITerrainManagerE');
   result := terrainMan as ITerrainManagerE;
   Assert(result <> nil, 'result <> nil');
@@ -167,9 +169,9 @@ end;
 function TUnitProduction.FindSuitable1Cell(const aItem: TUnitProductionItem
   ): TCellNumber;
 var
-  occupatedCells: TCellNumbers;
+  occupatedCells: TCellNumberArray;
   map: IMapData;
-  nearbyCells: TCellNumbers;
+  nearbyCells: TCellNumberVector;
   tman: ITerrainManagerE;
   u: IMapUnit;
 
@@ -182,7 +184,7 @@ begin
 
   occupatedCells := factory.OccupatedCells;
   map := GlobalGameManager.Level.Map;
-  nearbyCells := map.NearbyCells[occupatedCells];
+  nearbyCells := map.ContiguousCells[occupatedCells];
   tman := GetTerrain;
   u := aItem.MapUnit;
   Assert(u <> nil, 'u <> nil');
@@ -197,6 +199,7 @@ begin
     if cellPossibru then
       exit(iCell);
   end;
+  nearbyCells.Free;
 end;
 
 destructor TUnitProduction.Destroy;

@@ -8,6 +8,7 @@ uses
   Classes,
   SysUtils,
 
+  NiceTypes,
   NiceExceptions,
 
   zgl_main,
@@ -32,8 +33,9 @@ type
   public const
     Gap = 6;
   public
-    POwnsFont: ^boolean;
     Font: zglPFont;
+      // default is true
+    property OwnsFont: boolean read fOwnsFont write fOwnsFont;
     procedure Draw;
     destructor Destroy; override;
   end;
@@ -50,12 +52,11 @@ end;
 procedure TFPSDrawer.Initialize;
 begin
   fOwnsFont := true;
-  POwnsFont := @fOwnsFont;
 end;
 
 procedure TFPSDrawer.Finalize;
 begin
-  if POwnsFont^ then
+  if OwnsFont then
     font_Del(fFont);
 end;
 
@@ -87,7 +88,7 @@ var
   end;
 
 begin
-  AssertAssigned(Font, 'Font');
+  AssertAssigned(Font, 'Font', TVariableType.Field);
   text := u_IntToStr( zgl_Get( RENDER_FPS ) );
   textWidth := text_GetWidth(Font, text);
   textHeight := text_GetHeight(Font, textWidth, text, 1);

@@ -1,6 +1,5 @@
 unit MapUnitFace;
 
-{$mode objfpc}{$H+}
 {$INTERFACES CORBA}
 
 interface
@@ -13,17 +12,17 @@ uses
 
   NiceInterfaces,
 
+  ZenGLFCLGraphics,
+  MapDataCells,
   MapDataFace,
   MapScrollManagerFace,
   TerrainManagerFaceE;
 
 type
 
-  { IMapUnit }
-
   IMapUnit = interface(IReversible) ['IMapUnit']
-    function GetOccupatedCells: TCellNumbers;
-    property OccupatedCells: TCellNumbers read GetOccupatedCells;
+    function GetOccupatedCells: TCellNumberArray;
+    property OccupatedCells: TCellNumberArray read GetOccupatedCells;
 
     function GetUnitWidth: integer;
     property UnitWidth: integer read GetUnitWidth;
@@ -41,6 +40,10 @@ type
     procedure DrawTopLayer(const aScroll: IMapScrollManager);
     procedure Update(const aTime: double);
     procedure UpdateGraphicalRect(const aScroll: IMapScrollManager);
+  end;
+
+  IMoveableMapUnit = interface ['IMoveableMapUnit']
+    procedure Navigate(const aPoint: TCellNumber);
   end;
 
 implementation

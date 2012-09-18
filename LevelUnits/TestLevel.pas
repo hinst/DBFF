@@ -8,8 +8,10 @@ interface
 uses
   SysUtils,
 
-  DefaultLevel,
+  NiceTypes,
   NiceExceptions,
+
+  DefaultLevel,
   LevelDataFace,
   LogEntityFace,
   LevelLoaderFace;
@@ -63,8 +65,8 @@ procedure TTestLevel.Load(const aLevel: ILevelData);
   end;
 
 begin
-  AssertArgumentAssigned(Assigned(aLevel), 'aLevel');
-  AssertAssigned(Log, 'Log');
+  AssertAssigned(aLevel, 'aLevel', TVariableType.Argument);
+  AssertAssigned(Log, 'Log', TVariableType.Field);
   Log.Write('Loading test level: loading terrains...');
   LoadTerrains;
   Log.Write('Loading test level: loading terrain map...');

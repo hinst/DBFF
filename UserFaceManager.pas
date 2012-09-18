@@ -1,6 +1,7 @@
 unit UserFaceManager;
 
-{$mode objfpc}{$H+}
+{ $DEFINE DEBUG_LOG_USER_UNIT_SELECTION}
+{$DEFINE DEBUG_LOG_USER_NAVIGATE}
 
 interface
 
@@ -13,11 +14,13 @@ uses
   zgl_keyboard,
   zgl_primitives_2d,
 
+  NiceTypes,
   NiceExceptions,
   LogEntity,
   LogEntityFace,
 
   Common,
+  MapDataCells,
   UnitManagerFace,
   UnitManager,
   MapUnitFace,
@@ -54,7 +57,9 @@ type
     procedure Update100ChUnitsGlow;
     procedure ProcessLevelInput(const aTime: double);
     function ChooseClick: boolean;
-    procedure Select;
+    function NavigateClick: boolean;
+    procedure UserSelect;
+    procedure UserNavigate;
     procedure Finalize;
   public
     property Log: ILog read fLog;
@@ -125,7 +130,7 @@ var
   screenRect: zglTRect;
 begin
   rect := aUnit.GraphicalRect;
-  AssertAssigned(Scroll, 'Scroll');
+  AssertAssigned(Scroll, 'Scroll', TVariableType.Propertie);
   screenRect := Scroll.GlobalToScreen(rect);
   DrawChosenUnitRect(screenRect);
 end;
@@ -145,7 +150,6 @@ end;
 
 procedure TUserFace.Update100ChUnitsGlow;
 begin
-  //WriteLN(IntToHex(SlUnitsGlow, 6));
   fSlUnitsGlow += fSlUnitsGlowSpeed;
   if (SlUnitsGlow >= $FFFFFF) or (SlUnitsGlow <= $000000) then
     fSlUnitsGlowSpeed := - fSlUnitsGlowSpeed;
@@ -154,7 +158,9 @@ end;
 procedure TUserFace.ProcessLevelInput(const aTime: double);
 begin
   if ChooseClick then
-    Select;
+    UserSelect;
+  if NavigateClick then
+    UserNavigate;
   if key_Press(K_F4) then
     UserConstructBasicTank;
 end;
@@ -166,29 +172,66 @@ begin
     and not key_Down(K_CTRL); // without ctrl
 end;
 
-procedure TUserFace.Select;
+function TUserFace.NavigateClick: boolean;
+begin
+  result := mouse_Click(M_BRIGHT); // right click
+end;
+
+procedure TUserFace.UserSelect;
 {$DEFINE DEBUG_THIS_PROCEDURE}
+
+  procedure LogWrite(const aText: string); inline;
+  begin
+    {$IFDEF DEBUG_LOG_USER_UNIT_SELECTION}
+      Log.Write(aText);
+    {$ENDIF}
+  end;
+
 var
   u: IMapUnit;
 begin
   SelectedUnits.Clear;
-  {$IFDEF DEBUG_THIS_PROCEDURE}
-  Log.Write('It appears that user wants to select an unit');
-  {$ENDIF}
+  LogWrite('It appears that user wants to select an unit');
   u := Level.UnitMan.UnitAtWindowPoint[mouse_X, mouse_Y];
   if u = nil then
   begin
-    {$IFDEF DEBUG_THIS_PROCEDURE}
-    Log.Write('But there is no unit at this point');
-    {$ENDIF}
-    exit; // no unit to Select
+    LogWrite('But there is no unit at this point');
+    exit; // no unit to UserSelect
   end;
-  {$IFDEF DEBUG_THIS_PROCEDURE}
-  Log.Write('Unit selected. Class: "' + u.Reverse.ClassName + '"');
-  {$ENDIF}
+  LogWrite('Unit selected. Class: "' + u.Reverse.ClassName + '"');
   SelectedUnits.Add(u);
 end;
-{$UNDEF DEBUG_THIS_PROCEDURE}
+
+procedure TUserFace.UserNavigate;
+
+  procedure LogWrite(const aText: string); inline;
+  begin
+    {$IFDEF DEBUG_LOG_USER_NAVIGATE}
+      Log.Write(aText);
+    {$ENDIF}
+  end;
+
+var
+  u: IMapUnit;
+  moveable: IMoveableMapUnit;
+  targetCell: TCellNumber;
+  once: boolean;
+begin
+  once := false;
+  targetCell := Scroll.CellNumberAtWindowPoint[mouse_X, mouse_Y];
+  for u in SelectedUnits do
+  begin
+    if u.Reverse is IMoveableMapUnit then
+    begin
+      LogWrite('Navigating ' + u.Reverse.ClassName + ' to ' + targetCell.ToText);
+      moveable := u.Reverse as IMoveableMapUnit;
+      moveable.Navigate(targetCell);
+      once := true;
+    end;
+  end;
+  if not once then
+    LogWrite('No moveable units selected.');
+end;
 
 procedure TUserFace.Finalize;
 begin

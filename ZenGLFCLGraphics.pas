@@ -1,6 +1,5 @@
 unit ZenGLFCLGraphics;
 
-{$mode objfpc}{$H+}
 {$UNDEF DEBUG_MULTITEXTURESETGETFAREA}
 
 interface
@@ -18,6 +17,7 @@ uses
   zgl_render_target,
   zgl_font,
 
+  NiceTypes,
   NiceExceptions,
   LogEntityFace,
   SynchroThread,
@@ -38,6 +38,7 @@ type
   public
     property X: single read fX write fX;
     property Y: single read fY write fY;
+    function ToText: string;
     destructor Done;
   end;
 
@@ -243,6 +244,11 @@ begin
   Y := 0;
 end;
 
+function TGraphicalPoint.ToText: string;
+begin
+  result := '(' + FloatToStr(X) + ' ' + FloatToStr(Y) + ')';
+end;
+
 destructor TGraphicalPoint.Done;
 begin
   X := 0;
@@ -272,7 +278,7 @@ end;
 
 procedure TMultiTexture.TFinishArea.Execute;
 begin
-  AssertAssigned(MultiTexture, 'MultiTexture');
+  AssertAssigned(MultiTexture, 'MultiTexture', TVariableType.Field);
   MultiTexture.DirectFinishArea;
 end;
 
@@ -314,7 +320,7 @@ end;
 
 procedure TDisposeTexture.Execute;
 begin
-  AssertAssigned(Texture, 'Texture');
+  AssertAssigned(Texture, 'Texture', TVariableType.Propertie);
   tex_Del(fTexture);
 end;
 
@@ -379,7 +385,7 @@ begin
   if Count = 0 then
     raise Exception.Create('Multi texture count property unassigned');
   newArea := rtarget_Add(tex_CreateZero(Width * Count, Height), RT_DEFAULT);
-  AssertAssigned(newArea, 'newArea');
+  AssertAssigned(newArea, 'newArea', TVariableType.Local);
   fArea := newArea;
 end;
 
@@ -400,14 +406,14 @@ procedure TMultiTexture.Add(const aTexture: zglPTexture);
 var
   job: ISynchroJob;
 begin
-  AssertAssigned(Engine, 'Engine');
+  AssertAssigned(Engine, 'Engine', TVariableType.Propertie);
   job := TAddTexture.Create(self, aTexture);
   Engine.Batch.Execute(job);
 end;
 
 procedure TMultiTexture.DirectFinishArea;
 begin
-  AssertAssigned(Area, 'Area');
+  AssertAssigned(Area, 'Area', TVariableType.Propertie);
   tex_SetFrameSize(Area^.Surface, Width, Height);
 end;
 
