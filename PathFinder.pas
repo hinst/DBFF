@@ -7,7 +7,6 @@ interface
 uses
   Classes,
   SysUtils,
-  heContnrs,
 
   NiceTypes,
   NiceExceptions,
@@ -146,9 +145,12 @@ end;
 
 procedure TPathFind.Mark(const aX, aY: integer);
 begin
-  if not Map.Cells.CellExists[aX, aY] then exit;
-  if not (fMatrix[aX, aY] = -1) then exit;
-  if Map.Cells.Matrix[aX, aY].busy then exit;
+  if not Map.Cells.CellExists[aX, aY] then
+    exit; // no such cell
+  if not (fMatrix[aX, aY] = -1) then
+    exit; // already marked
+  if Map.Cells.Matrix[aX, aY].busy then
+    exit; // something is on the cell
   fMatrix[aX, aY] := WaveNumber;
 end;
 
@@ -174,7 +176,6 @@ end;
 
 procedure TPathFind.BackWave;
 var
-  w: integer;
   cells: TCellNumberVector;
 begin
   if not DestinationApproached then
@@ -183,16 +184,24 @@ begin
     exit;
   end;
   fWaveNumber := fMatrix[Destination^.X, Destination^.Y];
+  {$IFDEF DEBUG_LOG_PATHFINDER_WAVES}
   WriteMatrixToLog;
+  {$ENDIF}
   SetLength(fPath, WaveNumber);
   dec(fWaveNumber);
   Path[WaveNumber].Assign(Destination^);
-  while WaveNumber > 1 do
+  while WaveNumber >= 1 do
   begin
+    {$IFDEF DEBUG_LOG_PATHFINDER_WAVES}
+    Log.Write('Searching for back step from ' + Path[WaveNumber].ToText);
+    {$ENDIF}
     cells := OneSAC[ Path[WaveNumber] ];
     BackWave(cells);
     cells.Free;
     dec(fWaveNumber);
+    {$IFDEF DEBUG_LOG_PATHFINDER_WAVES}
+    Log.Write('  Found: ' + Path[WaveNumber].ToText);
+    {$ENDIF}
   end;
   fReady := true;
 end;
@@ -200,20 +209,26 @@ end;
 procedure TPathFind.BackWave(const aCells: TCellNumberVector);
 var
   i: integer;
+  r: boolean;
 begin
   for i := 0 to aCells.Count - 1 do
-    if BackWave(aCells[i].X, aCells[i].Y) then
+  begin
+    r := BackWave(aCells[i].X, aCells[i].Y);
+    if r then
       break;
+  end;
 end;
 
 function TPathFind.BackWave(const aX, aY: integer): boolean;
 begin
   if not Map.Cells.CellExists[aX, aY] then
     exit(false);
-  result := fMatrix[aX, aY] = WaveNumber;
+  result :=
+    fMatrix[aX, aY] = WaveNumber;
   if not result then
-    exit;
+    exit(false);
   fPath[WaveNumber - 1].SetXY(aX, aY);
+  result := true;
 end;
 
 function TPathFind.MatrixToText: string;
@@ -234,9 +249,7 @@ end;
 
 procedure TPathFind.WriteMatrixToLog;
 begin
-  {$IFDEF DEBUG_LOG_PATHFINDER_WAVES}
   Log.Write(MatrixToText);
-  {$ENDIF}
 end;
 
 procedure TPathFind.ReleaseResources;

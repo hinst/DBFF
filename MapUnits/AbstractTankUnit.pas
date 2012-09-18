@@ -84,7 +84,7 @@ type
     procedure Draw(const aScroll: IMapScrollManager); override;
     procedure Update(const aTime: double);
     {$REGION IMoveableMapUnit}
-    procedure Navigate(const aCell: TCellNumber);
+      procedure Navigate(const aCell: TCellNumber);
     {$ENDREGION}
     destructor Destroy; override;
   end;
