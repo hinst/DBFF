@@ -32,19 +32,22 @@
         <FormatVersion Value="1"/>
       </local>
     </RunParams>
-    <RequiredPackages Count="4">
+    <RequiredPackages Count="5">
       <Item1>
-        <PackageName Value="HE_package"/>
+        <PackageName Value="HE_improved"/>
       </Item1>
       <Item2>
-        <PackageName Value="ZenGL_Package"/>
+        <PackageName Value="HE_package"/>
       </Item2>
       <Item3>
-        <PackageName Value="FCL"/>
+        <PackageName Value="ZenGL_Package"/>
       </Item3>
       <Item4>
-        <PackageName Value="UltimateLibrary"/>
+        <PackageName Value="FCL"/>
       </Item4>
+      <Item5>
+        <PackageName Value="UltimateLibrary"/>
+      </Item5>
     </RequiredPackages>
     <Units Count="47">
       <Unit0>

@@ -9,6 +9,7 @@ uses
   Classes,
 
   heContnrs,
+  heCntnrsE,
 
   Generic2DArray;
 
@@ -70,18 +71,9 @@ type
 
   { TCellNumberVector }
 
-  TCellNumberVector = class(specialize TheCmpVector<TCellNumber>)
+  TCellNumberVector = class(specialize TheeCmpVector<TCellNumber>)
   public
-    constructor Create(const aCells: TCellNumberArray); overload;
-    constructor Create(const aCells: array of TCellNumber); overload;
     function Compare(const A, B: TCellNumber): Integer; override;
-      // Adds an item only if there is no such item already contained
-    function AddWise(const aCell: TCellNumber): Integer;
-    function AddWise(const aCells: TCellNumberVector): integer;
-    procedure Add(const aCells: TCellNumberArray); overload;
-    procedure Add(const aCells: array of TCellNumber); overload;
-    procedure Remove(const aCells: TCellNumberArray); overload;
-    function ToArray: TCellNumberArray;
   end;
 
   PCellNumber = ^TCellNumber;
@@ -210,71 +202,9 @@ begin
     result := '(' + IntToStr(X) + ', ' + IntToStr(Y) + ')';
 end;
 
-constructor TCellNumberVector.Create(const aCells: TCellNumberArray);
-begin
-  Create;
-  Add(aCells);
-end;
-
-constructor TCellNumberVector.Create(const aCells: array of TCellNumber);
-begin
-  Create;
-  Add(aCells);
-end;
-
 function TCellNumberVector.Compare(const A, B: TCellNumber): Integer;
 begin
   result := A.Compare(B);
-end;
-
-function TCellNumberVector.AddWise(const aCell: TCellNumber): Integer;
-begin
-  result := -1;
-  if not Has(aCell) then
-    result := inherited Add(aCell);
-end;
-
-function TCellNumberVector.AddWise(const aCells: TCellNumberVector): integer;
-var
-  cell: TCellNumber;
-begin
-  result := 0;
-  for cell in aCells do
-    if AddWise(cell) <> -1 then
-      inc(result);
-end;
-
-procedure TCellNumberVector.Add(const aCells: TCellNumberArray);
-var
-  cell: TCellNumber;
-begin
-  for cell in aCells do
-    Add(cell);
-end;
-
-procedure TCellNumberVector.Add(const aCells: array of TCellNumber);
-var
-  cell: TCellNumber;
-begin
-  for cell in aCells do
-    Add(cell);
-end;
-
-procedure TCellNumberVector.Remove(const aCells: TCellNumberArray);
-var
-  cell: TCellNumber;
-begin
-  for cell in aCells do
-    self.Remove(cell);
-end;
-
-function TCellNumberVector.ToArray: TCellNumberArray;
-var
-  i: integer;
-begin
-  SetLength(result, self.Count);
-  for i := 0 to self.Count - 1 do
-    result[i].Assign(Items[i]);
 end;
 
 operator = (const aCell, bCell: TCellNumber): boolean;
@@ -313,7 +243,7 @@ begin
   for cell in aCells do
   begin
     cells := CreateContiguousCells(cell);
-    result.AddWise(cells);
+    result.AddVectorWise(cells);
     cells.Free;
   end;
   result.Remove(aCells);
@@ -341,7 +271,7 @@ begin
   for cell in aCells do
   begin
     cells := CreateSurroundingCells(cell);
-    result.AddWise(cells);
+    result.AddArrayWise(cells.ToArray);
     cells.Free;
   end;
   result.Remove(aCells);

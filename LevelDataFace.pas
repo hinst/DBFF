@@ -1,6 +1,5 @@
 unit LevelDataFace;
 
-{$mode objfpc}{$H+}
 {$INTERFACES CORBA}
 
 interface

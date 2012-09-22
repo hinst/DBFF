@@ -29,6 +29,8 @@ type
     5. Use Path property
   }
 
+  TPathFindCellPossibleMethod = function(const aX, aY: integer): boolean of object;
+
   TPathFind = class
   public
     constructor Create;
@@ -41,6 +43,7 @@ type
     fWaveNumber: integer;
     fDestination: TCellNumber;
     fWaved: boolean;
+    fCellPossibleMethod: TPathFindCellPossibleMethod;
     procedure Initialize;
     procedure ReplaceLog(const aLog: ILog);
     procedure AllocateMatrix;
@@ -51,7 +54,7 @@ type
       // Returns pointer to internal copy
     function AccessDestination: PCellNumber;
       // Get One Step Accessible Cells
-      // caller is responsible for calling Free
+      // caller is responsible for releasing the result
     function GetOneSAC(const aFrom: TCellNumber): TCellNumberVector;
     procedure Mark(const aCells: TCellNumberVector);
     procedure Mark(const aX, aY: integer); inline;
@@ -74,6 +77,8 @@ type
     property Path: TCellNumberArray read fPath;
     property WaveNumber: integer read fWaveNumber;
     property Waved: boolean read fWaved;
+    property CellPossibleMethod: TPathFindCellPossibleMethod
+      read fCellPossibleMethod write fCellPossibleMethod;
     function DestinationApproached: boolean;
     procedure Iterate;
     destructor Destroy; override;

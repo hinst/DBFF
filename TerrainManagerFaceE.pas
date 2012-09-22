@@ -1,7 +1,5 @@
 unit TerrainManagerFaceE;
 
-{$mode objfpc}{$H+}
-
 interface
 
 uses
@@ -18,8 +16,6 @@ uses
   TerrainManagerFace;
 
 type
-
-  { TTerrain }
 
   TTerrain = object
   public

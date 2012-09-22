@@ -1,8 +1,6 @@
 unit AbstractTankUnit;
 
 {$DEFINE DEBUG_LOG_TANK_PATHFINDER}
-{$DEFINE DEBUG_LOG_TANK_NAVIGATION}
-
 interface
 
 uses
@@ -56,7 +54,7 @@ type
 
   { TAstractTank }
 
-  TAbstractTank = class(TVehicle, IMoveableMapUnit)
+  TAbstractTank = class(TVehicle, IMapUnit, IMoveableMapUnit)
   public
     constructor Create(const aType: TMapUnitType); override;
   protected
@@ -64,28 +62,21 @@ type
     fDesiredBodyAngle: TAngle360;
     fTowerAngle: TAngle360;
     fDesiredTowerAngle: TAngle360;
-    fPathFind: TPathFind;
-    fPath: TCellNumberVector;
     function GetMyType: TAbstractTankType;
     function GetOccupatedCells: TCellNumberArray;
     function GetUnitWidth: integer; override;
     function GetUnitHeight: integer; override;
     function GetTerrainPossible(const aTerrain: PTerrain): boolean; override;
-    procedure LogNavigation(const aText: string);
-    procedure UpdateNavigate;
+    function GetCellPossible(const aX, aY: integer): boolean;
     procedure Initialize;
   public
     property BodyAngle: TAngle360 read fBodyAngle;
     property DesiredBodyAngle: TAngle360 read fDesiredBodyAngle;
     property TowerAngle: TAngle360 read fTowerAngle;
     property DesiredTowerAngle: TAngle360 read fDesiredTowerAngle;
-    property PathFind: TPathFind read fPathFind;
     property MyType: TAbstractTankType read GetMyType;
     procedure Draw(const aScroll: IMapScrollManager); override;
-    procedure Update(const aTime: double);
-    {$REGION IMoveableMapUnit}
-      procedure Navigate(const aCell: TCellNumber);
-    {$ENDREGION}
+    procedure Update(const aTime: double); override;
     destructor Destroy; override;
   end;
 
@@ -152,26 +143,16 @@ begin
   result := aTerrain^.Vehicleable;
 end;
 
-procedure TAbstractTank.LogNavigation(const aText: string);
+function TAbstractTank.GetCellPossible(const aX, aY: integer): boolean;
+var
+  terrainType: TTerrainType;
+  terrain: PTerrain;
 begin
-  {$IFDEF DEBUG_LOG_TANK_NAVIGATION}
-  Log.Write(aText);
-  {$ENDIF}
-end;
-
-procedure TAbstractTank.UpdateNavigate;
-begin
-  if Assigned(PathFind) then
-  begin
-    PathFind.Iterate;
-    if PathFind.Ready then
-    begin
-      FreeAndNil(fPath);
-      LogNavigation('Path found ' + ToText(PathFind.Path));
-      fPath := TCellNumberVector.Create(PathFind.Path);
-      FreeAndNil(fPathFind);
-    end;
-  end;
+  if not GlobalGameManager.Level.Map.Cells.CellExists[aX, aY] then
+    exit(false);
+  terrainType := GlobalGameManager.Level.Map.Cells.Matrix[aX, aY].typee;
+  terrain := (GlobalGameManager.Level.Terrain.Reverse as ITerrainManagerE).Terrains[terrainType];
+  result := GetTerrainPossible(terrain);
 end;
 
 procedure TAbstractTank.Initialize;
@@ -184,14 +165,15 @@ end;
 
 procedure TAbstractTank.Draw(const aScroll: IMapScrollManager);
 begin
-  if not IsVisible(aScroll) then exit;
+  if not IsVisible(aScroll) then
+    exit;
   with aScroll do
   begin
     {$REGION DRAW_BASE}
     ssprite2d_Draw(
       MyType.Texture,
-      ScreenX(LeftTopCell^),
-      ScreenY(LeftTopCell^),
+      ScreenX(LeftTopCell^) + DeltaX,
+      ScreenY(LeftTopCell^) + DeltaY,
       TileWidth,
       TileHeight,
       BodyAngle
@@ -200,8 +182,8 @@ begin
     {$REGION DRAW_TOWER}
     ssprite2d_Draw(
       MyType.TowerTexture,
-      ScreenX(LeftTopCell^),
-      ScreenY(LeftTopCell^),
+      ScreenX(LeftTopCell^) + DeltaX,
+      ScreenY(LeftTopCell^) + DeltaY,
       TileWidth,
       TileHeight,
       TowerAngle
@@ -212,32 +194,13 @@ end;
 
 procedure TAbstractTank.Update(const aTime: double);
 begin
+  inherited Update(aTime);
   TowerAngle.MoveToDesiredAngle(DesiredTowerAngle, aTime * MyType.TowerSpeed);
   BodyAngle.MoveToDesiredAngle(DesiredBodyAngle, aTime * MyType.TowerSpeed);
-  UpdateNavigate;
-end;
-
-procedure TAbstractTank.Navigate(const aCell: TCellNumber);
-begin
-  LogNavigation('Someone wants me to move: ' +
-    LeftTopCell^.ToText + '->' + aCell.ToText);
-  // clear old path information ~~~
-  FreeAndNil(fPath);
-  FreeAndNil(fPathFind);
-  // setup new Path Finder ~~~
-  fPathFind := TPathFind.Create;
-  {$IFDEF DEBUG_LOG_TANK_PATHFINDER}
-    PathFind.Log := TLog.Create(GlobalLogManager, 'PathFind');
-  {$ENDIF}
-  PathFind.Map := GlobalGameManager.Level.Map;
-  PathFind.Start := LeftTopCell;
-  PathFind.Destination := @aCell;
 end;
 
 destructor TAbstractTank.Destroy;
 begin
-  FreeAndNil(fPath);
-  FreeAndNil(fPathFind);
   inherited Destroy;
 end;
 
