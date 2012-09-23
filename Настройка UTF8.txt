@@ -1,6 +1,10 @@
 ﻿Перед началом работы необходимо выполнить приложение со следующими параметрами:
 bin\DBFF_Executable_i386_win32.exe --createConfigDir
+ Если хотите править знать, где создаётся конфигурационный каталог, смотрите что оно выводит. Текстовый файл-лог сохраняется в этот каталог.
 bin\DBFF_Executable_i386_win32.exe --resetEngineConfig
 Можно сделать это с помощью bat-файлов для Windows:
 DBFF Create Config Path.bat
 DBFF Reset Engine Config.bat
+Далее можно запускать исполняемый файл 
+bin\DBFF_Executable_i386_win32.exe 
+Просто так, без параметров.
