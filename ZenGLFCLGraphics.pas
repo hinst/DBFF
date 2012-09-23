@@ -171,6 +171,8 @@ procedure pr2d_Rect3(const aX, aY, aW, aH: single; const aColor: LongWord);
 
 procedure UnpackPRect(const aRect: zglPRect; out x, y, w, h: single);
 
+procedure MoveRect(const aRect: zglPRect; const aDx, aDy: single);
+
 function RectToText(const aRect: zglPRect): string;
 
 implementation
@@ -199,6 +201,12 @@ begin
   y := aRect^.Y;
   w := aRect^.W;
   h := aRect^.H;
+end;
+
+procedure MoveRect(const aRect: zglPRect; const aDx, aDy: single);
+begin
+  aRect^.X += aDx;
+  aRect^.Y += aDy;
 end;
 
 function RectToText(const aRect: zglPRect): string;

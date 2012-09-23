@@ -65,6 +65,7 @@ type
     function Reverse: TObject;
     function GetUnitWidth: integer; virtual; abstract;
     function GetUnitHeight: integer; virtual; abstract;
+    function GetGlobalMap: IMapData;
     procedure Initialize(const aType: TMapUnitType);
     procedure Finalize;
   public
@@ -75,7 +76,7 @@ type
     property LastTimeVisible: boolean read fLastTimeVisible;
     property UnitWidth: integer read GetUnitWidth;
     property UnitHeight: integer read GetUnitHeight;
-    procedure UpdateGraphicalRect(const aScroll: IMapScrollManager);
+    procedure UpdateGraphicalRect(const aScroll: IMapScrollManager); virtual;
     function IsVisible(const aScroll: IMapScrollManager): boolean;
     procedure Draw(const aScroll: IMapScrollManager); virtual;
     procedure DrawTopLayer(const aScroll: IMapScrollManager); virtual;
@@ -144,6 +145,11 @@ end;
 function TMapUnit.Reverse: TObject;
 begin
   result := self;
+end;
+
+function TMapUnit.GetGlobalMap: IMapData;
+begin
+  result := GlobalGameManager.Level.Map;
 end;
 
 procedure TMapUnit.Initialize(const aType: TMapUnitType);

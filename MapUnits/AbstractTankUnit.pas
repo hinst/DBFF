@@ -52,8 +52,6 @@ type
     destructor Destroy; override;
   end;
 
-  { TAstractTank }
-
   TAbstractTank = class(TVehicle, IMapUnit, IMoveableMapUnit)
   public
     constructor Create(const aType: TMapUnitType); override;
@@ -66,9 +64,9 @@ type
     function GetOccupatedCells: TCellNumberArray;
     function GetUnitWidth: integer; override;
     function GetUnitHeight: integer; override;
-    function GetTerrainPossible(const aTerrain: PTerrain): boolean; override;
-    function GetCellPossible(const aX, aY: integer): boolean;
     procedure Initialize;
+    procedure UpdateMove(const aTime: double); override;
+    procedure SetMovementDirection(const aDeltaX, aDeltaY: integer); override;
   public
     property BodyAngle: TAngle360 read fBodyAngle;
     property DesiredBodyAngle: TAngle360 read fDesiredBodyAngle;
@@ -138,23 +136,6 @@ begin
   result := 1;
 end;
 
-function TAbstractTank.GetTerrainPossible(const aTerrain: PTerrain): boolean;
-begin
-  result := aTerrain^.Vehicleable;
-end;
-
-function TAbstractTank.GetCellPossible(const aX, aY: integer): boolean;
-var
-  terrainType: TTerrainType;
-  terrain: PTerrain;
-begin
-  if not GlobalGameManager.Level.Map.Cells.CellExists[aX, aY] then
-    exit(false);
-  terrainType := GlobalGameManager.Level.Map.Cells.Matrix[aX, aY].typee;
-  terrain := (GlobalGameManager.Level.Terrain.Reverse as ITerrainManagerE).Terrains[terrainType];
-  result := GetTerrainPossible(terrain);
-end;
-
 procedure TAbstractTank.Initialize;
 begin
   TowerAngle.Random;
@@ -163,8 +144,23 @@ begin
   DesiredBodyAngle.Random;
 end;
 
+procedure TAbstractTank.UpdateMove(const aTime: double);
+begin
+  if BodyAngle.Value = DesiredBodyAngle.Value then
+    inherited UpdateMove(aTime);
+end;
+
+procedure TAbstractTank.SetMovementDirection(const aDeltaX, aDeltaY: integer);
+begin
+  inherited SetMovementDirection(aDeltaX, aDeltaY);
+  DesiredBodyAngle.Assign(
+    CalculateDesiredAngleForMovement(aDeltaX, aDeltaY)
+  );
+end;
+
 procedure TAbstractTank.Draw(const aScroll: IMapScrollManager);
 begin
+  inherited Draw(aScroll);
   if not IsVisible(aScroll) then
     exit;
   with aScroll do
@@ -172,8 +168,8 @@ begin
     {$REGION DRAW_BASE}
     ssprite2d_Draw(
       MyType.Texture,
-      ScreenX(LeftTopCell^) + DeltaX,
-      ScreenY(LeftTopCell^) + DeltaY,
+      ScreenX(LeftTopCell^) + DeltaX * aScroll.TileWidth,
+      ScreenY(LeftTopCell^) + DeltaY * aScroll.TileHeight,
       TileWidth,
       TileHeight,
       BodyAngle
@@ -182,8 +178,8 @@ begin
     {$REGION DRAW_TOWER}
     ssprite2d_Draw(
       MyType.TowerTexture,
-      ScreenX(LeftTopCell^) + DeltaX,
-      ScreenY(LeftTopCell^) + DeltaY,
+      ScreenX(LeftTopCell^) + DeltaX * aScroll.TileWidth,
+      ScreenY(LeftTopCell^) + DeltaY * aScroll.TileHeight,
       TileWidth,
       TileHeight,
       TowerAngle

@@ -197,7 +197,10 @@ begin
       u.TerrainPossible[terrain] and (not cell.busy)
     ;
     if cellPossibru then
-      exit(iCell);
+    begin
+      result := iCell;
+      break;
+    end;
   end;
   nearbyCells.Free;
 end;

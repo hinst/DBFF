@@ -1,5 +1,6 @@
 unit PathFinder;
 
+{$ModeSwitch NestedProcVars}
 {$DEFINE DEBUG_LOG_PATHFINDER_WAVES}
 
 interface
@@ -29,11 +30,11 @@ type
     5. Use Path property
   }
 
-  TPathFindCellPossibleMethod = function(const aX, aY: integer): boolean of object;
-
   TPathFind = class
   public
     constructor Create;
+  private type
+    TCellPossibleMethod = function(const aCell: TCellNumber): boolean of object;
   private
     fLog: ILog;
     fReady: boolean;
@@ -43,7 +44,7 @@ type
     fWaveNumber: integer;
     fDestination: TCellNumber;
     fWaved: boolean;
-    fCellPossibleMethod: TPathFindCellPossibleMethod;
+    fCellPossibleMethod: TCellPossibleMethod;
     procedure Initialize;
     procedure ReplaceLog(const aLog: ILog);
     procedure AllocateMatrix;
@@ -62,7 +63,7 @@ type
     procedure BackWave;
     procedure BackWave(const aCells: TCellNumberVector);
     function BackWave(const aX, aY: integer): boolean;
-    function MatrixToText: string;
+    function MatrixToText: ansistring;
     procedure WriteMatrixToLog;
     procedure ReleaseResources;
   public
@@ -77,7 +78,7 @@ type
     property Path: TCellNumberArray read fPath;
     property WaveNumber: integer read fWaveNumber;
     property Waved: boolean read fWaved;
-    property CellPossibleMethod: TPathFindCellPossibleMethod
+    property CellPossibleMethod: TCellPossibleMethod
       read fCellPossibleMethod write fCellPossibleMethod;
     function DestinationApproached: boolean;
     procedure Iterate;
@@ -136,8 +137,16 @@ begin
 end;
 
 function TPathFind.GetOneSAC(const aFrom: TCellNumber): TCellNumberVector;
+
+  function CellImpossible(const aCell: TCellNumber): boolean;
+  begin
+    result:= not CellPossibleMethod(aCell);
+  end;
+
 begin
   result := Map.SurroundingCells[ aFrom ];
+  if Assigned(CellPossibleMethod) then
+    result.RemoveMatchingCondition(@CellImpossible);
 end;
 
 procedure TPathFind.Mark(const aCells: TCellNumberVector);
@@ -176,7 +185,11 @@ begin
         cells.Free;
       end;
   if WaveNumber >= Map.Cells.Width + Map.Cells.Height + ADDITIONAL_WAVES then
+  begin
     fWaved := true;
+    if not DestinationApproached then
+      fReady := true;
+  end;
 end;
 
 procedure TPathFind.BackWave;
@@ -193,6 +206,11 @@ begin
   WriteMatrixToLog;
   {$ENDIF}
   SetLength(fPath, WaveNumber);
+  if WaveNumber = 0 then
+  begin
+    fReady := true;
+    exit; // probably destination point equals start point
+  end;
   dec(fWaveNumber);
   Path[WaveNumber].Assign(Destination^);
   while WaveNumber >= 1 do
@@ -236,9 +254,9 @@ begin
   result := true;
 end;
 
-function TPathFind.MatrixToText: string;
+function TPathFind.MatrixToText: ansistring;
 const
-  MAX_ELEMENT_WIDTH = 4;
+  ELEMENT_WIDTH = 4;
 var
   x, y: integer;
 begin
@@ -246,9 +264,10 @@ begin
   result := IntToStr(Map.Cells.Width) + ' x ' + IntToStr(Map.Cells.Height);
   for y := 0 to Map.Cells.Height - 1 do
   begin
-    result += LineEnding;
+    Log.Write(IntToStr(y));
+    result += LineEnding + ':';
     for x := 0 to Map.Cells.Width - 1 do
-      result := result + LeftSpaceStr(IntToStr(fMatrix[x, y]), MAX_ELEMENT_WIDTH);
+      result := result + LeftSpaceStr(IntToStr(fMatrix[x, y]), ELEMENT_WIDTH);
   end;
 end;
 
